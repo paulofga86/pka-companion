@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790016136">
+<link rel="stylesheet" href="estilo.css?v=1790016251">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -1049,7 +1049,7 @@
   /* tempo de cada destaque e setas */
   .pontos-c i { position: relative; overflow: hidden; }
   .pontos-c button[aria-selected="true"] i { width: 34px; background: rgba(255,255,255,.35); }
-  .pontos-c button[aria-selected="true"] i::after { content: ""; position: absolute; inset: 0; width: 0; border-radius: inherit; background: #fff; animation: enche 7s linear forwards; }
+  .pontos-c button[aria-selected="true"] i::after { content: ""; position: absolute; inset: 0; width: 0; border-radius: inherit; background: #fff; animation: enche 3s linear forwards; }
   .carrossel.pausado .pontos-c i::after { animation-play-state: paused; }
   .carrossel.parado .pontos-c button[aria-selected="true"] i::after { animation: none; width: 100%; }
   @keyframes enche { to { width: 100%; } }
@@ -3487,14 +3487,11 @@ function iniciarCarrossel() {
   const c = document.querySelector('.carrossel'); if (!c) return;
   destaqueK = 0;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { c.classList.add('parado'); return; }
-  const pausa = on => c.classList.toggle('pausado', on);
-  c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pausa(true); });
-  c.addEventListener('pointerleave', () => pausa(false));
   let x0 = null;
   c.addEventListener('pointerdown', e => { if (!e.target.closest('button, a')) x0 = e.clientX; });
   c.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 45) irDestaque(destaqueK + (dx < 0 ? 1 : -1)); });
   c.addEventListener('animationend', e => { if (e.animationName === 'enche' && $('#camada').hidden && !document.hidden) irDestaque(destaqueK + 1); });
-  destaqueTimer = setInterval(() => { c.classList.toggle('pausado', (matchMedia('(hover: hover)').matches && c.matches(':hover')) || c.contains(document.activeElement) || !$('#camada').hidden || document.hidden); }, 500);
+  destaqueTimer = setInterval(() => { c.classList.toggle('pausado', !$('#camada').hidden || document.hidden); }, 500);
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-destaque]'), p = e.target.closest('[data-destaque-passo]'); if (b) irDestaque(+b.dataset.destaque); if (p) irDestaque(destaqueK + +p.dataset.destaquePasso); if ((b || p) && e.detail > 0) (b || p).blur(); });
 
