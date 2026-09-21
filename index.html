@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790015673">
+<link rel="stylesheet" href="estilo.css?v=1790016136">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -463,8 +463,8 @@
   .vitrine { position: relative; overflow: hidden; isolation: isolate; margin-top: -8px; }
   .vitrine .luz { position: absolute; left: 50%; top: 48%; width: min(96vw, 560px); aspect-ratio: 1; translate: -50% -50%; z-index: -2; border-radius: 50%;
     background: radial-gradient(closest-side, color-mix(in oklab, var(--aura1) 100%, transparent), var(--aura2) 55%, transparent); filter: blur(24px); opacity: .95; }
-  .vitrine .mira { position: absolute; left: 50%; top: 48%; width: min(84vw, 440px); aspect-ratio: 1; translate: -50% -50%; z-index: -1; color: var(--text); opacity: .16; animation: gira 90s linear infinite; }
-  @keyframes gira { to { rotate: 360deg; } }
+  .vitrine .mira { position: absolute; left: 50%; top: 48%; width: min(84vw, 440px); aspect-ratio: 1; translate: -50% -50%; z-index: -1; color: var(--text); opacity: .16; animation: gira-mira 90s linear infinite; }
+  @keyframes gira-mira { to { rotate: 360deg; } }
   .vt { position: absolute; inset: 0; pointer-events: none; }
   .vt .heroi { position: absolute; left: 50%; top: 48%; width: min(76vw, 380px); aspect-ratio: 1; translate: -50% -50%;
     opacity: 0; transform: translateX(34px) scale(.94); filter: blur(10px);
@@ -1020,12 +1020,14 @@
   /* ---------- shiny com brilho ---------- */
   .poke-tile .quadro.brilho { background:
       radial-gradient(90% 70% at 50% 100%, color-mix(in oklab, var(--c) 40%, transparent) 0%, transparent 70%),
-      conic-gradient(from 200deg at 50% 45%, rgba(255,214,107,.22), rgba(255,143,208,.22), rgba(143,199,255,.22), rgba(125,255,196,.22), rgba(255,214,107,.22)),
       var(--surface); }
   .poke-tile .quadro.brilho::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; z-index: 2; pointer-events: none;
-    background: conic-gradient(from var(--ang, 0deg), #ffe7a3, #f7b7e0, #a9d8ff, #7dffc4, #ffe7a3);
+    background: linear-gradient(100deg, #ffe7a3, #f7b7e0 40%, #a9d8ff 75%, #ffe7a3); background-size: 220% 100%;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
-    animation: gira 6s linear infinite; }
+    animation: brilho 6s linear infinite, pulsa-shiny 3.2s ease-in-out infinite alternate; }
+  @keyframes pulsa-shiny { from { opacity: .55; } to { opacity: 1; } }
+  .poke-tile .quadro.brilho .arte.shiny::after { display: none; }
+  @media (prefers-reduced-motion: reduce) { .poke-tile .quadro.brilho::after { animation: none; opacity: .85; } }
   .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #f7b7e0 45%, #a9d8ff 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   [data-tema="claro"] .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #b0487e 45%, #2f6fb0 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; }
 

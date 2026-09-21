@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790015673">
+<link rel="stylesheet" href="estilo.css?v=1790016136">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -156,7 +156,7 @@
         <li><b>18 elementos</b> com cor própria (<code>--el-fire</code>, <code>--el-water</code>…). A cor aparece no ponto dos chips e no brilho atrás da arte.</li>
         <li><b>Shiny:</b> auréola iridescente bem desfocada e suave atrás da arte (desfoque grande, pouca intensidade) e chip com brilho. Respeita o "reduzir movimento" do aparelho.</li>
         <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto) e uma textura de tecido de malha bem discreta por cima (laçadas de 8 px com luz e sombra, mais um grão fino), desenhada em código, sem imagem. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
-        <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem fundo iridescente, contorno de arco-íris que gira devagar e o nome em degradê. Com "reduzir movimento", o contorno fica parado.</li>
+        <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem só a borda colorida, com o mesmo degradê do chip "Shiny" (amarelo, rosa, azul). A cor desliza devagar pela borda e a borda pulsa de leve (6 s e 3,2 s). O fundo do card fica normal; o nome continua em degradê. Com "reduzir movimento", a borda fica parada.</li>
         <li><b>Cards da Wiki com imagem:</b> todo card de seção tem uma imagem e fundo na cor dela: itens com a pedra ou peça desenhada na cor do elemento, sistemas com o número-símbolo (+50, 5★, T7), combate, quests e mundo com a arte de um Pokémon ligado ao tema.</li>
         <li><b>Movimento:</b> tudo entra aos poucos. Ao trocar de aba, título, fileiras e cards surgem em sequência (subindo 16 px, saindo de um leve desfoque, 0,9 s, 65 ms entre um e outro). Toda camada aberta faz o mesmo com o próprio conteúdo. Trocar tema ou paleta faz uma transição de cor de 0,8 s em tudo. Com "reduzir movimento", nada disso acontece.</li>
         <li><b>Transições entre estados:</b> toda troca de aba e toda mudança dentro de uma camada (trocar alvo, escolher Pokémon, calculadoras, plano) usa a transição nativa do navegador: o estado antigo desbota e desfoca (0,4–0,5 s) e o novo entra por cima (0,6–0,7 s). A arte do alvo no montador de time desliza e se transforma de um Pokémon no outro no mesmo lugar. O topo colorido das camadas termina em degradê, sem corte. Sem suporte do navegador ou com "reduzir movimento", a troca é direta.</li>
