@@ -32,9 +32,9 @@
 :root, [data-tema="escuro"] {
   --bg: #17131c;
   --bg-2: #1d1823;
-  --surface: #251f2c;
-  --surface-2: #2e2736;
-  --surface-3: #393042;
+  --surface: rgba(40, 33, 48, .5);
+  --surface-2: rgba(52, 44, 61, .55);
+  --surface-3: rgba(64, 54, 74, .65);
   --text: #f4f1f7;
   --text-2: #c3bacd;
   --text-3: #9d93aa;
@@ -54,9 +54,9 @@
 [data-tema="claro"] {
   --bg: #f5f3f8;
   --bg-2: #ede9f2;
-  --surface: #ffffff;
-  --surface-2: #f7f5fa;
-  --surface-3: #ede7f3;
+  --surface: rgba(255, 255, 255, .5);
+  --surface-2: rgba(248, 246, 251, .6);
+  --surface-3: rgba(236, 230, 243, .72);
   --text: #1f1a26;
   --text-2: #4e4658;
   --text-3: #625a6e;
@@ -75,7 +75,7 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-tema]) {
-    --bg: #f5f3f8; --bg-2: #ede9f2; --surface: #ffffff; --surface-2: #f7f5fa; --surface-3: #ede7f3;
+    --bg: #f5f3f8; --bg-2: #ede9f2; --surface: rgba(255,255,255,.5); --surface-2: rgba(248,246,251,.6); --surface-3: rgba(236,230,243,.72);
     --text: #1f1a26; --text-2: #4e4658; --text-3: #625a6e;
     --accent: #6a319c; --accent-strong: #6a319c; --data: #7c5c99;
     --glass: rgba(251,250,253,.46); --glass-edge: rgba(36,25,47,.06);
