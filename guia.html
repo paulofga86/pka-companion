@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013053">
+<link rel="stylesheet" href="estilo.css?v=1790013255">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -129,7 +129,7 @@
           <tr><td><code>#/entrada</code> <code>/personagem</code> <code>/pronto</code></td><td>Primeira entrada</td><td>tela cheia</td></tr>
           <tr><td><code>#/p/26</code> · <code>#/p/26s</code></td><td>Ficha de Pokémon (o <code>s</code> é a forma shiny)</td><td>camada</td></tr>
           <tr><td><code>#/i/thunder-stone</code></td><td>Ficha de item</td><td>camada</td></tr>
-          <tr><td><code>#/s/boost</code> <code>#/s/star</code> <code>#/s/helds</code></td><td>Página de sistema</td><td>camada</td></tr>
+          <tr><td><code>#/s/boost</code> <code>#/s/star</code> <code>#/s/helds</code> <code>#/s/talentos</code></td><td>Página de sistema</td><td>camada</td></tr>
           <tr><td><code>#/novo</code> · <code>#/novo/125</code></td><td>Cadastro rápido (com ou sem Pokémon escolhido)</td><td>camada</td></tr>
           <tr><td><code>#/meu/0</code> · <code>#/meu/0/editar</code></td><td>Um Pokémon da coleção</td><td>camada</td></tr>
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
@@ -155,8 +155,8 @@
         <li><b>Fonte:</b> Mona Sans (Google Fonts), com números tabulares.</li>
         <li><b>18 elementos</b> com cor própria (<code>--el-fire</code>, <code>--el-water</code>…). A cor aparece no ponto dos chips e no brilho atrás da arte.</li>
         <li><b>Shiny:</b> auréola iridescente girando atrás da arte e chip com brilho. Respeita o "reduzir movimento" do aparelho.</li>
-        <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto), uma grade fina de pontos a cada 22 px e um grão bem leve por cima. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
-        <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem fundo iridescente, contorno de arco-íris que gira devagar, uma estrela ✦ piscando no canto e o nome em degradê. Com "reduzir movimento", nada gira nem pisca.</li>
+        <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto) e uma textura fosca de papel, bem discreta, por cima. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
+        <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem fundo iridescente, contorno de arco-íris que gira devagar e o nome em degradê. Com "reduzir movimento", o contorno fica parado.</li>
         <li><b>Cards da Wiki com imagem:</b> todo card de seção tem uma imagem e fundo na cor dela: itens com a pedra ou peça desenhada na cor do elemento, sistemas com o número-símbolo (+50, 5★, T7), combate, quests e mundo com a arte de um Pokémon ligado ao tema.</li>
         <li><b>Arte dos Pokémon:</b> arte oficial via PokéAPI (<code>official-artwork/[shiny/]N.png</code>). Itens e sistemas não têm arte oficial: usamos desenho próprio na cor do elemento, ou o número do sistema em destaque ("+50", "5★", "T7").</li>
       </ul>
@@ -239,6 +239,7 @@
           <dt>Boost</dt><dd>Calculadora "quantas pedras você precisa": escolhe um Pokémon seu e a faixa; mostra média e pior caso por tipo de pedra. Fonte: <code>Sistemas/Boost.md</code>.</dd>
           <dt>Star</dt><dd>Calculadora de cópias e custo nas 3 formas de pagamento, comparando com os Diamonds do jogador. Tabela de dano por tier. Fonte: <code>Sistemas/Máquina de Star.md</code>.</dd>
           <dt>Helds</dt><dd>Qual held usar (oficial × comunidade), calculadora de fusão, onde conseguir, como tirar. Fonte: <code>Sistemas/Helds.md</code>, <code>Itens/Helds - Catálogo.md</code>.</dd>
+          <dt>Talentos</dt><dd>"Por onde começar" usa a ordem oficial com os dados do jogador: 1) ofensivo do elemento que mais aparece no time principal, 2) etapas de espera da bag com as insígnias (N de 8), 3) utilidades do personagem, 4) defesa. Grade dos 18 elementos com quantos Pokémon o jogador tem de cada um, contorno nos do time principal e detalhe do elemento tocado. Bônus máximos, materiais (orbs, drops, stones, insígnias), Ditto e level. Fonte: <code>Sistemas/Talentos.md</code>.</dd>
           <dt>Divergências</dt><dd>Mostradas abertamente, com qual fonte vale. Ex.: "held não dá Boost".</dd>
         </dl>
       </div>

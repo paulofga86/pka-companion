@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013053">
+<link rel="stylesheet" href="estilo.css?v=1790013255">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -885,21 +885,19 @@
   /* ---------- fundo com textura ---------- */
   body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1.6px) 0 0 / 22px 22px,
       radial-gradient(1000px 620px at 92% -6%, color-mix(in oklab, var(--accent) 38%, transparent), transparent 68%),
       radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.20), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.10), transparent 70%);
     -webkit-mask-image: linear-gradient(#000, #000); }
-  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .5; mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .09; mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55 .75' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 .9'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"); }
   [data-tema="claro"] body::before { background:
-      radial-gradient(rgba(58,34,78,.08) 1px, transparent 1.6px) 0 0 / 22px 22px,
       radial-gradient(1000px 620px at 92% -6%, rgba(171,125,211,.42), transparent 68%),
       radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.24), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.14), transparent 70%); }
-  [data-tema="claro"] body::after { opacity: .25; mix-blend-mode: multiply; }
+  [data-tema="claro"] body::after { opacity: .12; mix-blend-mode: multiply; }
   body { background: var(--bg) !important; }
   /* ---------- shiny com brilho ---------- */
   .poke-tile .quadro.brilho { background:
@@ -910,11 +908,23 @@
     background: conic-gradient(from var(--ang, 0deg), #ffe7a3, #f7b7e0, #a9d8ff, #7dffc4, #ffe7a3);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
     animation: gira 6s linear infinite; }
-  .poke-tile .quadro.brilho::before { content: "✦"; position: absolute; left: 12px; top: 8px; z-index: 2; font-size: 18px; color: #fff;
-    text-shadow: 0 0 10px #ffe7a3, 0 0 18px #f7b7e0; animation: cintila 2.4s ease-in-out infinite; }
-  @keyframes cintila { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.1); } }
   .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #f7b7e0 45%, #a9d8ff 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
   [data-tema="claro"] .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #b0487e 45%, #2f6fb0 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; }
+
+  /* ---------- Talentos ---------- */
+  .tal-palco::before { background: radial-gradient(90% 90% at 75% 15%, #5a2f6e 0%, #251a30 55%, #121017 100%) !important; }
+  [data-tema="claro"] .tal-palco::before { background: radial-gradient(90% 90% at 75% 15%, #e2c6ef 0%, #efe8f4 60%, #f6f4f8 100%) !important; }
+  .el-grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (min-width: 560px) { .el-grade { grid-template-columns: repeat(6, 1fr); } }
+  .el-grade button { border-radius: 14px; padding: 10px 8px; text-align: left; min-height: 64px; box-shadow: var(--shadow-1);
+    background: linear-gradient(160deg, color-mix(in oklab, var(--c) 30%, var(--surface)) 0%, var(--surface) 80%); }
+  .el-grade button b { display: block; font-size: 13.5px; font-weight: 650; }
+  .el-grade button span { display: block; font-size: 11.5px; color: var(--text-3); }
+  .el-grade button.prio { box-shadow: var(--shadow-2), inset 0 0 0 2px var(--accent); }
+  .el-grade button[aria-pressed="true"] { box-shadow: var(--shadow-2), var(--focus-glow); }
+  .el-det { margin-top: 12px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px; }
+  .el-det b { font-weight: 650; }
+  .el-det p { margin: 4px 0 0; color: var(--text-2); font-size: 14.5px; }
 </style>
 </head>
 <body>
@@ -1418,7 +1428,7 @@ const TELAS = {
       ${secoes.map(([t, itens]) => `
         <div class="fileira">
           <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
-          <div class="trilho">${itens.map(([a,b]) => tile(a, b, ({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks', 'Ginásios':'#/ginasios', 'Dungeons':'#/dungeons', Hoenn:'#/c/swellow', Wildscape:'#/jornada', Kanto:'#/jornada', Johto:'#/jornada' })[a] || '#/wiki')).join('')}</div>
+          <div class="trilho">${itens.map(([a,b]) => tile(a, b, ({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks', 'Ginásios':'#/ginasios', 'Dungeons':'#/dungeons', Talentos:'#/s/talentos', Hoenn:'#/c/swellow', Wildscape:'#/jornada', Kanto:'#/jornada', Johto:'#/jornada' })[a] || '#/wiki')).join('')}</div>
         </div>`).join('')}
     </div>`;
   },
@@ -1524,7 +1534,7 @@ const TELAS = {
             ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
             ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
             ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
-            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'], ['Sua jornada', '#/jornada'], ['Dungeons', '#/dungeons'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'], ['Sua jornada', '#/jornada'], ['Dungeons', '#/dungeons'], ['Talentos', '#/s/talentos'],
             ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
             ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
             ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
@@ -1559,6 +1569,7 @@ const INDICE = [
   ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/ginasios' },
+  { tipo:'Sistemas', t:'Talentos', s:'Bônus permanentes por elemento e espera da bag', h:'#/s/talentos' },
   { tipo:'Combate', t:'Dungeons', s:'18 portais: fragmentos e stones de cada elemento', h:'#/dungeons' },
   ...DUNGEONS.map(d => ({ tipo:'Combate', t:d.nome, s:`Dungeon · ${d.fam}`, h:`#/dungeons/${d.id}` })),
   { tipo:'Guias', t:'Sua jornada', s:'O que abre em cada level e o que fazer agora', h:'#/jornada' },
@@ -2966,7 +2977,7 @@ function abrirGinasios(foco, primeira) {
       <h2 class="display">Ginásios</h2>
       <div class="chips"><span class="chip">Combate · Kanto</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
       <ul class="resumo3">
-        <li>${I.relogio}<span>Cada insígnia é material de um talento que tira 1 segundo da espera das magias dos Pokémon guardados. Com as 8, são 8 segundos, para todo o time.</span></li>
+        <li>${I.relogio}<span>Cada insígnia é material de um <a class="link-sis" style="margin:0;display:inline" href="#/s/talentos">talento</a> que tira 1 segundo da espera das magias dos Pokémon guardados. Com as 8, são 8 segundos, para todo o time.</span></li>
         <li>${I.raio}<span>É isso que mantém a rotação de Hoenn andando. Ative os primeiros segundos antes de subir o Hazard.</span></li>
         <li>${I.bandeira}<span>Cada ginásio tem 3 etapas: a task do Alfred, a dungeon escondida (level 200) e as batalhas (level 250).</span></li>
       </ul>
@@ -3253,6 +3264,84 @@ document.addEventListener('click', e => {
   dgFiltro = t.dataset.dgFiltro; abrirDungeons(null, false); $('#camada .folha').scrollTop = 470;
 });
 
+
+/* ============ Talentos ============ */
+let talEl = null;
+function abrirTalentos(primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  const conta = {}; COLECAO.forEach(c => { const e = DEX[c.n].el[0]; conta[e] = (conta[e] || 0) + 1; });
+  const tm = TIMES[0], noTime = {}; if (tm) tm.slots.filter(Boolean).forEach(([n]) => { const e = DEX[n].el[0]; noTime[e] = (noTime[e] || 0) + 1; });
+  const prio = Object.keys(noTime).sort((a, b) => noTime[b] - noTime[a]);
+  const todos = ['normal','fire','water','grass','electric','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'];
+  if (!talEl) talEl = prio[0] || 'electric';
+  const nm = e => EL[e] || e[0].toUpperCase() + e.slice(1);
+  const n = insignias();
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Talentos">
+    <div class="folha-palco sis-palco tal-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">+29%</div><div class="k">de dano no máximo, para cada um dos 18 elementos</div>
+        <div><div class="glifos" style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap">${todos.map(e => `<i style="width:14px;height:14px;border-radius:4px;transform:rotate(45deg);background:var(--el-${e});display:block"></i>`).join('')}</div></div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Talentos</h2>
+      <div class="chips"><span class="chip">Sistema</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.caixa}<span>Bônus permanentes que você libera entregando materiais: drops, stones, orbs e insígnias. Não tem reset nem troca.</span></li>
+        <li>${I.raio}<span>O ofensivo conta o elemento do golpe. O defensivo conta o elemento do Pokémon; com dois elementos, precisa dos dois.</span></li>
+        <li>${I.relogio}<span>A espera da bag cai em 8 etapas, uma por insígnia de ginásio.</span></li>
+      </ul>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Por onde começar</h3>
+      ${prio.length ? `<a class="seu-plano" href="#" data-tal-el="${prio[0]}" style="--c:var(--el-${prio[0]})"><span class="estado andando" style="width:40px;height:40px">${I.raio}</span>
+        <span><span class="l-t">1. Ofensivo ${nm(prio[0])}</span><span class="l-s">${noTime[prio[0]]} dos Pokémon do ${esc(tm.nome)} batem com ${nm(prio[0])}. É o maior ganho para a sua rotação.</span></span>${I.seta}</a>` : ''}
+      <a class="seu-plano" href="#/ginasios" style="margin-top:10px"><span class="estado andando" style="width:40px;height:40px">${I.relogio}</span>
+        <span><span class="l-t">2. Espera da bag: ${n} de 8</span><span class="l-s">Cada insígnia de ginásio libera uma etapa. Faltam ${8 - n}.</span></span>${I.seta}</a>
+      <div class="lista" style="margin-top:10px">
+        <div class="linha"><span class="estado">${I.ponto}</span><span><span class="l-t" style="display:block">3. Utilidades do personagem</span><span class="l-s">Vida, velocidade e crítico ajudam em toda caçada</span></span></div>
+        <div class="linha"><span class="estado">${I.ponto}</span><span><span class="l-t" style="display:block">4. Defesa dos elementos que mais apanham</span><span class="l-s">Depois do ataque do time</span></span></div>
+      </div>
+      <p class="aviso">Ordem recomendada pela wiki oficial. O elemento vem do seu time principal.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Os 18 elementos</h3>
+      <div class="el-grade" role="group" aria-label="Elemento">${todos.map(e => `<button class="${prio.includes(e) ? 'prio' : ''}" aria-pressed="${talEl === e}" data-tal-el="${e}" style="--c:var(--el-${e})"><b>${nm(e)}</b><span>${conta[e] ? `${conta[e]} na coleção` : 'nenhum seu'}</span></button>`).join('')}</div>
+      <div class="el-det"><b>${nm(talEl)}</b>
+        <p>Ofensivo: até +29% no dano dos golpes ${nm(talEl)}. Defensivo: até +13% de defesa para Pokémon ${nm(talEl)}.</p>
+        <p>${conta[talEl] ? `Você tem ${conta[talEl]} Pokémon ${nm(talEl)}${noTime[talEl] ? `, ${noTime[talEl]} no time principal` : ''}.` : 'Nenhum Pokémon seu é deste elemento: deixe para depois.'}</p></div>
+      <p class="aviso">Contorno violeta: elemento do seu time principal.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Bônus máximos</h3>
+      <div class="lista"><table class="mini-tabela"><tbody>
+        <tr><td>Dano de cada elemento</td><td class="num">+29%</td></tr><tr><td>Defesa de cada elemento</td><td class="num">+13%</td></tr>
+        <tr><td>Vida máxima do personagem</td><td class="num">+3.200</td></tr><tr><td>Velocidade do personagem</td><td class="num">+80</td></tr>
+        <tr><td>Chance crítica</td><td class="num">+1 p.p.</td></tr><tr><td>Dano crítico</td><td class="num">+10%</td></tr>
+        <tr><td>Mobilidade em neve, areia ou água</td><td class="num">+100 cada</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="sec">
+      ${fatoSis('Materiais', 'Orbs em quatro graus (Simple, Arcane, Mythic e Celestial) para cada elemento, e todo orb vem de shiny. Também drops comuns em quantidade, drops de shiny de primeira evolução, stones em lotes de 500 a 1.000 e as insígnias.', ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Ditto', 'O dano usa o elemento do golpe copiado. A defesa usa sempre os talentos de Normal.', ['parcial','Comunidade · 19/09'])}
+      ${fatoSis('Level', 'A maioria abre antes do fim do jogo, mas há talentos que pedem level 350, 400 e 500. O painel avisa.', ['ok','Wiki oficial · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/ginasios">Ginásios</a>
+      <button class="btn btn-primario" data-tal-el="${prio[0] || 'electric'}">Ver ${nm(prio[0] || 'electric')}</button>
+    </div>
+  </article>`, primeira);
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .tal-palco')) return;
+  const t = e.target.closest('[data-tal-el]'); if (!t) return;
+  e.preventDefault(); talEl = t.dataset.talEl; abrirTalentos(false);
+  document.querySelector('.el-det')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -3322,6 +3411,11 @@ function rotear() {
   if (tmm) {
     if (!baseAtual) desenhar('/meus/times');
     abrirTime(tmm[1], tmm[2]);
+    return;
+  }
+  if (h === '/s/talentos') {
+    if (!baseAtual) desenhar('/wiki');
+    abrirTalentos();
     return;
   }
   if (h === '/s/star' || h === '/s/helds') {
