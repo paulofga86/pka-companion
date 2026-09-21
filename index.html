@@ -639,6 +639,20 @@
   html[data-paleta="pokemon"] .ent-palco::before, html[data-paleta="pokemon"] .sis-palco::before { background: color-mix(in oklab, var(--tinta) 38%, #1d1426) !important; }
   html[data-paleta="pokemon"][data-tema="claro"] .sis-palco::before { background: color-mix(in oklab, var(--tinta) 26%, #f1ecf6) !important; }
   html[data-paleta="pokemon"] body, html[data-paleta="pokemon"] .card, html[data-paleta="pokemon"] .lista { transition: background-color .6s var(--ease); }
+
+  /* ---------- Caçada ---------- */
+  .el-fortes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .el-fortes .chip { height: 34px; padding: 0 14px; font-size: 14px; }
+  .comunidade { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -22px; padding: 2px 22px 6px; }
+  .comunidade::-webkit-scrollbar { display: none; }
+  .comunidade a { flex: none; width: 92px; text-align: center; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+  .comunidade .q { width: 92px; height: 92px; border-radius: 20px; position: relative; margin-bottom: 6px; box-shadow: var(--shadow-1);
+    background: radial-gradient(110% 90% at 50% 95%, color-mix(in oklab, var(--c) 40%, var(--surface-2)) 0%, var(--surface-2) 75%); }
+  .comunidade .q .arte { position: absolute; inset: 8%; }
+  .comunidade a.tem .q { box-shadow: var(--shadow-1), 0 0 0 2px var(--accent); }
+  .mini-slots { display: flex; gap: 4px; margin-top: 6px; }
+  .mini-slots img { width: 26px; height: 26px; object-fit: contain; }
+  a.externo { display: inline-flex; align-items: center; gap: 4px; }
 </style>
 </head>
 <body>
@@ -684,7 +698,7 @@ const I = {
 
 /* ============ dados de exemplo (da base do Julio) ============ */
 const ART = (n, s) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${s ? 'shiny/' : ''}${n}.png`;
-const EL = { electric:'Electric', fire:'Fire', water:'Water', grass:'Grass', ice:'Ice', psychic:'Psychic', flying:'Flying', fighting:'Fighting', steel:'Steel', normal:'Normal', ghost:'Ghost', ground:'Ground', dragon:'Dragon', dark:'Dark' };
+const EL = { electric:'Electric', fire:'Fire', water:'Water', grass:'Grass', ice:'Ice', psychic:'Psychic', flying:'Flying', fighting:'Fighting', steel:'Steel', normal:'Normal', ghost:'Ghost', ground:'Ground', dragon:'Dragon', dark:'Dark', poison:'Poison', rock:'Rock', bug:'Bug', fairy:'Fairy' };
 const DEX = {
   25:  { nome:'Pikachu',    el:['electric'], t:'T5', ts:'T4' },
   26:  { nome:'Raichu',     el:['electric'], t:'T3', ts:'T1' },
@@ -704,6 +718,12 @@ const DEX = {
   448: { nome:'Lucario',    el:['fighting','steel'], t:'T2', ts:'Legendary' },
   465: { nome:'Tangrowth',  el:['grass'], t:'T1', ts:'Super Rare' },
   471: { nome:'Glaceon',    el:['ice'], t:'T2', ts:'Legendary' },
+  94:  { nome:'Gengar',     el:['ghost','poison'], t:'T2', ts:'Legendary' },
+  126: { nome:'Magmar',     el:['fire'], t:'T2', ts:'Legendary' },
+  254: { nome:'Sceptile',   el:['grass'], t:'T2', ts:'Ultra Rare' },
+  260: { nome:'Swampert',   el:['water','ground'], t:'T2', ts:'Ultra Rare' },
+  277: { nome:'Swellow',    el:['normal','flying'], t:'T2', ts:'Super Rare' },
+  306: { nome:'Aggron',     el:['steel','rock'], t:'T2', ts:'Super Rare' },
 };
 const MEGA = new Set([130, 181, 448]);
 const STAR_OK = ['T3','T2','T1','Super Rare','Ultra Rare','Legendary'];
@@ -829,6 +849,14 @@ const ALVOS = [
   { id:'sceptile', n:254, nome:'Sceptile', el:['grass'], lvl:'Hoenn · 350+', sugNomes:'Shiny Arcanine, Shiny Typhlosion, Shiny Charizard, Shiny Flareon, Infernape e Shiny Ninetales' },
   { id:'gengar', n:94, nome:'Gengar', el:['ghost','poison'], lvl:'Hoenn · 350+', sugNomes:'Shiny Persian, Mightyena, Dusknoir, Shiny Dusknoir, Shiny Hitmonchan e Shiny Umbreon' },
 ];
+const CACADA = {
+  swellow:  { kills:1300, npc:'Juliana', pede:'300 Taillow e 1.500 Swellow', mapa:'https://imgur.com/a/zWjp1is', local:'Hoenn', shiny:'Super Rare', drops:['Solid Rubber Ball','Compressed Straw','Crimson Feather','Normal Essence','Flying Essence','Heart Stone','Feather Stone'] },
+  sceptile: { kills:1540, npc:'Aurelio', pede:'100 Treecko, 250 Grovyle e 1.500 Sceptile', mapa:'https://imgur.com/a/0NfZ1UB', local:'Hoenn', shiny:'Ultra Rare', drops:['Pile Of Seeds','Greens','Grass Essence','Leaf Stone'] },
+  swampert: { kills:1420, npc:'Cedric', pede:'100 Mudkip, 250 Marshtomp e 1.500 Swampert', mapa:'https://imgur.com/a/ZZR9q3t', local:'Hoenn', shiny:'Ultra Rare', drops:['Solid Water Gem','Solid Earth Piece','Black Fins','Ground Essence','Water Essence','Water Stone','Earth Stone'] },
+  aggron:   { kills:1120, npc:'Ygor', pede:'100 Aron, 250 Lairon e 1.500 Aggron', mapa:'https://imgur.com/a/cJndpSb', local:'Hoenn', shiny:'Super Rare', drops:['Compressed Steel','Big Stone','Metal Hull','Steel Essence','Rock Essence','Metal Stone','Rock Stone'] },
+  magmar:   { kills:1400, mapa:'https://imgur.com/a/wFcUcVR', local:'Tubos · Mewtwo Island', shiny:'Legendary', drops:['Essence Of Fire','Magma Foot','Fire Stone'] },
+  gengar:   { kills:1350, mapa:'https://imgur.com/a/wFcUcVR', local:'Tubos · Mewtwo Island', shiny:'Legendary', drops:['Ghost Essence','Bottle Of Poison','Ectoplasm','Venom Stone','Ghost Stone'] },
+};
 const OFFTANK = new Set([417, 125]);
 function matchup(n, alvo) {
   const e = DEX[n].el[0];
@@ -977,6 +1005,11 @@ const TELAS = {
       </div>
 
       <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">Caçadas de Hoenn</h3><a href="#/wiki">137 caçadas</a></div>
+        <div class="trilho">${ALVOS.map(a => pokeTile(a.n, false, `${a.el.map(e => EL[e] || e).join(' / ')} · ${CACADA[a.id].kills.toLocaleString('pt-BR')}/h`, `#/c/${a.id}`)).join('')}</div>
+      </div>
+
+      <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">Itens</h3><a href="#/buscar">871 itens</a></div>
         <div class="trilho">
           <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Thunder Stone</span><span class="d">Stone de Electric · evolução e Boost</span></a>
@@ -1105,6 +1138,7 @@ const INDICE = [
   { tipo:'Sistemas', t:'Boost', s:'Como funciona e quantas pedras você precisa', h:'#/s/boost' },
   { tipo:'Sistemas', t:'Star', s:'Cópias e custo para estrelar', h:'#/s/star' },
   { tipo:'Sistemas', t:'Helds', s:'Tipos, fusão e como tirar', h:'#/s/helds' },
+  ...ALVOS.map(a => ({ tipo:'Caçadas', t:`Caçada de ${a.nome}`, s:`${a.el.map(e => EL[e] || e).join(' / ')} · ${CACADA[a.id].local}`, n:a.n, sh:false, h:`#/c/${a.id}` })),
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/wiki' },
 ];
 function buscar(q) {
@@ -2063,9 +2097,9 @@ function resumoTime(tm) {
   if (cheios.length < 6) out.push({ ic: I.mais, t: `${6 - cheios.length} vaga${6 - cheios.length > 1 ? 's' : ''} livre${6 - cheios.length > 1 ? 's' : ''}. A rotação precisa dos seis para sempre ter alguém pronto.` });
   return out;
 }
-function abrirTime(id) {
+function abrirTime(id, alvoIni) {
   cad = null; fichaAtual = null; planoAtual = null; itemAtual = null;
-  if (id === 'novo') { const nid = 't' + Date.now().toString(36); TIMES.push({ id: nid, nome: `Time ${TIMES.length + 1}`, alvo: null, slots: [null, null, null, null, null, null], novo: true }); history.replaceState(null, '', '#/time/' + nid); id = nid; }
+  if (id === 'novo') { const nid = 't' + Date.now().toString(36); TIMES.push({ id: nid, nome: `Time ${TIMES.length + 1}`, alvo: ALVOS.some(a => a.id === alvoIni) ? alvoIni : null, slots: [null, null, null, null, null, null], novo: true }); history.replaceState(null, '', '#/time/' + nid); id = nid; }
   if (!timeDe(id)) return;
   if (timeAtual !== id) vagaSel = null;
   timeAtual = id;
@@ -2085,7 +2119,7 @@ function pintarTime(primeira) {
     </div>
     <div class="etiqueta">
       <h2 class="display">${esc(tm.nome)}</h2>
-      <p class="plano-meta">${alvo ? `Contra ${alvo.nome}: ${alvo.el.map(e => EL[e] || e).join(' e ')} · ${alvo.lvl}` : 'Primeiro a caçada, depois o time.'}</p>
+      <p class="plano-meta">${alvo ? `Contra ${alvo.nome}: ${alvo.el.map(e => EL[e] || e).join(' e ')} · ${alvo.lvl}. <a class="link-sis" style="margin:0" href="#/c/${alvo.id}">Ver a caçada</a>` : 'Primeiro a caçada, depois o time.'}</p>
     </div>
 
     <div class="sec"><h3 class="titulo">Para qual caçada</h3>
@@ -2261,6 +2295,67 @@ document.addEventListener('click', e => {
 });
 aplicarPaleta();
 
+
+/* ============ caçada ============ */
+function abrirCacada(id) {
+  const a = ALVOS.find(x => x.id === id), c = CACADA[id]; if (!a || !c) return;
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  const fortes = Object.keys(FORTE).filter(e => a.el.reduce((m, d) => m * mult(e, d), 1) > 1);
+  const meus = COLECAO.map((p, i) => ({ p, i, m: matchup(p.n, a) })).filter(x => x.m.ord <= 3)
+    .sort((x, y) => x.m.ord - y.m.ord || (y.p.s - x.p.s)).filter((x, k, arr) => arr.findIndex(y => y.p.n === x.p.n && y.p.s === x.p.s) === k).slice(0, 5);
+  const meuTime = TIMES.find(t => t.alvo === id);
+  const primal = ['Ultra Rare', 'Legendary', 'Mythic'].includes(c.shiny);
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Caçada de ${a.nome}" style="--c:var(--el-${a.el[0]})">
+    <div class="folha-palco">
+      <div class="fundo" style="background-image:url('${ART(a.n)}')"></div>
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="arte"><img src="${ART(a.n)}" alt="${a.nome}"></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Caçada de ${a.nome}</h2>
+      <div class="chips"><span class="chip">${c.local} · 350+</span>${a.el.map(e => `<span class="chip chip-el" style="--c:var(--el-${e})">${EL[e] || e}</span>`).join('')}</div>
+    </div>
+
+    <div class="sec" style="margin-top:20px"><div class="lista">
+      <div class="linha leitura-l">${I.relogio}<span><span class="l-t" style="display:block">${c.kills.toLocaleString('pt-BR')} abates por hora</span><span class="l-s">Referência da comunidade, caçando em rotação</span></span></div>
+      ${c.npc ? `<div class="linha leitura-l">${I.bandeira}<span><span class="l-t" style="display:block">Task da ${c.npc}</span><span class="l-s">Derrotar ${c.pede}</span></span></div>` : ''}
+      <a class="linha leitura-l" href="${c.mapa}" target="_blank" rel="noopener">${I.local}<span><span class="l-t" style="display:block">Ver o mapa</span><span class="l-s">Abre a imagem da comunidade</span></span><span class="dir">${I.seta}</span></a>
+    </div></div>
+
+    <div class="sec">${meuTime ? `<a class="seu-plano" href="#/time/${meuTime.id}" style="--c:var(--el-${a.el[0]})">
+        <span><span class="l-t">Seu time: ${esc(meuTime.nome)}</span><span class="l-s">${resumoTime(meuTime)[0].t.replace(/<[^>]+>/g, '')}</span>
+        <span class="mini-slots">${meuTime.slots.filter(Boolean).map(([n, s]) => `<img src="${ART(n, s)}" alt="">`).join('')}</span></span>${I.seta}</a>`
+      : `<a class="seu-plano" href="#/time/novo/${id}" style="--c:var(--el-${a.el[0]})"><span class="estado andando" style="width:40px;height:40px">${I.mais}</span><span><span class="l-t">Montar um time contra ${a.nome}</span><span class="l-s">O app já começa com esta caçada escolhida</span></span>${I.seta}</a>`}</div>
+
+    <div class="sec"><h3 class="titulo">Quem bate forte aqui</h3>
+      <div class="el-fortes">${fortes.map(e => `<span class="chip chip-el" style="--c:var(--el-${e})">${EL[e] || e[0].toUpperCase() + e.slice(1)}</span>`).join('')}</div>
+      ${meus.length ? `<div class="lista" style="margin-top:12px">${meus.map(({ p, i, m }) => `<a class="linha" href="#/meu/${i}"><span class="mini" style="--c:${cor(p.n)}"><img src="${ART(p.n, p.s)}" alt="" loading="lazy"></span><span><span class="l-t" style="display:block">${esc(nomeDe(p.n, p.s))}</span><span class="l-s">Na sua coleção · ${tierDe(p.n, p.s)}</span></span><span class="dir"><span class="tag-m m-${m.k}">${m.t}</span></span></a>`).join('')}</div>`
+        : `<p class="aviso" style="margin:10px 4px 0">Nenhum Pokémon da sua coleção bate forte aqui.</p>`}
+    </div>
+
+    <div class="sec"><h3 class="titulo">O que a comunidade leva</h3>
+      ${a.sug ? `<div class="comunidade">${a.sug.map(([n, s]) => `<a class="${temNaColecao(n, s) ? 'tem' : ''}" href="#/p/${n}${s ? 's' : ''}" style="--c:${cor(n)}"><div class="q">${arte(n, s)}</div>${esc(nomeDe(n, s))}</a>`).join('')}</div>
+        <p class="aviso" style="margin:6px 4px 0">Contorno violeta: você já tem.</p>` : `<p style="margin:0 4px">${a.sugNomes}.</p>`}
+    </div>
+
+    <div class="sec">
+      ${c.npc ? fatoSis(`Task da ${c.npc}`, `Pede para derrotar ${c.pede}. Paga 3.000.000 de XP, 5 Special Bubble Gum e 450 Mighty Token.`, ['ok','Wiki oficial · 19/09']) : ''}
+      ${fatoSis('Shiny', primal ? `O Shiny ${a.nome} é ${c.shiny} e só nasce na Área Primal.` : `O Shiny ${a.nome} é ${c.shiny}.`, ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Hazard e atalho', 'Em Hoenn dá para subir o Hazard de 0 a 30: mais XP, menos dano seu. Depois de visitar o ponto da caçada, a Energy Foil teleporta direto para ela.', ['parcial','Comunidade · 19/09'])}
+    </div>
+
+    <div class="sec"><h3 class="titulo">O que dropa</h3>
+      <div class="drops">${c.drops.map(d => d === 'Thunder Stone' ? `<a class="chip" href="#/i/thunder-stone">${d}</a>` : `<span class="chip">${d}</span>`).join('')}</div>
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="${c.mapa}" target="_blank" rel="noopener">Mapa</a>
+      <a class="btn btn-primario" href="${meuTime ? `#/time/${meuTime.id}` : `#/time/novo/${id}`}">${meuTime ? 'Ver meu time' : 'Montar time'}</a>
+    </div>
+  </article>`, $('#camada').hidden);
+}
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2286,10 +2381,16 @@ function rotear() {
     abrirMeu(+mm[1]);
     return;
   }
-  const tmm = h.match(/^\/time\/([a-z0-9]+)$/);
+  const cc = h.match(/^\/c\/([a-z]+)$/);
+  if (cc) {
+    if (!baseAtual) desenhar('/wiki');
+    abrirCacada(cc[1]);
+    return;
+  }
+  const tmm = h.match(/^\/time\/([a-z0-9]+)(?:\/([a-z]+))?$/);
   if (tmm) {
     if (!baseAtual) desenhar('/meus/times');
-    abrirTime(tmm[1]);
+    abrirTime(tmm[1], tmm[2]);
     return;
   }
   if (h === '/s/star' || h === '/s/helds') {

@@ -82,6 +82,7 @@
     <a href="#t-meu">Meu Pokémon</a>
     <a href="#t-time">Times</a>
     <a href="#t-plano">Plano</a>
+    <a href="#t-cacada">Caçada</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -127,6 +128,7 @@
           <tr><td><code>#/meu/0</code> · <code>#/meu/0/editar</code></td><td>Um Pokémon da coleção</td><td>camada</td></tr>
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
+          <tr><td><code>#/c/swellow</code> · <code>#/time/novo/swellow</code></td><td>Caçada · novo time já contra ela</td><td>camada</td></tr>
         </tbody>
       </table></div>
       <p class="leve">No protótipo as rotas usam <code>#</code> porque é um arquivo estático. No site, podem virar caminhos normais (<code>/p/26s</code>), desde que abram direto quando alguém cola o link.</p>
@@ -259,6 +261,16 @@
           <dt>Estados</dt><dd><b>a fazer · em andamento · feito · bloqueado</b>. Bloqueado quando depende de outro passo (ex.: estrelar só depois de evoluir, porque T4 não recebe Star). O primeiro passo livre é o "Próximo", destacado e aberto.</dd>
           <dt>Materiais</dt><dd>Cada um com "tenho / falta" opcional e link para a página do item.</dd>
           <dt>Ao concluir</dt><dd><b>O Pokémon se atualiza sozinho na coleção</b>: evoluir troca a espécie, o Boost vira o valor da meta, a Star vira 2★. Cada conclusão entra no histórico.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-cacada">
+        <h3 class="titulo">Caçada <a href="index.html#/c/swellow">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Ligar "onde caçar" a "com que time". Uma página por caçada.</dd>
+          <dt>Mostra</dt><dd>Local e level · elementos · abates por hora · task do NPC · mapa · seu time para esta caçada (ou "Montar um time contra X", que abre o montador já com o alvo) · elementos que batem forte · os seus Pokémon que batem forte · o time que a comunidade leva, com contorno nos que você já tem · task, shiny, Hazard · drops.</dd>
+          <dt>Dados</dt><dd><code>Mundo/Hunts/Hunts de Hoenn.md</code> e <code>Tubos.md</code> (elementos, tier, shiny, abates/h, NPC, mapa) · <code>Quests/Tasks do Mundo.md</code> · <code>Itens/Drops por Pokémon.md</code> · <code>Guias/Montagem de Time.md</code>.</dd>
+          <dt>Regra</dt><dd>Shiny Ultra Rare, Legendary e Mythic só nascem na Área Primal. "Quem bate forte" usa a mesma regra de matchup dos times.</dd>
         </dl>
       </div>
 
