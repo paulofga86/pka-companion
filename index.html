@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013857">
+<link rel="stylesheet" href="estilo.css?v=1790013972">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -28,7 +28,7 @@
     position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
     height: var(--dock-h); border-radius: 26px;
     display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
-    background: var(--glass); backdrop-filter: blur(18px) saturate(1.8); -webkit-backdrop-filter: blur(18px) saturate(1.8);
+    background: var(--glass); backdrop-filter: blur(30px) saturate(1.8); -webkit-backdrop-filter: blur(30px) saturate(1.8);
     box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge);
   }
   .porta {
@@ -290,7 +290,7 @@
   .barra-acao {
     position: fixed; z-index: 60; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%);
     width: min(calc(100% - 28px), 592px); display: flex; gap: 10px; padding: 10px; border-radius: 28px;
-    background: var(--glass); backdrop-filter: blur(18px) saturate(1.8); -webkit-backdrop-filter: blur(18px) saturate(1.8);
+    background: var(--glass); backdrop-filter: blur(30px) saturate(1.8); -webkit-backdrop-filter: blur(30px) saturate(1.8);
     box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge); transition: transform .6s var(--ease) .08s;
   }
   .camada.aberta .barra-acao { transform: translate(-50%, 0); }
@@ -893,14 +893,14 @@
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.20), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.10), transparent 70%);
     -webkit-mask-image: linear-gradient(#000, #000); }
-  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .34; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cg fill='%23fff' fill-opacity='.55'%3E%3Cellipse cx='2' cy='1.6' rx='1.5' ry='1.1'/%3E%3Cellipse cx='6' cy='5.6' rx='1.5' ry='1.1'/%3E%3C/g%3E%3Cg fill='%23000' fill-opacity='.55'%3E%3Cellipse cx='2' cy='3' rx='1.4' ry='.7'/%3E%3Cellipse cx='6' cy='7' rx='1.4' ry='.7'/%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"); background-size: 8px 8px, 220px 220px; }
   [data-tema="claro"] body::before { background:
       radial-gradient(1000px 620px at 92% -6%, rgba(171,125,211,.42), transparent 68%),
       radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.24), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.14), transparent 70%); }
-  [data-tema="claro"] body::after { opacity: .16; mix-blend-mode: multiply; }
+  [data-tema="claro"] body::after { opacity: .26; mix-blend-mode: multiply; }
   body { background: var(--bg) !important; }
   /* ---------- shiny com brilho ---------- */
   .poke-tile .quadro.brilho { background:
@@ -947,7 +947,7 @@
   /* ---------- vidro nos cards: a luz do fundo passa ---------- */
   .cartao, .secao-tile, .poke-tile .quadro, .lista, .fato, .campo-busca, .calc, .time, .task, .rocket, .dg, .nov, .passo-pl, .inv,
   .seu-plano, .campo-grupo, .cartao-eu, .segmento, .pilula-char, .leitura, .analise-t .a, .giovanni, .vem-ai, .el-det, .mats, .slot, .vaga, .escolher {
-    -webkit-backdrop-filter: blur(16px) saturate(1.35); backdrop-filter: blur(16px) saturate(1.35); }
+    -webkit-backdrop-filter: blur(28px) saturate(1.5); backdrop-filter: blur(28px) saturate(1.5); }
   .cartao, .secao-tile, .poke-tile .quadro, .lista, .fato, .calc, .task, .rocket, .dg, .nov, .passo-pl, .inv, .seu-plano, .campo-grupo, .cartao-eu {
     box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.07); }
   [data-tema="claro"] :is(.cartao, .secao-tile, .poke-tile .quadro, .lista, .fato, .calc, .task, .rocket, .dg, .nov, .passo-pl, .inv, .seu-plano, .campo-grupo, .cartao-eu) {
@@ -2759,7 +2759,7 @@ function coresDaArte(url) {
       } catch (e) { ok(null); }
     };
     img.onerror = () => ok(null);
-    img.src = url;
+    img.src = url.startsWith('data:') ? url : url + (url.includes('?') ? '&' : '?') + 'cor=1';
   });
 }
 async function aplicarPaleta() {
@@ -3400,8 +3400,9 @@ if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion
     clearTimeout(saida);
     const img = card.querySelector('.arte img'); if (!img || card === atual) return;
     atual = card;
-    const cores = await coresDaArte(img.currentSrc || img.src);
-    if (!cores || atual !== card) return;
+    let cores = await coresDaArte(img.currentSrc || img.src);
+    if (atual !== card) return;
+    if (!cores) { const c = getComputedStyle(card).getPropertyValue('--c').trim(); const tmp = document.createElement('i'); tmp.style.color = c; document.body.appendChild(tmp); const rgb = getComputedStyle(tmp).color.match(/\d+/g); tmp.remove(); if (!rgb) return; const hx = '#' + rgb.slice(0, 3).map(v => (+v).toString(16).padStart(2, '0')).join(''); cores = [hx, hx]; }
     const tema = document.documentElement.dataset.tema === 'claro';
     aura.style.setProperty('--aura1', rgba(cores[0], tema ? .34 : .42));
     aura.style.setProperty('--aura2', rgba(cores[1] || cores[0], tema ? .26 : .30));
