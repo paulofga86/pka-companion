@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011875">
+<link rel="stylesheet" href="estilo.css?v=1790012090">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -87,6 +87,7 @@
     <a href="#t-tasks">Tasks do Mundo</a>
     <a href="#t-ginasios">Ginásios</a>
     <a href="#t-novidades">O que mudou</a>
+    <a href="#t-jornada">Sua jornada</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -133,6 +134,7 @@
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
           <tr><td><code>#/tasks</code> · <code>#/tasks/juliana</code></td><td>Tasks do Mundo (com foco num NPC)</td><td>camada</td></tr>
+          <tr><td><code>#/jornada</code></td><td>Sua jornada (roteiro por level)</td><td>camada</td></tr>
           <tr><td><code>#/novidades</code> · <code>#/novidades/titan3</code></td><td>O que mudou no jogo (com foco numa mudança)</td><td>camada</td></tr>
           <tr><td><code>#/ginasios</code> · <code>#/ginasios/vermilion</code></td><td>Ginásios (com foco numa cidade)</td><td>camada</td></tr>
           <tr><td><code>#/rockets</code></td><td>Rockets da semana</td><td>camada</td></tr>
@@ -319,6 +321,16 @@
           <dt>Mostra</dt><dd>Quantas mudanças afetam você · "Vem aí" · mudanças agrupadas por dia, com categoria (Mundos, Hunts, Itens, Interface, Segurança, Treino) · link para a página afetada · filtros.</dd>
           <dt>"Afeta você"</dt><dd>Vale para todos os mundos ou para o mundo do personagem · mexe num item de um plano ativo · toca em algo que o jogador ainda não fez (ex.: treino).</dd>
           <dt>Dados</dt><dd><code>Patch Notes/</code> (digest de #changelog-br, #informativos e #anuncios). Depende da atualização semanal do vault.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-jornada">
+        <h3 class="titulo">Sua jornada <a href="index.html#/jornada">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>O guia por level, sob medida: onde o jogador está, o que fazer agora e o próximo marco.</dd>
+          <dt>Mostra</dt><dd>Level em destaque numa trilha Kanto · Johto · Hoenn · quanto a caçada rende de XP no level dele · "Faça agora" (Rockets se ainda não tem 130, ginásios se tem level 200+ e faltam insígnias, próximo passo do plano) · marcos por level (liberado, você está aqui, próximo com quantos levels faltam), cada um ligado à tela certa.</dd>
+          <dt>Regras</dt><dd>Cortes de XP da caçada: 100% até 99, 80% até 129, 60% até 149, 40% até 199, 12,5% até 319, 5% até 399, 1% do 400. Quest, task e ginásio pagam XP fixo. Level nunca bloqueia.</dd>
+          <dt>Dados</dt><dd><code>Guias/Roadmap - Iniciante.md</code>, <code>Roadmap - Johto.md</code>, <code>Roadmap - Hoenn.md</code>.</dd>
         </dl>
       </div>
 

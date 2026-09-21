@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011875">
+<link rel="stylesheet" href="estilo.css?v=1790012090">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -765,6 +765,31 @@
   .vem-ai { border-radius: var(--r-lg); padding: 16px; background: linear-gradient(160deg, color-mix(in oklab, #2d4d7a 30%, var(--surface)) 0%, var(--surface) 70%); box-shadow: var(--shadow-1); }
   .vem-ai b { display: block; font-weight: 650; margin-bottom: 4px; }
   .vem-ai p { margin: 0; color: var(--text-2); font-size: 14.5px; }
+
+  /* ---------- Sua jornada ---------- */
+  .jor-palco::before { background: radial-gradient(90% 90% at 75% 15%, #4a2f7a 0%, #231a33 55%, #121017 100%) !important; }
+  [data-tema="claro"] .jor-palco::before { background: radial-gradient(90% 90% at 75% 15%, #d6c3f0 0%, #ece6f4 60%, #f5f3f8 100%) !important; }
+  .fases { position: relative; margin-top: 16px; height: 34px; }
+  .fases .trilha { position: absolute; left: 0; right: 0; top: 6px; height: 8px; border-radius: 8px; display: grid; grid-template-columns: 150fr 200fr 150fr; gap: 3px; }
+  .fases .trilha i { border-radius: 8px; background: rgba(255,255,255,.18); }
+  .fases .trilha i.on { background: #ab7dd3; }
+  [data-tema="claro"] .fases .trilha i { background: rgba(58,34,78,.12); }
+  [data-tema="claro"] .fases .trilha i.on { background: #6a319c; }
+  .fases .voce { position: absolute; top: 0; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(171,125,211,.5), 0 4px 10px rgba(0,0,0,.4); transform: translateX(-50%); }
+  .fases .rot-f { position: absolute; top: 20px; left: 0; right: 0; display: grid; grid-template-columns: 150fr 200fr 150fr; font-size: 11.5px; font-weight: 650; color: rgba(255,255,255,.72); }
+  [data-tema="claro"] .fases .rot-f { color: #4f2b6e; }
+  .marco { display: grid; grid-template-columns: 56px 1fr; gap: 14px; position: relative; padding-bottom: 18px; }
+  .marco::before { content: ""; position: absolute; left: 27px; top: 44px; bottom: 0; width: 2px; background: var(--surface-3); }
+  .marco:last-child::before { display: none; }
+  .marco .lv { width: 56px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-stretch: 118%; font-weight: 740; font-size: 17px; background: var(--surface); box-shadow: var(--shadow-1); color: var(--text-2); }
+  .marco.passou .lv { color: var(--ok); }
+  .marco.agora .lv { background: var(--accent-strong); color: #fff; box-shadow: var(--shadow-2); }
+  .marco.prox .lv { box-shadow: var(--shadow-1), inset 0 0 0 2px var(--accent); color: var(--text); }
+  .marco .cx { border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); overflow: hidden; }
+  .marco.agora .cx { background: color-mix(in oklab, var(--accent-strong) 12%, var(--surface)); }
+  .marco.passou .cx { opacity: .72; }
+  .marco .cx .cab-m { padding: 10px 14px 4px; font-size: 12.5px; font-weight: 650; color: var(--text-3); }
+  .marco .cx .linha { min-height: 46px; padding: 8px 14px; font-size: 14.5px; }
 </style>
 </head>
 <body>
@@ -1014,6 +1039,18 @@ const NOVIDADES = [
   { id:'cranidos', d:'06/09', t:'Wildscape de Cranidos em Hoenn', x:'Novo ponto de caça perto da entrada do Rampardos.', cat:'Hunts' },
   { id:'treino', d:'04/09', t:'Treino sem casa', x:'Training Camp no andar de baixo do Trade Center: treinar Pokémon sem ter casa. 5 Diamonds ou 5 kk por vaga.', cat:'Treino', treino:true },
 ];
+const MARCOS = [
+  { lv:1, fase:'Kanto', itens:[['Caçar no bueiro de Saffron, depois a Usina Elétrica', null], ['Tasks da Kanto para os primeiros Revives e Ultra Balls', '#/tasks']] },
+  { lv:100, fase:'Kanto', itens:[['Subsolo da Usina: Electabuzz dá muito XP por hora', null]] },
+  { lv:150, fase:'Johto', itens:[['Wildscapes passam a dar XP: mais drop e mais shiny', null], ['Ilhas Laranja: Boarding Key com o Captain Frederic', null], ['Clones Fácil: 4.000.000 de XP, uma vez por mês', null]] },
+  { lv:200, fase:'Johto', itens:[['Dungeon escondida dos ginásios: 3.000.000 de XP cada', '#/ginasios'], ['Quest do Dr. Vektor: 5.000.000 de XP', null], ['Dungeon Hard de Arcane Shard', null]] },
+  { lv:250, fase:'Johto', itens:[['Batalhas de ginásio: cada insígnia vira 1 s de CDR', '#/ginasios'], ['Quest Hoenn Access: Oak, Elm, Hank e Birch', null], ['Lucky Amulet e Brotherhood', null]] },
+  { lv:300, fase:'Johto', itens:[['Giovanni: precisa de 130 vitórias nos Rockets', '#/rockets'], ['Clones Média: 8.000.000 de XP', null], ['Quest Moomoo Milk, pré-requisito da Jenny', null]] },
+  { lv:350, fase:'Hoenn', itens:[['Caçadas de rotação de Hoenn', '#/c/swellow'], ['Mega Dens e Medal System', null], ['Mewtwo Island: shiny Legendary', '#/c/magmar']] },
+  { lv:420, fase:'Hoenn', itens:[['Clones Difícil: 12.000.000 de XP e 100 Mewtwo Token', null]] },
+];
+const CORTE_XP = [[1, 100], [100, 80], [130, 60], [150, 40], [200, 12.5], [320, 5], [400, 1]];
+const xpDe = lv => [...CORTE_XP].reverse().find(([l]) => lv >= l)[1];
 const VEM_AI = 'Na semana de 21/09: Hunt Finder, canais de Hoenn no Wildscape e no Primal, e a Jenny Quest, que libera talentos novos.';
 const ETAPAS = [['task', 'Task', 0], ['dungeon', 'Dungeon', 200], ['ins', 'Insígnia', 250]];
 const TASKS = [
@@ -1083,11 +1120,11 @@ function inicioVisitante() {
 
     <div class="conteudo">
       <div class="fileira">
-        <div class="fileira-cab"><h3 class="titulo">Guias por level</h3><a href="#/wiki">Todos</a></div>
+        <div class="fileira-cab"><h3 class="titulo">Guias por level</h3><a href="#/jornada">Todos</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/wiki"><span class="data">Level 1 a 150</span><div class="c-titulo">Kanto</div><div class="c-sub">Primeiro time, insígnias e as quests do começo.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">Level 150+</span><div class="c-titulo">Johto e Wildscape</div><div class="c-sub">Mais shiny, drop maior e as primeiras Stars.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">Level 250+</span><div class="c-titulo">Hoenn</div><div class="c-sub">Acesso no 250, rotação de caçadas no 350.</div></a>
+          <a class="cartao largo" href="#/jornada"><span class="data">Level 1 a 150</span><div class="c-titulo">Kanto</div><div class="c-sub">Primeiro time, insígnias e as quests do começo.</div></a>
+          <a class="cartao largo" href="#/jornada"><span class="data">Level 150+</span><div class="c-titulo">Johto e Wildscape</div><div class="c-sub">Mais shiny, drop maior e as primeiras Stars.</div></a>
+          <a class="cartao largo" href="#/jornada"><span class="data">Level 250+</span><div class="c-titulo">Hoenn</div><div class="c-sub">Acesso no 250, rotação de caçadas no 350.</div></a>
         </div>
       </div>
 
@@ -1142,6 +1179,11 @@ const TELAS = {
             <div class="c-titulo">Task da ${t.npc}</div>
             <div class="c-sub">${t.obj.join(' · ')}</div>
           </a>`; }).join('')}
+          ${(() => { const m = MARCOS.find(x => x.lv > PERSONAGEM.level); return m ? `<a class="cartao tinto" href="#/jornada" style="--c:var(--v-500)">
+            <div class="c-titulo">Próximo marco: level ${m.lv}</div>
+            <div class="c-sub">Faltam ${m.lv - PERSONAGEM.level} levels · ${m.itens[0][0].split(':')[0]}</div>
+            <div class="barra"><i style="--v:${Math.round(PERSONAGEM.level / m.lv * 100)}%"></i></div>
+          </a>` : ''; })()}
           ${(() => { const pr = proxGin(); return pr ? `<a class="cartao tinto" href="#/ginasios/${pr.g.id}" style="--c:var(--el-${pr.g.el[0]})">
             <div class="c-titulo">Ginásio de ${pr.g.cidade}</div>
             <div class="c-sub">Falta: ${pr.e[1].toLowerCase()} · ${insignias()} de 8 insígnias</div>
@@ -1270,7 +1312,7 @@ const TELAS = {
     const tema = window.__temaSalvo() || 'sistema';
     return `<div class="conteudo">
       <div class="topo"><h1 class="display">Eu</h1></div>
-      <section class="cartao-eu"><div class="av" style="--c:${cor(principal().n)}">${arte(principal().n, principal().s)}</div><div><h2 class="titulo">${PERSONAGEM.nome}</h2><p>Level ${PERSONAGEM.level} · mundo ${PERSONAGEM.mundo} · VIP</p></div></section>
+      <a class="cartao-eu" href="#/jornada" style="text-decoration:none"><div class="av" style="--c:${cor(principal().n)}">${arte(principal().n, principal().s)}</div><div><h2 class="titulo">${PERSONAGEM.nome}</h2><p>Level ${PERSONAGEM.level} · mundo ${PERSONAGEM.mundo} · VIP</p><span class="link-sis" style="margin:6px 0 0">Ver sua jornada ${I.seta}</span></div></a>
 
       <div class="bloco"><h3>Aparência</h3>
         <div class="segmento" role="radiogroup" aria-label="Tema">
@@ -1308,7 +1350,7 @@ const TELAS = {
             ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
             ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
             ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
-            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'], ['Sua jornada', '#/jornada'],
             ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
             ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
             ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
@@ -1343,6 +1385,7 @@ const INDICE = [
   ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/ginasios' },
+  { tipo:'Guias', t:'Sua jornada', s:'O que abre em cada level e o que fazer agora', h:'#/jornada' },
   { tipo:'Novidades', t:'O que mudou no jogo', s:'Atualizações de 04 a 19/09', h:'#/novidades' },
   ...NOVIDADES.map(n => ({ tipo:'Novidades', t:n.t, s:n.d, h:`#/novidades/${n.id}` })),
   { tipo:'Combate', t:'Ginásios', s:'8 insígnias, até 8 s de CDR', h:'#/ginasios' },
@@ -2857,6 +2900,62 @@ document.addEventListener('click', e => {
   novFiltro = t.dataset.novFiltro; abrirNovidades(null, false); $('#camada .folha').scrollTop = 330;
 });
 
+
+/* ============ Sua jornada ============ */
+function abrirJornada(primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  const lv = PERSONAGEM.level;
+  const idxAgora = MARCOS.reduce((k, m, i) => lv >= m.lv ? i : k, 0), prox = MARCOS[idxAgora + 1];
+  const pos = Math.min(100, lv / 500 * 100);
+  const semRock = Math.ceil(Math.max(0, 130 - ROCK.contador) / 13);
+  const fazerAgora = [];
+  if (ROCK.contador < 130) fazerAgora.push([`Rockets toda semana: ${ROCK.contador} de 130 até o Giovanni`, `Faltam ${semRock} semanas. Comece já: o Giovanni abre no 300`, '#/rockets']);
+  if (insignias() < 8 && lv >= 200) fazerAgora.push([`Ginásios: ${insignias()} de 8 insígnias`, 'Cada uma tira 1 s da espera na bag. É o que sustenta Hoenn', '#/ginasios']);
+  const pl = Object.values(PLANOS)[0], pp = pl && proximoDe(pl);
+  if (pp) fazerAgora.push([`${pp.t}`, `Próximo passo do plano do ${nomeDe(pl.n, pl.s)}`, '#/plano/25s']);
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Sua jornada">
+    <div class="folha-palco sis-palco jor-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">${lv}</div><div class="k">${PERSONAGEM.nome} · ${prox ? `próximo marco no ${prox.lv}, faltam ${prox.lv - lv} levels` : 'você passou de todos os marcos'}</div>
+        <div class="fases" aria-hidden="true">
+          <div class="trilha"><i class="${lv >= 1 ? 'on' : ''}"></i><i class="${lv >= 150 ? 'on' : ''}"></i><i class="${lv >= 350 ? 'on' : ''}"></i></div>
+          <span class="voce" style="left:${pos}%"></span>
+          <div class="rot-f"><span>Kanto · 1</span><span>Johto · 150</span><span>Hoenn · 350</span></div>
+        </div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Sua jornada</h2>
+      <div class="chips"><span class="chip">Guia por level</span>${selo(['ok','Wiki oficial e comunidade · 19/09'])}</div>
+      <p class="plano-meta" style="margin-top:12px">Do 200 em diante a caçada dá pouco XP. No seu level ela rende ${xpDe(lv).toLocaleString('pt-BR')}% do normal${lv < 320 ? ' e cai para 5% no 320' : ''}. Quest, task e ginásio pagam XP fixo: é por eles que se sobe.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Faça agora</h3>
+      ${fazerAgora.map(([t, d, h]) => `<a class="seu-plano" href="${h}"><span><span class="l-t">${esc(t)}</span><span class="l-s">${esc(d)}</span></span>${I.seta}</a>`).join('')}
+    </div>
+
+    <div class="sec"><h3 class="titulo">Os marcos</h3>
+      ${MARCOS.map((m, i) => { const est = i < idxAgora ? 'passou' : i === idxAgora ? 'agora' : i === idxAgora + 1 ? 'prox' : '';
+        return `<div class="marco ${est}">
+          <span class="lv">${m.lv}</span>
+          <div class="cx"><div class="cab-m">${m.fase}${est === 'agora' ? ' · você está aqui' : est === 'prox' ? ` · faltam ${m.lv - lv} levels` : est === 'passou' ? ' · liberado' : ''}</div>
+            ${est === 'passou' ? `<div class="linha" style="color:var(--text-3)"><span>${m.itens.length} ${m.itens.length > 1 ? 'coisas liberadas' : 'coisa liberada'}: ${m.itens.map(([t]) => t.split(':')[0].split(',')[0]).join(' · ')}</span></div>` : m.itens.map(([t, h]) => h ? `<a class="linha" href="${h}"><span>${t}</span><span class="dir">${I.seta}</span></a>` : `<div class="linha"><span>${t}</span></div>`).join('')}</div>
+        </div>`; }).join('')}
+    </div>
+
+    <div class="sec">
+      ${fatoSis('XP da caçada por level', CORTE_XP.map(([l, x], i) => `${l}${CORTE_XP[i + 1] ? `–${CORTE_XP[i + 1][0] - 1}` : '+'}: ${x.toLocaleString('pt-BR')}%`).join(' · '), ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Por que começar os Rockets cedo', 'O Giovanni pede 130 vitórias, e só dá para fazer 13 por semana: são 10 semanas no mínimo. Quem deixa para o 300 fica dois meses e meio parado.', ['ok','Wiki oficial · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/eu">Meu personagem</a>
+      <a class="btn btn-primario" href="${fazerAgora[0] ? fazerAgora[0][2] : '#/inicio'}">Começar</a>
+    </div>
+  </article>`, primeira);
+}
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2880,6 +2979,11 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  if (h === '/jornada') {
+    if (!baseAtual) desenhar('/inicio');
+    abrirJornada();
     return;
   }
   const nv = h.match(/^\/novidades(?:\/([a-z0-9-]+))?$/);
