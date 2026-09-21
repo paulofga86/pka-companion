@@ -84,6 +84,7 @@
     <a href="#t-plano">Plano</a>
     <a href="#t-cacada">Caçada</a>
     <a href="#t-rockets">Rockets da semana</a>
+    <a href="#t-tasks">Tasks do Mundo</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -129,6 +130,7 @@
           <tr><td><code>#/meu/0</code> · <code>#/meu/0/editar</code></td><td>Um Pokémon da coleção</td><td>camada</td></tr>
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
+          <tr><td><code>#/tasks</code> · <code>#/tasks/juliana</code></td><td>Tasks do Mundo (com foco num NPC)</td><td>camada</td></tr>
           <tr><td><code>#/rockets</code></td><td>Rockets da semana</td><td>camada</td></tr>
           <tr><td><code>#/c/swellow</code> · <code>#/time/novo/swellow</code></td><td>Caçada · novo time já contra ela</td><td>camada</td></tr>
         </tbody>
@@ -286,6 +288,16 @@
         </dl>
       </div>
 
+      <div class="tela" id="t-tasks">
+        <h3 class="titulo">Tasks do Mundo <a href="index.html#/tasks">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Escolher qual task vale a pena e lembrar o que já foi aceito ou entregue. O jogo já conta os abates no painel Tasks, então o app não repete isso.</dd>
+          <dt>Mostra</dt><dd>Filtros (Para você, Aceitas, Hoenn, Johto, Kanto, Shiny, Feitas, Todas) · cada task com NPC, região, tipo, objetivos, recompensa, estado (disponível, aceita, feita) · botões Aceitei / Entreguei · atalho para a caçada e para o local do NPC.</dd>
+          <dt>"Para você"</dt><dd>Primeiro as aceitas, depois as que combinam com o jogador (ele já tem time contra aquele alvo, ou tem 3+ Pokémon do elemento que resolve), depois por XP. Level acima do jogador só avisa.</dd>
+          <dt>Dados</dt><dd><code>Quests/Tasks do Mundo.md</code> (167 NPCs, objetivos, recompensas, local de cada NPC por imagem) · <code>Quests/Task Tracker.md</code>.</dd>
+        </dl>
+      </div>
+
       <div class="tela" id="t-eu">
         <h3 class="titulo">Eu <a href="index.html#/eu">ver no protótipo</a></h3>
         <dl>
@@ -338,7 +350,8 @@ média ≈ 8,5 helds por subida · pior caso 20</code></pre>
       <h2 class="titulo">Dados do jogador</h2>
       <p>Tudo no aparelho, exportável em um arquivo. Estrutura mínima:</p>
 <pre><code>Personagem  { nome, mundo, level, vip, diamonds?, gold?,
-              rockets: { semana: [vencidos], contador } }
+              rockets: { semana: [vencidos], contador },
+              tasks: { [npc]: livre|aceita|feita } }
 Pokémon     { especie, shiny, apelido?, boost, stars, held?, heldTier,
               mega, onde: bag|depot|expedicao, treino{}, addon, historico[] }
 Time        { nome, alvo, principal, vagas[6] → Pokémon }

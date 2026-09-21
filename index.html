@@ -690,6 +690,32 @@
   .giovanni .req div { display: flex; gap: 10px; align-items: center; font-size: 14.5px; }
   .giovanni .req .estado { width: 22px; height: 22px; }
   .tokens-t td.num { text-align: right; }
+
+  /* ---------- Tasks ---------- */
+  .task-palco { height: 250px; }
+  .task-palco::before { background: radial-gradient(90% 90% at 75% 15%, #1f5a4a 0%, #1b2a2c 55%, #121417 100%) !important; }
+  [data-tema="claro"] .task-palco::before { background: radial-gradient(90% 90% at 75% 15%, #b9e6d6 0%, #e6f1ee 60%, #f4f6f6 100%) !important; }
+  .filtros-t { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 12px -22px 0; padding: 2px 22px 4px; }
+  .filtros-t::-webkit-scrollbar { display: none; }
+  .filtros-t button { flex: none; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-1); font-size: 14px; font-weight: 620; color: var(--text-2); }
+  .filtros-t button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .task { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px; }
+  .task + .task { margin-top: 10px; }
+  .task.sugerida { background: color-mix(in oklab, var(--accent-strong) 12%, var(--surface)); box-shadow: var(--shadow-2); }
+  .task .topo-t { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .task .topo-t b { font-size: 16.5px; font-weight: 650; display: block; }
+  .task .topo-t span { font-size: 12.5px; color: var(--text-3); font-weight: 600; }
+  .task .estado-t { flex: none; font-size: 12px; font-weight: 680; padding: 3px 10px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); }
+  .task .estado-t.aceita { background: color-mix(in oklab, var(--accent) 22%, var(--surface)); color: var(--accent); }
+  .task .estado-t.feita { background: color-mix(in oklab, var(--ok) 20%, var(--surface)); color: var(--ok); }
+  .task .objs { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+  .task .rec { font-size: 13.5px; color: var(--text-2); margin-top: 10px; }
+  .task .rec b { color: var(--text); font-weight: 640; }
+  .task .porque { font-size: 13px; color: var(--accent); font-weight: 620; margin-top: 8px; display: flex; gap: 6px; align-items: center; }
+  .task .porque .icone { width: 16px; height: 16px; }
+  .task .acoes-t { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .task .acoes-t .btn { min-height: 38px; padding: 0 14px; font-size: 13.5px; }
+  .task.feita { opacity: .72; }
 </style>
 </head>
 <body>
@@ -911,6 +937,19 @@ const ROCKETS = [
 ];
 const TOKENS = k => k === 0 ? [5, 15, '2 a 5', '1'] : k === 1 ? [10, 18, '3 a 6', '1'] : k === 2 ? [15, 23, '5 a 10', '1 a 3'] : [20, 30, '8 a 15', '3 a 5'];
 const ROCK = { feitos: new Set(), contador: 52 };
+const HOENN_R = '3.000.000 XP · 5 Special Bubble Gum · 450 Mighty Token';
+const TASKS = [
+  { id:'juliana', npc:'Juliana', reg:'Hoenn', obj:['300 Taillow','1.500 Swellow'], rec:HOENN_R, xp:3e6, cacada:'swellow', lvl:350, estado:'aceita' },
+  { id:'bianca', npc:'Bianca', reg:'Hoenn', obj:['750 Minun','750 Plusle'], rec:HOENN_R, xp:3e6, lvl:350, local:'https://imgur.com/a/NP74ZdI', estado:'livre', el:'electric' },
+  { id:'aurelio', npc:'Aurelio', reg:'Hoenn', obj:['100 Treecko','250 Grovyle','1.500 Sceptile'], rec:HOENN_R, xp:3e6, cacada:'sceptile', lvl:350, estado:'livre' },
+  { id:'cedric', npc:'Cedric', reg:'Hoenn', obj:['100 Mudkip','250 Marshtomp','1.500 Swampert'], rec:HOENN_R, xp:3e6, cacada:'swampert', lvl:350, local:'https://imgur.com/a/CilI2Qu', estado:'livre' },
+  { id:'ygor', npc:'Ygor', reg:'Hoenn', obj:['100 Aron','250 Lairon','1.500 Aggron'], rec:HOENN_R, xp:3e6, cacada:'aggron', lvl:350, estado:'livre' },
+  { id:'calder', npc:'Calder', reg:'Hoenn', tipo:'Hazard', obj:['15 Shiny Camerupt','15 Shiny Torkoal'], rec:'5.000.000 XP · 10 Medal Box · +5 de Hazard em Hoenn', xp:5e6, lvl:350, estado:'livre' },
+  { id:'blaze', npc:'Blaze', reg:'Johto', tipo:'Shiny', obj:['1.500 Skarmory','25 Shiny Skarmory','Entregar 1 Yellow Steel Wing'], rec:'Etapa 1: 1.000.000 XP · 5 Bubble Gum · Etapa 2: Shiny Skarmory (Tinker Ball)', xp:1e6, lvl:150, local:'https://imgur.com/a/HQZwt8g', estado:'livre' },
+  { id:'wanda', npc:'Wanda', reg:'Johto', tipo:'Shiny', obj:['1.500 Wobbuffet','25 Shiny Wobbuffet','Entregar 1 Two-Eyed Shiny Tail'], rec:'Etapa 1: 1.000.000 XP · 5 Bubble Gum · Etapa 2: Shiny Wobbuffet (Yume Ball)', xp:1e6, lvl:150, local:'https://imgur.com/a/QY7kylO', estado:'livre' },
+  { id:'nolan', npc:'Nolan', reg:'Kanto', tipo:'Shiny', obj:['100 Tangela','1 Shiny Tangela','Entregar 1 Green Vine'], rec:'Etapa 1: 100.000 XP · 2 Bubble Gum · Etapa 2: Shiny Tangela (Janguru Ball)', xp:1e5, lvl:1, local:'https://imgur.com/a/nlNYZER', estado:'feita' },
+  { id:'bert', npc:'Bert', reg:'Kanto', obj:['300 Blastoise','300 Charizard','300 Venusaur'], rec:'500.000 XP', xp:5e5, lvl:1, local:'https://imgur.com/a/zWioDB8', estado:'feita' },
+];
 function matchup(n, alvo) {
   const e = DEX[n].el[0];
   const atk = alvo.el.reduce((m, d) => m * mult(e, d), 1), def = Math.max(...alvo.el.map(a => mult(a, e)));
@@ -1075,7 +1114,7 @@ const TELAS = {
       ${secoes.map(([t, itens]) => `
         <div class="fileira">
           <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
-          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
+          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
         </div>`).join('')}
     </div>`;
   },
@@ -1192,6 +1231,8 @@ const INDICE = [
   { tipo:'Sistemas', t:'Star', s:'Cópias e custo para estrelar', h:'#/s/star' },
   { tipo:'Sistemas', t:'Helds', s:'Tipos, fusão e como tirar', h:'#/s/helds' },
   ...ALVOS.map(a => ({ tipo:'Caçadas', t:`Caçada de ${a.nome}`, s:`${a.el.map(e => EL[e] || e).join(' / ')} · ${CACADA[a.id].local}`, n:a.n, sh:false, h:`#/c/${a.id}` })),
+  { tipo:'Quests', t:'Tasks do Mundo', s:'167 NPCs: o que pedem e o que pagam', h:'#/tasks' },
+  ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/wiki' },
 ];
@@ -2374,7 +2415,7 @@ function abrirCacada(id) {
 
     <div class="sec" style="margin-top:20px"><div class="lista">
       <div class="linha leitura-l">${I.relogio}<span><span class="l-t" style="display:block">${c.kills.toLocaleString('pt-BR')} abates por hora</span><span class="l-s">Referência da comunidade, caçando em rotação</span></span></div>
-      ${c.npc ? `<div class="linha leitura-l">${I.bandeira}<span><span class="l-t" style="display:block">Task da ${c.npc}</span><span class="l-s">Derrotar ${c.pede}</span></span></div>` : ''}
+      ${c.npc ? `<a class="linha leitura-l" href="#/tasks/${c.npc.toLowerCase()}">${I.bandeira}<span><span class="l-t" style="display:block">Task da ${c.npc}</span><span class="l-s">Derrotar ${c.pede}</span></span><span class="dir">${I.seta}</span></a>` : ''}
       <a class="linha leitura-l" href="${c.mapa}" target="_blank" rel="noopener">${I.local}<span><span class="l-t" style="display:block">Ver o mapa</span><span class="l-s">Abre a imagem da comunidade</span></span><span class="dir">${I.seta}</span></a>
     </div></div>
 
@@ -2496,6 +2537,82 @@ document.addEventListener('click', e => {
   else if (t.matches('[data-rock-proximo]')) marcarRocket([...Array(13).keys()].find(k => !ROCK.feitos.has(k)));
 });
 
+
+/* ============ Tasks do Mundo ============ */
+let tarefas = { filtro: 'pra-voce', foco: null };
+function porQue(t) {
+  if (t.cacada && TIMES.some(x => x.alvo === t.cacada)) return `Você já tem um time contra ${ALVOS.find(a => a.id === t.cacada).nome}`;
+  if (t.el && COLECAO.filter(c => DEX[c.n].el[0] === t.el).length >= 3) return `Seu time ${EL[t.el]} resolve esta`;
+  return null;
+}
+function abrirTasks(foco, primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  if (foco) { tarefas.foco = foco; tarefas.filtro = 'todas'; }
+  const lv = PERSONAGEM.level;
+  const aceitas = TASKS.filter(t => t.estado === 'aceita').length, feitas = TASKS.filter(t => t.estado === 'feita').length;
+  const filtros = [['pra-voce', 'Para você'], ['aceita', `Aceitas · ${aceitas}`], ['Hoenn', 'Hoenn'], ['Johto', 'Johto'], ['Kanto', 'Kanto'], ['Shiny', 'Shiny'], ['feita', `Feitas · ${feitas}`], ['todas', 'Todas']];
+  let lista = TASKS.filter(t => {
+    const f = tarefas.filtro;
+    if (f === 'pra-voce') return t.estado !== 'feita' && (porQue(t) || t.estado === 'aceita' || t.lvl <= lv);
+    if (f === 'aceita' || f === 'feita') return t.estado === f;
+    if (f === 'Shiny') return t.tipo === 'Shiny';
+    if (f === 'todas') return true;
+    return t.reg === f;
+  }).sort((a, b) => (b.estado === 'aceita') - (a.estado === 'aceita') || !!porQue(b) - !!porQue(a) || b.xp - a.xp);
+  const rotEstado = { livre: 'disponível', aceita: 'aceita', feita: 'feita' };
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Tasks do Mundo">
+    <div class="folha-palco sis-palco task-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">167</div><div class="k">tasks de NPC no mundo · você fez ${feitas} e tem ${aceitas} aceita${aceitas === 1 ? '' : 's'}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Tasks do Mundo</h2>
+      <div class="chips"><span class="chip">Quests e Tasks</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.bandeira}<span>Aceite com o NPC, derrote o que ele pede e volte a ele para receber. O painel Tasks do jogo conta os abates.</span></li>
+        <li>${I.estrela}<span>Em Hoenn, cada task paga 3.000.000 de XP, 5 Special Bubble Gum e 450 Mighty Token.</span></li>
+        <li>${I.alvo}<span>As Tasks Shiny pedem 25 shiny e um item que só o shiny dropa, e dão o próprio shiny.</span></li>
+      </ul>
+      <div class="filtros-t" role="group" aria-label="Filtrar">${filtros.map(([k, v]) => `<button aria-pressed="${tarefas.filtro === k}" data-task-filtro="${k}">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="sec" style="margin-top:14px">
+      ${lista.length ? lista.map(t => { const pq = porQue(t);
+        return `<section class="task ${pq && t.estado !== 'feita' ? 'sugerida' : ''} ${t.estado === 'feita' ? 'feita' : ''}" id="task-${t.id}">
+        <div class="topo-t"><div><b>${t.npc}</b><span>${t.reg}${t.tipo ? ` · ${t.tipo}` : ''}${t.lvl > 1 ? ` · caçada ${t.lvl}+` : ''}</span></div><span class="estado-t ${t.estado}">${rotEstado[t.estado]}</span></div>
+        <div class="objs">${t.obj.map(o => `<span class="chip">${o}</span>`).join('')}</div>
+        <div class="rec"><b>Paga:</b> ${t.rec}</div>
+        ${pq && t.estado !== 'feita' ? `<div class="porque">${I.raio}${pq}</div>` : ''}
+        ${t.lvl > lv && t.estado !== 'feita' ? `<p class="nota" style="margin:8px 0 0">${I.alerta}A caçada é de level ${t.lvl}+. Você está no ${lv}.</p>` : ''}
+        <div class="acoes-t">
+          ${t.estado === 'livre' ? `<button class="btn btn-primario" data-task-estado="${t.id}:aceita">Aceitei</button>` : t.estado === 'aceita' ? `<button class="btn btn-primario" data-task-estado="${t.id}:feita">${I.check}Entreguei</button>` : `<button class="btn btn-suave" data-task-estado="${t.id}:livre">Desmarcar</button>`}
+          ${t.cacada ? `<a class="btn btn-suave" href="#/c/${t.cacada}">Caçada</a>` : ''}
+          ${t.local ? `<a class="btn btn-suave" href="${t.local}" target="_blank" rel="noopener">Onde fica</a>` : ''}
+        </div>
+      </section>`; }).join('') : `<p class="vazio">Nenhuma task neste filtro.</p>`}
+      <p class="aviso">Amostra de 10 das 167 tasks, com objetivos e recompensas da wiki oficial. Fundo violeta: combina com um time ou Pokémon seu.</p>
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-task-filtro="todas">Ver todas</button>
+      <button class="btn btn-primario" data-task-filtro="aceita">Minhas aceitas${aceitas ? ` · ${aceitas}` : ''}</button>
+    </div>
+  </article>`, primeira);
+  if (tarefas.foco) { const el = document.getElementById('task-' + tarefas.foco); if (el) el.scrollIntoView({ block: 'center' }); tarefas.foco = null; }
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .task-palco')) return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.taskFiltro) { tarefas.filtro = t.dataset.taskFiltro; abrirTasks(null, false); $('#camada .folha').scrollTop = 520; }
+  else if (t.dataset.taskEstado) {
+    const [id, est] = t.dataset.taskEstado.split(':'), tk = TASKS.find(x => x.id === id);
+    tk.estado = est; abrirTasks(null, false);
+    toast(est === 'aceita' ? `Task da ${tk.npc} aceita` : est === 'feita' ? `Task da ${tk.npc} entregue` : 'Desmarcada', est === 'livre' ? I.relogio : I.check);
+  }
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2519,6 +2636,12 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  const tk = h.match(/^\/tasks(?:\/([a-z]+))?$/);
+  if (tk) {
+    if (!baseAtual) desenhar('/wiki');
+    abrirTasks(tk[1] || null);
     return;
   }
   if (h === '/rockets') {
