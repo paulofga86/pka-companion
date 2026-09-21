@@ -609,6 +609,36 @@
   .times-meu { display: flex; gap: 8px; flex-wrap: wrap; }
   .times-meu a { height: 38px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); box-shadow: var(--shadow-1); font-size: 14px; font-weight: 620; }
   .tirar { display: block; margin: 26px auto 0; min-height: 44px; font-size: 14px; font-weight: 620; color: var(--bad); }
+
+  /* ---------- Cores do meu Pokémon ---------- */
+  .cores-poke { margin-top: 14px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px 16px; }
+  .cores-poke .rot { font-size: 12.5px; color: var(--text-3); font-weight: 600; display: block; margin-bottom: 8px; }
+  .cores-poke .calc-pokes button { background: var(--surface-2); }
+  .cores-poke .calc-pokes button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .amostra { display: grid; grid-template-columns: repeat(5, 1fr); height: 40px; border-radius: 12px; overflow: hidden; margin-top: 12px; box-shadow: var(--shadow-1); }
+  .amostra i { display: block; transition: background .5s var(--ease); }
+  html[data-paleta="pokemon"][data-tema="escuro"] {
+    --bg: color-mix(in oklab, var(--tinta) 13%, #121015);
+    --bg-2: color-mix(in oklab, var(--tinta) 16%, #17141b);
+    --surface: color-mix(in oklab, var(--tinta) 18%, #1f1b24);
+    --surface-2: color-mix(in oklab, var(--tinta) 22%, #28232e);
+    --surface-3: color-mix(in oklab, var(--tinta) 26%, #332d39);
+    --data: color-mix(in oklab, var(--tinta) 60%, #ffffff);
+    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 12%, #1b1720) 64%, transparent);
+  }
+  html[data-paleta="pokemon"][data-tema="claro"] {
+    --bg: color-mix(in oklab, var(--tinta) 12%, #f7f6f9);
+    --bg-2: color-mix(in oklab, var(--tinta) 17%, #f0eef3);
+    --surface: color-mix(in oklab, var(--tinta) 3%, #ffffff);
+    --surface-2: color-mix(in oklab, var(--tinta) 12%, #f8f7fa);
+    --surface-3: color-mix(in oklab, var(--tinta) 20%, #efedf2);
+    --data: color-mix(in oklab, var(--tinta) 70%, #1f1a26);
+    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 6%, #fbfafd) 72%, transparent);
+  }
+  html[data-paleta="pokemon"] .palco::before { background: color-mix(in oklab, var(--tinta) 42%, #1b1420); }
+  html[data-paleta="pokemon"] .ent-palco::before, html[data-paleta="pokemon"] .sis-palco::before { background: color-mix(in oklab, var(--tinta) 38%, #1d1426) !important; }
+  html[data-paleta="pokemon"][data-tema="claro"] .sis-palco::before { background: color-mix(in oklab, var(--tinta) 26%, #f1ecf6) !important; }
+  html[data-paleta="pokemon"] body, html[data-paleta="pokemon"] .card, html[data-paleta="pokemon"] .lista { transition: background-color .6s var(--ease); }
 </style>
 </head>
 <body>
@@ -685,6 +715,11 @@ const cor = n => `var(--el-${DEX[n].el[0]})`;
 
 const PERSONAGEM = { nome:'Denzar', level:262, mundo:'Sun' };
 const SESSAO = { temPersonagem: true };
+const PREF = (() => { try { return JSON.parse(localStorage.getItem('pka-cores')) || {}; } catch (e) { return {}; } })();
+PREF.paleta ||= 'mewtwo'; PREF.principal ??= 0;
+{ const q = new URLSearchParams(location.search); if (q.get('cores')) PREF.paleta = q.get('cores'); if (q.get('principal')) PREF.principal = +q.get('principal'); }
+const salvarPref = () => { try { localStorage.setItem('pka-cores', JSON.stringify(PREF)); } catch (e) {} };
+const principal = () => COLECAO[PREF.principal] || COLECAO[0];
 const COLECAO = [
   { n:181, s:true,  boost:12, stars:0, held:'X-Attack', heldTier:3, onde:'bag', apelido:'Farol',
     hist:[['19/09','Boost +10 → +12','2 pedras Common'],['12/09','Held X-Attack T2 → T3',''],['02/09','Boost +5 → +10','Pedras Elemental'],['28/08','Entrou na coleção','Capturado no Wildscape']] },
@@ -828,7 +863,7 @@ function pokeTile(n, s, meta, href) {
 }
 function pilula() {
   if (!SESSAO.temPersonagem) return `<a class="pilula-char convite" href="#/entrada/personagem">${I.mais}Personagem</a>`;
-  return `<a class="pilula-char" href="#/eu"><span class="av">${`<img src="${ART(181, true)}" alt="">`}</span>${PERSONAGEM.nome} <span>· ${PERSONAGEM.level} · ${PERSONAGEM.mundo}</span></a>`;
+  return `<a class="pilula-char" href="#/eu"><span class="av"><img src="${ART(principal().n, principal().s)}" alt=""></span>${PERSONAGEM.nome} <span>· ${PERSONAGEM.level} · ${PERSONAGEM.mundo}</span></a>`;
 }
 
 
@@ -1022,12 +1057,24 @@ const TELAS = {
     const tema = window.__temaSalvo() || 'sistema';
     return `<div class="conteudo">
       <div class="topo"><h1 class="display">Eu</h1></div>
-      <section class="cartao-eu"><div class="av">${arte(181, true)}</div><div><h2 class="titulo">${PERSONAGEM.nome}</h2><p>Level ${PERSONAGEM.level} · mundo ${PERSONAGEM.mundo} · VIP</p></div></section>
+      <section class="cartao-eu"><div class="av" style="--c:${cor(principal().n)}">${arte(principal().n, principal().s)}</div><div><h2 class="titulo">${PERSONAGEM.nome}</h2><p>Level ${PERSONAGEM.level} · mundo ${PERSONAGEM.mundo} · VIP</p></div></section>
 
       <div class="bloco"><h3>Aparência</h3>
         <div class="segmento" role="radiogroup" aria-label="Tema">
           ${[['sistema','Automático'],['claro','Claro'],['escuro','Escuro']].map(([k,v]) => `<button role="radio" aria-selected="${tema === k}" aria-checked="${tema === k}" data-escolher-tema="${k}">${v}</button>`).join('')}
         </div>
+      </div>
+
+      <div class="bloco"><h3>Cores do app</h3>
+        <div class="segmento" role="radiogroup" aria-label="Cores do app">
+          ${[['mewtwo','Mewtwo'],['pokemon','Do meu Pokémon']].map(([k,v]) => `<button role="radio" aria-selected="${PREF.paleta === k}" aria-checked="${PREF.paleta === k}" data-paleta-op="${k}">${v}</button>`).join('')}
+        </div>
+        ${PREF.paleta === 'pokemon' ? `<div class="cores-poke">
+          <span class="rot">Pokémon principal</span>
+          <div class="calc-pokes" role="group" aria-label="Pokémon principal">${COLECAO.map((c, i) => ({ c, i })).filter(({ c, i }) => COLECAO.findIndex(x => x.n === c.n && x.s === c.s) === i).map(({ c, i }) => `<button aria-pressed="${i === PREF.principal}" data-principal="${i}"><img src="${ART(c.n, c.s)}" alt="">${esc(nomeDe(c.n, c.s))}</button>`).join('')}</div>
+          <div class="amostra" id="amostra" aria-label="Cores tiradas da arte">${(PALETA_ATUAL || []).map(c => `<i style="background:${c}"></i>`).join('')}</div>
+          <p class="aviso" style="margin:8px 4px 0">Fundos, cartões e destaques ganham as cores da arte. Botões e o violeta de "é seu" não mudam, para continuar legível.</p>
+        </div>` : ''}
       </div>
 
       <div class="bloco"><h3>Personagens</h3>
@@ -2159,6 +2206,60 @@ document.addEventListener('click', e => {
   }
   else if (t.matches('[data-meu-tirar]')) toast('No protótipo nada é apagado. No app, pede confirmação antes', I.alerta);
 });
+
+
+/* ============ cores do meu Pokémon ============ */
+let PALETA_ATUAL = null;
+const CACHE_CORES = {};
+function coresDaArte(url) {
+  if (CACHE_CORES[url]) return Promise.resolve(CACHE_CORES[url]);
+  return new Promise(ok => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+        const cx = cv.getContext('2d', { willReadFrequently: true }); cx.drawImage(img, 0, 0, 64, 64);
+        const px = cx.getImageData(0, 0, 64, 64).data, caixas = {};
+        for (let i = 0; i < px.length; i += 4) {
+          if (px[i + 3] < 200) continue;
+          const r = px[i], g = px[i + 1], b = px[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
+          if (l < .1 || l > .93) continue;
+          const k = (r >> 5) + ',' + (g >> 5) + ',' + (b >> 5), c = caixas[k] ||= { n: 0, r: 0, g: 0, b: 0 };
+          c.n++; c.r += r; c.g += g; c.b += b;
+        }
+        const lista = Object.values(caixas).map(c => { const r = c.r / c.n, g = c.g / c.n, b = c.b / c.n, mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+          const sat = mx === mn ? 0 : (mx - mn) / (255 - Math.abs(mx + mn - 255)); return { r, g, b, n: c.n, sat, peso: c.n * (.35 + sat) }; }).sort((a, b) => b.peso - a.peso);
+        const escolhidas = [];
+        for (const c of lista) { if (escolhidas.every(e => Math.hypot(e.r - c.r, e.g - c.g, e.b - c.b) > 70)) escolhidas.push(c); if (escolhidas.length === 5) break; }
+        const principalCor = escolhidas.find(c => c.sat > .25) || escolhidas[0];
+        const hex = c => '#' + [c.r, c.g, c.b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+        const res = [hex(principalCor), ...escolhidas.filter(c => c !== principalCor).map(hex)];
+        CACHE_CORES[url] = res; ok(res);
+      } catch (e) { ok(null); }
+    };
+    img.onerror = () => ok(null);
+    img.src = url;
+  });
+}
+async function aplicarPaleta() {
+  const raiz = document.documentElement;
+  if (PREF.paleta !== 'pokemon') { delete raiz.dataset.paleta; raiz.style.removeProperty('--tinta'); PALETA_ATUAL = null; return; }
+  const p = principal(), url = ART(p.n, p.s);
+  const cores = await coresDaArte(url);
+  if (!cores) { toast('Não deu para ler as cores desta arte', I.alerta); return; }
+  PALETA_ATUAL = cores;
+  raiz.style.setProperty('--tinta', cores[0]);
+  raiz.style.setProperty('--tinta-arte', `url('${url}')`);
+  raiz.dataset.paleta = 'pokemon';
+  const am = document.getElementById('amostra'); if (am) am.innerHTML = cores.map(c => `<i style="background:${c}"></i>`).join('');
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = getComputedStyle(raiz).getPropertyValue('--bg').trim() || '#17131c';
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.paletaOp) { PREF.paleta = t.dataset.paletaOp; salvarPref(); desenhar(baseAtual); aplicarPaleta(); }
+  else if (t.dataset.principal) { PREF.principal = +t.dataset.principal; salvarPref(); desenhar(baseAtual); document.querySelector('.cores-poke')?.scrollIntoView({ block: 'nearest' }); aplicarPaleta(); }
+});
+aplicarPaleta();
 
 /* ============ roteador ============ */
 let baseAtual = null;
