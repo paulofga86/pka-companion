@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011088">
+<link rel="stylesheet" href="estilo.css?v=1790011527">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -85,6 +85,7 @@
     <a href="#t-cacada">Caçada</a>
     <a href="#t-rockets">Rockets da semana</a>
     <a href="#t-tasks">Tasks do Mundo</a>
+    <a href="#t-ginasios">Ginásios</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -131,6 +132,7 @@
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
           <tr><td><code>#/tasks</code> · <code>#/tasks/juliana</code></td><td>Tasks do Mundo (com foco num NPC)</td><td>camada</td></tr>
+          <tr><td><code>#/ginasios</code> · <code>#/ginasios/vermilion</code></td><td>Ginásios (com foco numa cidade)</td><td>camada</td></tr>
           <tr><td><code>#/rockets</code></td><td>Rockets da semana</td><td>camada</td></tr>
           <tr><td><code>#/c/swellow</code> · <code>#/time/novo/swellow</code></td><td>Caçada · novo time já contra ela</td><td>camada</td></tr>
         </tbody>
@@ -298,6 +300,16 @@
         </dl>
       </div>
 
+      <div class="tela" id="t-ginasios">
+        <h3 class="titulo">Ginásios <a href="index.html#/ginasios">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Acompanhar as 8 insígnias de Kanto, que viram segundos de CDR na bag e sustentam a rotação de Hoenn.</dd>
+          <dt>Mostra</dt><dd>"N/8" insígnias e o CDR correspondente · próximo passo (a primeira etapa pendente, na ordem) · cada ginásio com as 3 etapas marcáveis (Task do Alfred, Dungeon, Insígnia) · detalhe: task, time do líder, Pokémon do jogador que batem forte, mapa da dungeon, aviso de level · regras da dungeon e das batalhas · divergência sobre as Potent Boost Stones.</dd>
+          <dt>Regras</dt><dd>1 insígnia = 1 s de CDR, para todos os Pokémon guardados. Dungeon a partir do level 200; batalhas a partir do 250. O elemento do líder é inferido pelo time e a tela diz isso.</dd>
+          <dt>Dados</dt><dd><code>Combate/Ginásios.md</code> · <code>Sistemas/Talentos.md</code>.</dd>
+        </dl>
+      </div>
+
       <div class="tela" id="t-eu">
         <h3 class="titulo">Eu <a href="index.html#/eu">ver no protótipo</a></h3>
         <dl>
@@ -351,7 +363,8 @@ média ≈ 8,5 helds por subida · pior caso 20</code></pre>
       <p>Tudo no aparelho, exportável em um arquivo. Estrutura mínima:</p>
 <pre><code>Personagem  { nome, mundo, level, vip, diamonds?, gold?,
               rockets: { semana: [vencidos], contador },
-              tasks: { [npc]: livre|aceita|feita } }
+              tasks: { [npc]: livre|aceita|feita },
+              ginasios: { [cidade]: { task, dungeon, insignia } } }
 Pokémon     { especie, shiny, apelido?, boost, stars, held?, heldTier,
               mega, onde: bag|depot|expedicao, treino{}, addon, historico[] }
 Time        { nome, alvo, principal, vagas[6] → Pokémon }

@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011088">
+<link rel="stylesheet" href="estilo.css?v=1790011527">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -725,6 +725,20 @@
   .mapa-telas[open] summary .icone { transform: rotate(90deg); }
   .mapa-telas .lista { margin-top: 8px; }
   .mapa-telas .linha { min-height: 50px; }
+
+  /* ---------- Ginásios ---------- */
+  .gin-palco::before { background: radial-gradient(90% 90% at 75% 15%, #6b5a1c 0%, #2a2416 55%, #141210 100%) !important; }
+  [data-tema="claro"] .gin-palco::before { background: radial-gradient(90% 90% at 75% 15%, #f3dfa2 0%, #f3eee0 60%, #f6f5f2 100%) !important; }
+  .insignias { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 14px; }
+  .insignias i { aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 2px rgba(255,255,255,.12); }
+  .insignias i.on { background: radial-gradient(circle at 35% 30%, #fff3c4, #f2c230 45%, #a77c10); box-shadow: 0 4px 12px rgba(242,194,48,.35); }
+  [data-tema="claro"] .insignias i { background: rgba(58,34,78,.08); box-shadow: inset 0 0 0 2px rgba(58,34,78,.1); }
+  .gin .etapas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 0 14px 12px; }
+  .gin .etapas button { height: 38px; border-radius: 12px; background: var(--surface-2); font-size: 12.5px; font-weight: 640; color: var(--text-2); display: flex; align-items: center; justify-content: center; gap: 4px; }
+  .gin .etapas button .icone { width: 14px; height: 14px; }
+  .gin .etapas button[aria-pressed="true"] { background: color-mix(in oklab, var(--ok) 22%, var(--surface)); color: var(--ok); }
+  .gin .ins-dot { width: 30px; height: 30px; border-radius: 50%; flex: none; background: var(--surface-2); box-shadow: inset 0 0 0 2px var(--surface-3); }
+  .gin .ins-dot.on { background: radial-gradient(circle at 35% 30%, #fff3c4, #f2c230 45%, #a77c10); box-shadow: 0 3px 10px rgba(242,194,48,.3); }
 </style>
 </head>
 <body>
@@ -947,6 +961,18 @@ const ROCKETS = [
 const TOKENS = k => k === 0 ? [5, 15, '2 a 5', '1'] : k === 1 ? [10, 18, '3 a 6', '1'] : k === 2 ? [15, 23, '5 a 10', '1 a 3'] : [20, 30, '8 a 15', '3 a 5'];
 const ROCK = { feitos: new Set(), contador: 52 };
 const HOENN_R = '3.000.000 XP · 5 Special Bubble Gum · 450 Mighty Token';
+// vault: Combate/Ginásios.md · elemento do líder = leitura pelo time, não é fonte
+const GINASIOS = [
+  { id:'pewter', cidade:'Pewter', lider:'Brock', ins:'Boulder Badge', task:'10 Shiny Marowak + 10 Shiny Steelix', time:'Shiny Marowak, Shiny Onix, Shiny Rhydon, Shiny Golem, Aerodactyl, Shiny Steelix', el:['rock','ground'], mapa:'https://imgur.com/a/TdDDQvL', feito:{ task:true, dungeon:true, ins:true } },
+  { id:'cerulean', cidade:'Cerulean', lider:'Misty', ins:'Cascade Badge', task:'10 Shiny Blastoise + 10 Shiny Feraligatr', time:'Shiny Blastoise, Shiny Vaporeon, Shiny Tentacruel, Shiny Feraligatr, Shiny Politoed, Shiny Mantine', el:['water'], mapa:'https://imgur.com/a/9zLq4Sq', feito:{ task:true, dungeon:true, ins:true } },
+  { id:'vermilion', cidade:'Vermilion', lider:'Lt. Surge', ins:'Thunder Badge', task:'10 Shiny Raichu + 10 Shiny Lanturn', time:'Shiny Magneton, Shiny Ampharos, Shiny Raichu, Shiny Lanturn, Shiny Jolteon, Shiny Electabuzz', el:['electric'], mapa:'https://imgur.com/a/X1JlKl5', feito:{ task:true } },
+  { id:'celadon', cidade:'Celadon', lider:'Erika', ins:'Rainbow Badge', task:'10 Shiny Venusaur + 10 Shiny Meganium', time:'Shiny Exeggutor, Shiny Venusaur, Shiny Meganium, Shiny Tangela, Shiny Vileplume, Vileplume', el:['grass'], mapa:'https://imgur.com/a/M7Jk4Ip', feito:{} },
+  { id:'fuchsia', cidade:'Fuchsia', lider:'Koga', ins:'Soul Badge', task:'10 Shiny Muk + 10 Shiny Tentacruel', time:'Shiny Nidoking, Shiny Nidoqueen, Shiny Crobat, Shiny Tentacruel, Shiny Venomoth, Shiny Muk', el:['poison'], mapa:'https://imgur.com/a/has6KOr', feito:{} },
+  { id:'saffron', cidade:'Saffron', lider:'Sabrina', ins:'Marsh Badge', task:'10 Shiny Espeon + 10 Shiny Xatu', time:'Shiny Alakazam, Shiny Xatu, Shiny Wobbuffet, Shiny Espeon, Shiny Mr. Mime, Shiny Hypno', el:['psychic'], mapa:'https://imgur.com/a/ZJrqy4w', feito:{} },
+  { id:'cinnabar', cidade:'Cinnabar', lider:'Blaine', ins:'Volcano Badge', task:'10 Shiny Charizard + 10 Shiny Typhlosion', time:'Shiny Magmar, Shiny Flareon, Shiny Ninetales, Shiny Arcanine, Shiny Charizard, Shiny Typhlosion', el:['fire'], mapa:'https://imgur.com/a/hLzaofv', feito:{} },
+  { id:'viridian', cidade:'Viridian', lider:'Giovanni', ins:'Earth Badge', task:'10 Shiny Nidoqueen + 10 Shiny Nidoking', time:'Shiny Kangaskhan, Shiny Nidoking, Shiny Nidoqueen, Shiny Dugtrio, Shiny Persian, Shiny Rhydon', el:['ground','normal'], mapa:'https://imgur.com/a/CNjdEEP', feito:{} },
+];
+const ETAPAS = [['task', 'Task', 0], ['dungeon', 'Dungeon', 200], ['ins', 'Insígnia', 250]];
 const TASKS = [
   { id:'juliana', npc:'Juliana', reg:'Hoenn', obj:['300 Taillow','1.500 Swellow'], rec:HOENN_R, xp:3e6, cacada:'swellow', lvl:350, estado:'aceita' },
   { id:'bianca', npc:'Bianca', reg:'Hoenn', obj:['750 Minun','750 Plusle'], rec:HOENN_R, xp:3e6, lvl:350, local:'https://imgur.com/a/NP74ZdI', estado:'livre', el:'electric' },
@@ -1073,6 +1099,11 @@ const TELAS = {
             <div class="c-titulo">Task da ${t.npc}</div>
             <div class="c-sub">${t.obj.join(' · ')}</div>
           </a>`; }).join('')}
+          ${(() => { const pr = proxGin(); return pr ? `<a class="cartao tinto" href="#/ginasios/${pr.g.id}" style="--c:var(--el-${pr.g.el[0]})">
+            <div class="c-titulo">Ginásio de ${pr.g.cidade}</div>
+            <div class="c-sub">Falta: ${pr.e[1].toLowerCase()} · ${insignias()} de 8 insígnias</div>
+            <div class="barra"><i style="--v:${insignias() / 8 * 100}%"></i></div>
+          </a>` : ''; })()}
           <a class="cartao tinto saltado" href="#/p/405" style="--c:var(--el-electric)">
             <div class="c-arte">${arte(405, false)}</div>
             <div class="c-titulo">Capturar Luxray</div>
@@ -1128,7 +1159,7 @@ const TELAS = {
       ${secoes.map(([t, itens]) => `
         <div class="fileira">
           <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
-          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
+          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks', 'Ginásios':'#/ginasios' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
         </div>`).join('')}
     </div>`;
   },
@@ -1234,7 +1265,7 @@ const TELAS = {
             ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
             ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
             ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
-            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'],
             ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
             ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
             ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
@@ -1268,7 +1299,9 @@ const INDICE = [
   { tipo:'Quests', t:'Tasks do Mundo', s:'167 NPCs: o que pedem e o que pagam', h:'#/tasks' },
   ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
-  { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/wiki' },
+  { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/ginasios' },
+  { tipo:'Combate', t:'Ginásios', s:'8 insígnias, até 8 s de CDR', h:'#/ginasios' },
+  ...GINASIOS.map(g => ({ tipo:'Combate', t:`Ginásio de ${g.cidade}`, s:`${g.lider} · ${g.ins}`, h:`#/ginasios/${g.id}` })),
 ];
 function buscar(q) {
   const alvo = $('#resultados'); if (!alvo) return;
@@ -2648,6 +2681,83 @@ document.addEventListener('click', e => {
   }
 });
 
+
+/* ============ Ginásios ============ */
+let ginAberto = null;
+const insignias = () => GINASIOS.filter(g => g.feito.ins).length;
+function proxGin() { for (const g of GINASIOS) { const e = ETAPAS.find(([k]) => !g.feito[k]); if (e) return { g, e }; } return null; }
+function abrirGinasios(foco, primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  if (foco) ginAberto = foco;
+  const n = insignias(), lv = PERSONAGEM.level, pr = proxGin();
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Ginásios">
+    <div class="folha-palco sis-palco gin-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">${n}/8</div><div class="k">insígnias · até ${n} s a menos de espera na bag</div>
+        <div class="insignias" aria-hidden="true">${GINASIOS.map(g => `<i class="${g.feito.ins ? 'on' : ''}"></i>`).join('')}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Ginásios</h2>
+      <div class="chips"><span class="chip">Combate · Kanto</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.relogio}<span>Cada insígnia é material de um talento que tira 1 segundo da espera das magias dos Pokémon guardados. Com as 8, são 8 segundos, para todo o time.</span></li>
+        <li>${I.raio}<span>É isso que mantém a rotação de Hoenn andando. Ative os primeiros segundos antes de subir o Hazard.</span></li>
+        <li>${I.bandeira}<span>Cada ginásio tem 3 etapas: a task do Alfred, a dungeon escondida (level 200) e as batalhas (level 250).</span></li>
+      </ul>
+    </div>
+
+    ${pr ? `<div class="sec"><a class="seu-plano" href="#/ginasios/${pr.g.id}" data-gin-abrir="${pr.g.id}" style="--c:var(--el-${pr.g.el[0]})">
+      <span class="estado andando" style="width:40px;height:40px">${I.bandeira}</span>
+      <span><span class="l-t">Próximo: ${pr.e[1]} de ${pr.g.cidade}</span><span class="l-s">${pr.e[0] === 'task' ? pr.g.task : pr.e[0] === 'dungeon' ? '10 minutos, sem Revive, level 200' : `Vencer os treinadores e ${pr.g.lider}`}</span></span>${I.seta}</a></div>` : ''}
+
+    <div class="sec"><h3 class="titulo">Os 8 de Kanto</h3>
+      ${GINASIOS.map(g => { const aberto = ginAberto === g.id, alvo = { el: g.el };
+        const meus = COLECAO.map((p, i) => ({ p, i, m: matchup(p.n, alvo) })).filter(x => x.m.ord <= 3).sort((a, b) => a.m.ord - b.m.ord).filter((x, k, arr) => arr.findIndex(y => y.p.n === x.p.n && y.p.s === x.p.s) === k).slice(0, 4);
+        return `<div class="rocket gin" id="gin-${g.id}">
+          <div class="cab">
+            <span class="ins-dot ${g.feito.ins ? 'on' : ''}" aria-hidden="true"></span>
+            <button class="nome" data-gin-abrir="${g.id}" aria-expanded="${aberto}"><b>${g.cidade} · ${g.lider}</b><span>${g.ins}${g.feito.ins ? ' · conquistada' : ''}</span></button>
+            <button class="abrir" data-gin-abrir="${g.id}" aria-expanded="${aberto}" aria-label="Detalhes">${I.seta}</button>
+          </div>
+          <div class="etapas" role="group" aria-label="Etapas de ${g.cidade}">${ETAPAS.map(([k, t, min]) => `<button aria-pressed="${!!g.feito[k]}" data-gin-etapa="${g.id}:${k}" title="${min ? `Level ${min}+` : ''}">${g.feito[k] ? I.check : ''}${t}</button>`).join('')}</div>
+          ${aberto ? `<div class="det">
+            <div><span class="rot">Task do Alfred</span><div class="chips"><span class="chip">${g.task}</span></div></div>
+            <div><span class="rot">Time de ${g.lider}</span><div class="chips">${g.time.split(', ').map(t => `<span class="chip">${t}</span>`).join('')}</div></div>
+            <div><span class="rot">Da sua coleção, contra ${g.el.map(e => EL[e]).join(' e ')}</span>${meus.length ? `<div class="chips">${meus.map(({ p, i, m }) => `<a class="chip tem" href="#/meu/${i}">${esc(nomeDe(p.n, p.s))} · ${m.c}</a>`).join('')}</div>` : `<p class="aviso" style="margin:4px 0 0">Nenhum Pokémon seu bate forte aqui.</p>`}</div>
+            ${lv < 250 ? `<p class="nota" style="margin:0">${I.alerta}As batalhas pedem level 250. Você está no ${lv}.</p>` : ''}
+            <a class="link-sis" style="margin:0" href="${g.mapa}" target="_blank" rel="noopener">Mapa da dungeon ${I.seta}</a>
+          </div>` : ''}
+        </div>`; }).join('')}
+      <p class="aviso">O elemento de cada líder é leitura pelo time dele, não vem de fonte. Times dos líderes: planilha da comunidade (19/09).</p>
+    </div>
+
+    <div class="sec">
+      ${fatoSis('Dungeon escondida', 'Individual, 10 minutos, Revive bloqueado. Falhou: nova tentativa custa $250.000. Concluir e entregar ao Alfred paga 3.000.000 de XP.', ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Batalhas', 'PokéView, até 6 Pokémon, os treinadores antes do líder. A primeira vitória contra o líder dá a insígnia e orbs do elemento. Perder custa orbs para tentar de novo.', ['parcial','Wiki oficial e comunidade · 19/09'])}
+      ${fatoSis('Fontes que discordam', 'A comunidade diz que o ginásio também dá 4 Potent Boost Stones do elemento. A wiki oficial não cita. Vale a oficial até alguém conferir.', ['parcial','Wiki oficial × comunidade · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="https://www.youtube.com/watch?v=khbKeyFrczI" target="_blank" rel="noopener">Vídeo</a>
+      ${pr ? `<button class="btn btn-primario" data-gin-etapa="${pr.g.id}:${pr.e[0]}">${I.check}Fiz: ${({ task:'task', dungeon:'dungeon', ins:'insígnia' })[pr.e[0]]} de ${pr.g.cidade}</button>` : `<button class="btn btn-primario" disabled>As 8 insígnias</button>`}
+    </div>
+  </article>`, primeira);
+  if (foco) { const el = document.getElementById('gin-' + foco); if (el) el.scrollIntoView({ block: 'center' }); }
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .gin-palco')) return;
+  const t = e.target.closest('button, a[data-gin-abrir]'); if (!t) return;
+  if (t.dataset.ginAbrir) { e.preventDefault(); ginAberto = ginAberto === t.dataset.ginAbrir ? null : t.dataset.ginAbrir; abrirGinasios(null, false); if (ginAberto) document.getElementById('gin-' + ginAberto)?.scrollIntoView({ block: 'nearest' }); }
+  else if (t.dataset.ginEtapa) {
+    const [id, k] = t.dataset.ginEtapa.split(':'), g = GINASIOS.find(x => x.id === id);
+    g.feito[k] = !g.feito[k];
+    abrirGinasios(null, false);
+    if (g.feito[k]) toast(k === 'ins' ? `${g.ins} conquistada: +1 s de CDR` : `${ETAPAS.find(x => x[0] === k)[1]} de ${g.cidade} feita`);
+  }
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2671,6 +2781,12 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  const gi = h.match(/^\/ginasios(?:\/([a-z]+))?$/);
+  if (gi) {
+    if (!baseAtual) desenhar('/wiki');
+    abrirGinasios(gi[1] || null);
     return;
   }
   const tk = h.match(/^\/tasks(?:\/([a-z]+))?$/);
