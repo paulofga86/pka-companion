@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013255">
+<link rel="stylesheet" href="estilo.css?v=1790013448">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -151,11 +151,11 @@
       <ul>
         <li><b>Paleta Mewtwo:</b> roxo acinzentado como tom principal, cinza arroxeado como neutro e <b>violeta só para o que é do jogador e para a próxima ação</b>. Se algo não é do jogador nem é o próximo passo, não é violeta.</li>
         <li><b>Modo escuro e claro</b>, com escolha em Eu (automático, claro, escuro). Valores dos dois temas em <code>estilo.css</code>.</li>
-        <li><b>Profundidade por sombra</b>, quase sem borda. Desfoque só no que flutua: barra das portas, barra de ação das camadas, avisos.</li>
+        <li><b>Profundidade por sombra</b>, quase sem borda. Desfoque só no que flutua: barra das portas, barra de ação das camadas, avisos. O vidro é bem translúcido (36% no escuro, 46% no claro, desfoque de 18 px com mais saturação), para mostrar o conteúdo passando por trás.</li>
         <li><b>Fonte:</b> Mona Sans (Google Fonts), com números tabulares.</li>
         <li><b>18 elementos</b> com cor própria (<code>--el-fire</code>, <code>--el-water</code>…). A cor aparece no ponto dos chips e no brilho atrás da arte.</li>
         <li><b>Shiny:</b> auréola iridescente girando atrás da arte e chip com brilho. Respeita o "reduzir movimento" do aparelho.</li>
-        <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto) e uma textura fosca de papel, bem discreta, por cima. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
+        <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto) e uma textura de tecido de malha bem discreta por cima (laçadas de 8 px com luz e sombra, mais um grão fino), desenhada em código, sem imagem. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
         <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem fundo iridescente, contorno de arco-íris que gira devagar e o nome em degradê. Com "reduzir movimento", o contorno fica parado.</li>
         <li><b>Cards da Wiki com imagem:</b> todo card de seção tem uma imagem e fundo na cor dela: itens com a pedra ou peça desenhada na cor do elemento, sistemas com o número-símbolo (+50, 5★, T7), combate, quests e mundo com a arte de um Pokémon ligado ao tema.</li>
         <li><b>Arte dos Pokémon:</b> arte oficial via PokéAPI (<code>official-artwork/[shiny/]N.png</code>). Itens e sistemas não têm arte oficial: usamos desenho próprio na cor do elemento, ou o número do sistema em destaque ("+50", "5★", "T7").</li>
@@ -193,7 +193,7 @@
         <dl>
           <dt>Para quê</dt><dd>Responder "o que eu faço agora?" sem nenhum toque.</dd>
           <dt>Mostra</dt><dd><ul><li>Destaque com o próximo passo do plano mais vantajoso, a arte do Pokémon como luz de fundo e "Ver o plano".</li><li>Continuar: times incompletos, contadores semanais (Rockets), capturas pendentes.</li><li>O que mudou no jogo: uma entrada por atualização, cada uma ligada à página afetada.</li></ul></dd>
-          <dt>Destaques rotativos</dt><dd>O topo do Início gira entre até 4 missões montadas com os dados do jogador: próximo passo do plano, Rockets da semana (se faltam vitórias), caçada do time principal (com a task aceita, se houver) e o próximo ginásio. Cada um tem cor e arte próprias, rótulo curto, título, uma frase e dois botões. Troca sozinho a cada 7 s; para quando o mouse está em cima, quando algo dentro dele tem foco ou quando uma camada está aberta. Pontos para escolher; no celular, arrastar para o lado. Com "reduzir movimento" ligado, não gira sozinho. Só os botões do destaque visível recebem foco.</dd>
+          <dt>Destaques rotativos</dt><dd>O topo do Início gira entre até 4 missões montadas com os dados do jogador: próximo passo do plano, Rockets da semana (se faltam vitórias), caçada do time principal (com a task aceita, se houver) e o próximo ginásio. Cada um tem cor e arte próprias, rótulo curto, título, uma frase e dois botões. O ponto do destaque atual se enche durante os 7 s e, quando enche, o destaque troca; para quando o mouse está em cima, quando algo dentro dele tem foco ou quando uma camada está aberta. Pontos para escolher, setas discretas dos dois lados (mais apagadas até o mouse passar) e, no celular, arrastar para o lado. O tempo pausa com mouse em cima, foco dentro, camada aberta ou aba escondida. Com "reduzir movimento" ligado, não gira sozinho. Só os botões do destaque visível recebem foco.</dd>
           <dt>Visual do destaque</dt><dd>A arte do Pokémon do próximo passo é a luz de fundo (desfocada) e aparece grande à direita. No PC, ela passa da borda de baixo do destaque, como a arte dos cards de "Continuar" passa da borda de cima; o fundo desfocado continua recortado. O destaque tem a mesma margem da barra lateral do lado direito.</dd>
           <dt>Fileiras no computador</dt><dd>Toda fileira que rola para o lado ganha setas (anterior e próximo) ao lado do "Ver tudo", só em aparelhos com mouse. A borda por onde ainda há cards esmaece em vez de cortar o card. As setas somem quando a fileira cabe inteira e ficam apagadas no começo ou no fim.</dd>
           <dt>Cards de "Continuar"</dt><dd>Time, Rockets, task aceita, próximo marco de level, próximo ginásio e captura pendente. Cards com arte deixam o Pokémon sair um pouco por cima; cards sem arte ficam alinhados pela base com eles.</dd>

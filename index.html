@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013255">
+<link rel="stylesheet" href="estilo.css?v=1790013448">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -28,7 +28,7 @@
     position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
     height: var(--dock-h); border-radius: 26px;
     display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
-    background: var(--glass); backdrop-filter: blur(28px) saturate(1.6); -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    background: var(--glass); backdrop-filter: blur(18px) saturate(1.8); -webkit-backdrop-filter: blur(18px) saturate(1.8);
     box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge);
   }
   .porta {
@@ -289,7 +289,7 @@
   .barra-acao {
     position: fixed; z-index: 60; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%);
     width: min(calc(100% - 28px), 592px); display: flex; gap: 10px; padding: 10px; border-radius: 28px;
-    background: var(--glass); backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+    background: var(--glass); backdrop-filter: blur(18px) saturate(1.8); -webkit-backdrop-filter: blur(18px) saturate(1.8);
     box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge); transition: transform .6s var(--ease) .08s;
   }
   .camada.aberta .barra-acao { transform: translate(-50%, 0); }
@@ -639,7 +639,7 @@
     --surface-2: color-mix(in oklab, var(--tinta) 22%, #28232e);
     --surface-3: color-mix(in oklab, var(--tinta) 26%, #332d39);
     --data: color-mix(in oklab, var(--tinta) 60%, #ffffff);
-    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 12%, #1b1720) 64%, transparent);
+    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 12%, #1b1720) 38%, transparent);
   }
   html[data-paleta="pokemon"][data-tema="claro"] {
     --bg: color-mix(in oklab, var(--tinta) 12%, #f7f6f9);
@@ -648,7 +648,7 @@
     --surface-2: color-mix(in oklab, var(--tinta) 12%, #f8f7fa);
     --surface-3: color-mix(in oklab, var(--tinta) 20%, #efedf2);
     --data: color-mix(in oklab, var(--tinta) 70%, #1f1a26);
-    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 6%, #fbfafd) 72%, transparent);
+    --glass: color-mix(in oklab, color-mix(in oklab, var(--tinta) 6%, #fbfafd) 46%, transparent);
   }
   html[data-paleta="pokemon"] .palco::before { background: color-mix(in oklab, var(--tinta) 42%, #1b1420); }
   html[data-paleta="pokemon"] .ent-palco::before, html[data-paleta="pokemon"] .sis-palco::before { background: color-mix(in oklab, var(--tinta) 38%, #1d1426) !important; }
@@ -890,14 +890,14 @@
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.20), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.10), transparent 70%);
     -webkit-mask-image: linear-gradient(#000, #000); }
-  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .09; mix-blend-mode: soft-light;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55 .75' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 .9'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"); }
+  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cg fill='%23fff' fill-opacity='.55'%3E%3Cellipse cx='2' cy='1.6' rx='1.5' ry='1.1'/%3E%3Cellipse cx='6' cy='5.6' rx='1.5' ry='1.1'/%3E%3C/g%3E%3Cg fill='%23000' fill-opacity='.55'%3E%3Cellipse cx='2' cy='3' rx='1.4' ry='.7'/%3E%3Cellipse cx='6' cy='7' rx='1.4' ry='.7'/%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"); background-size: 8px 8px, 220px 220px; }
   [data-tema="claro"] body::before { background:
       radial-gradient(1000px 620px at 92% -6%, rgba(171,125,211,.42), transparent 68%),
       radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
       radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.24), transparent 70%),
       radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.14), transparent 70%); }
-  [data-tema="claro"] body::after { opacity: .12; mix-blend-mode: multiply; }
+  [data-tema="claro"] body::after { opacity: .09; mix-blend-mode: multiply; }
   body { background: var(--bg) !important; }
   /* ---------- shiny com brilho ---------- */
   .poke-tile .quadro.brilho { background:
@@ -925,6 +925,21 @@
   .el-det { margin-top: 12px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px; }
   .el-det b { font-weight: 650; }
   .el-det p { margin: 4px 0 0; color: var(--text-2); font-size: 14.5px; }
+
+  /* tempo de cada destaque e setas */
+  .pontos-c i { position: relative; overflow: hidden; }
+  .pontos-c button[aria-selected="true"] i { width: 34px; background: rgba(255,255,255,.35); }
+  .pontos-c button[aria-selected="true"] i::after { content: ""; position: absolute; inset: 0; width: 0; border-radius: inherit; background: #fff; animation: enche 7s linear forwards; }
+  .carrossel.pausado .pontos-c i::after { animation-play-state: paused; }
+  .carrossel.parado .pontos-c button[aria-selected="true"] i::after { animation: none; width: 100%; }
+  @keyframes enche { to { width: 100%; } }
+  .seta-c { position: absolute; top: 50%; z-index: 4; width: 40px; height: 40px; margin-top: -20px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: rgba(24,18,31,.28); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); opacity: .55; transition: opacity .25s, background .25s; }
+  .seta-c:hover, .seta-c:focus-visible { opacity: 1; background: rgba(24,18,31,.5); }
+  .seta-c .icone { width: 18px; height: 18px; }
+  .seta-c.esq { left: 12px; } .seta-c.esq .icone { transform: rotate(180deg); }
+  .seta-c.dir { right: 12px; }
+  @media (max-width: 899px) { .seta-c { width: 34px; height: 34px; margin-top: -17px; opacity: .45; } .seta-c.esq { left: 6px; } .seta-c.dir { right: 6px; } }
 </style>
 </head>
 <body>
@@ -1322,6 +1337,8 @@ const TELAS = {
         </div></div>
       </div>`).join('')}</div>
       <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
+      <button class="seta-c esq" type="button" data-destaque-passo="-1" aria-label="Destaque anterior">${I.seta}</button>
+      <button class="seta-c dir" type="button" data-destaque-passo="1" aria-label="Próximo destaque">${I.seta}</button>
       <div class="pontos-c" role="tablist" aria-label="Escolher destaque">${DESTAQUES().map((d, k) => `<button role="tab" aria-selected="${k === 0}" aria-label="${d.rot}" data-destaque="${k}"><i></i></button>`).join('')}</div>
     </section>
 
@@ -3178,24 +3195,23 @@ function irDestaque(k) {
   const c = document.querySelector('.carrossel'); if (!c) return;
   const sl = c.querySelectorAll('.slide'), n = sl.length; destaqueK = (k + n) % n;
   sl.forEach((el, i) => { const on = i === destaqueK; el.classList.toggle('on', on); el.setAttribute('aria-hidden', !on); el.querySelectorAll('a').forEach(a => on ? a.removeAttribute('tabindex') : a.setAttribute('tabindex', '-1')); });
-  c.querySelectorAll('.pontos-c button').forEach((b, i) => b.setAttribute('aria-selected', i === destaqueK));
+  c.querySelectorAll('.pontos-c button').forEach((b, i) => { b.setAttribute('aria-selected', 'false'); if (i === destaqueK) { void b.offsetWidth; b.setAttribute('aria-selected', 'true'); } });
 }
 function iniciarCarrossel() {
   clearInterval(destaqueTimer);
   const c = document.querySelector('.carrossel'); if (!c) return;
   destaqueK = 0;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  let pausado = false;
-  c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pausado = true; });
-  c.addEventListener('pointerleave', () => { pausado = false; });
-  c.addEventListener('focusin', () => { pausado = true; });
-  c.addEventListener('focusout', () => { pausado = false; });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { c.classList.add('parado'); return; }
+  const pausa = on => c.classList.toggle('pausado', on);
+  c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pausa(true); });
+  c.addEventListener('pointerleave', () => pausa(false));
   let x0 = null;
-  c.addEventListener('pointerdown', e => { x0 = e.clientX; });
-  c.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 45) { irDestaque(destaqueK + (dx < 0 ? 1 : -1)); pausado = false; } });
-  destaqueTimer = setInterval(() => { if (!pausado && !document.hidden && $('#camada').hidden && document.querySelector('.carrossel')) irDestaque(destaqueK + 1); }, 7000);
+  c.addEventListener('pointerdown', e => { if (!e.target.closest('button, a')) x0 = e.clientX; });
+  c.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 45) irDestaque(destaqueK + (dx < 0 ? 1 : -1)); });
+  c.addEventListener('animationend', e => { if (e.animationName === 'enche' && $('#camada').hidden && !document.hidden) irDestaque(destaqueK + 1); });
+  destaqueTimer = setInterval(() => { c.classList.toggle('pausado', (matchMedia('(hover: hover)').matches && c.matches(':hover')) || c.contains(document.activeElement) || !$('#camada').hidden || document.hidden); }, 500);
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-destaque]'); if (b) irDestaque(+b.dataset.destaque); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-destaque]'), p = e.target.closest('[data-destaque-passo]'); if (b) irDestaque(+b.dataset.destaque); if (p) irDestaque(destaqueK + +p.dataset.destaquePasso); if ((b || p) && e.detail > 0) (b || p).blur(); });
 
 
 /* ============ Dungeons ============ */
