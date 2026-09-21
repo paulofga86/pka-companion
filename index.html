@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013681">
+<link rel="stylesheet" href="estilo.css?v=1790013857">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -111,7 +111,8 @@
   .cartao .c-arte img { width: 100%; height: 100%; object-fit: contain; }
   .cartao.tinto { background: linear-gradient(160deg, color-mix(in oklab, var(--c) 34%, var(--surface)) 0%, var(--surface) 70%); }
   /* cartão saltado: o fundo começa mais abaixo e o Pokémon sai por cima da borda */
-  .trilho:has(.saltado) { padding-top: 12px; }
+  .trilho:has(.saltado) { padding-top: 44px; margin-top: -34px; }
+  .fileira-cab { position: relative; z-index: 2; }
   .trilho:has(.saltado) .cartao:not(.saltado) { margin-top: 18px; }
   .cartao.saltado { overflow: visible; background: none; box-shadow: none; height: 194px; }
   .cartao.saltado::before {
@@ -951,6 +952,24 @@
     box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.07); }
   [data-tema="claro"] :is(.cartao, .secao-tile, .poke-tile .quadro, .lista, .fato, .calc, .task, .rocket, .dg, .nov, .passo-pl, .inv, .seu-plano, .campo-grupo, .cartao-eu) {
     box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.7); }
+
+  /* ---------- aura: a interface ganha as cores do Pokémon sob o mouse ---------- */
+  @property --aura1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --aura2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  @property --aura3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+  #aura { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0;
+    background:
+      radial-gradient(1100px 720px at 82% 4%, var(--aura1), transparent 70%),
+      radial-gradient(900px 720px at 4% 62%, var(--aura2), transparent 70%),
+      radial-gradient(900px 600px at 55% 108%, var(--aura1), transparent 70%),
+      linear-gradient(var(--aura3), var(--aura3));
+    transition: opacity .9s var(--ease), --aura1 .9s var(--ease), --aura2 .9s var(--ease), --aura3 .9s var(--ease); }
+  #aura.on { opacity: 1; }
+  .cartao .c-arte, .poke-tile .quadro .arte { transition: transform .55s var(--ease); }
+  @media (hover: hover) {
+    .cartao:hover .c-arte { transform: scale(1.14) translateY(-6px); }
+    .poke-tile:hover .quadro .arte { transform: scale(1.08); }
+  }
 </style>
 </head>
 <body>
@@ -969,6 +988,7 @@
 <div id="camada" class="camada" hidden></div>
 <div id="entrada" class="entrada" hidden></div>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="aura" aria-hidden="true"></div>
 <div class="tag-proto">Protótipo · dados de exemplo</div>
 
 <script>
@@ -3368,6 +3388,32 @@ document.addEventListener('click', e => {
   e.preventDefault(); talEl = t.dataset.talEl; abrirTalentos(false);
   document.querySelector('.el-det')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
 });
+
+
+/* ============ aura do Pokémon sob o mouse ============ */
+if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const aura = document.getElementById('aura');
+  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`; };
+  let atual = null, saida = null;
+  document.addEventListener('mouseover', async e => {
+    const card = e.target.closest('.cartao, .poke-tile, .secao-tile.vis'); if (!card) return;
+    clearTimeout(saida);
+    const img = card.querySelector('.arte img'); if (!img || card === atual) return;
+    atual = card;
+    const cores = await coresDaArte(img.currentSrc || img.src);
+    if (!cores || atual !== card) return;
+    const tema = document.documentElement.dataset.tema === 'claro';
+    aura.style.setProperty('--aura1', rgba(cores[0], tema ? .34 : .42));
+    aura.style.setProperty('--aura2', rgba(cores[1] || cores[0], tema ? .26 : .30));
+    aura.style.setProperty('--aura3', rgba(cores[0], tema ? .10 : .12));
+    aura.classList.add('on');
+  });
+  document.addEventListener('mouseout', e => {
+    const card = e.target.closest('.cartao, .poke-tile, .secao-tile.vis'); if (!card || card.contains(e.relatedTarget)) return;
+    clearTimeout(saida);
+    saida = setTimeout(() => { atual = null; aura.classList.remove('on'); }, 180);
+  });
+}
 
 /* ============ roteador ============ */
 let baseAtual = null;

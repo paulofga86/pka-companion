@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013681">
+<link rel="stylesheet" href="estilo.css?v=1790013857">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -196,6 +196,8 @@
           <dt>Destaques rotativos</dt><dd>O topo do Início gira entre até 4 missões montadas com os dados do jogador: próximo passo do plano, Rockets da semana (se faltam vitórias), caçada do time principal (com a task aceita, se houver) e o próximo ginásio. Cada um tem cor e arte próprias, rótulo curto, título, uma frase e dois botões. O ponto do destaque atual se enche durante os 7 s e, quando enche, o destaque troca; para quando o mouse está em cima, quando algo dentro dele tem foco ou quando uma camada está aberta. Pontos para escolher, setas discretas dos dois lados, na altura livre acima do título (mais apagadas até o mouse passar) e, no celular, arrastar para o lado. O tempo pausa com mouse em cima, foco dentro, camada aberta ou aba escondida. Com "reduzir movimento" ligado, não gira sozinho. Só os botões do destaque visível recebem foco.</dd>
           <dt>Visual do destaque</dt><dd>A arte do Pokémon do próximo passo é a luz de fundo (desfocada) e aparece grande à direita. No PC, ela passa da borda de baixo do destaque, como a arte dos cards de "Continuar" passa da borda de cima; o fundo desfocado continua recortado. O destaque tem a mesma margem da barra lateral do lado direito.</dd>
           <dt>Fileiras no computador</dt><dd>Toda fileira que rola para o lado ganha setas (anterior e próximo) ao lado do "Ver tudo", só em aparelhos com mouse. A borda por onde ainda há cards esmaece em vez de cortar o card. As setas somem quando a fileira cabe inteira e ficam apagadas no começo ou no fim.</dd>
+          <dt>Passar o mouse num Pokémon</dt><dd>Em aparelhos com mouse, a arte do card cresce um pouco e a interface inteira muda suavemente para as cores daquela arte: o app lê as duas cores dominantes e acende uma camada de luz atrás de tudo (0,9 s). Como os cards são de vidro, o tom atravessa a tela toda. Ao sair do card, volta devagar. Com "reduzir movimento", não acontece.</dd>
+          <dt>Luz acima dos cards</dt><dd>As fileiras com arte saindo por cima têm espaço extra no alto, para o brilho da arte terminar suave em vez de ser cortado.</dd>
           <dt>Cards de "Continuar"</dt><dd>Time, Rockets, task aceita, próximo marco de level, próximo ginásio e captura pendente. Cards com arte deixam o Pokémon sair um pouco por cima; cards sem arte ficam alinhados pela base com eles.</dd>
           <dt>Regra do destaque</dt><dd>Entre os planos do jogador, o passo que não está feito nem bloqueado, na ordem oficial de investimento (<code>Guias/Como ficar mais forte.md</code>). Na fase 1 basta essa regra simples.</dd>
           <dt>Dados</dt><dd>Planos e times do jogador · <code>Patch Notes/</code> · <code>Combate/Rockets Semanais.md</code>.</dd>
