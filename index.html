@@ -549,6 +549,42 @@
   .mini-tabela td { padding: 9px 16px; box-shadow: inset 0 1px 0 var(--surface-2); }
   .mini-tabela .num { text-align: right; }
   .mini-tabela tr.sel td { background: color-mix(in oklab, var(--accent-strong) 9%, transparent); font-weight: 640; }
+
+  /* ---------- Montar time ---------- */
+  .time-palco { height: 210px; }
+  .time-palco .alvo-arte { position: absolute; right: -4%; top: 22px; width: 190px; height: 190px; opacity: .9; }
+  .time-palco .alvo-arte img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 28px rgba(0,0,0,.4)); }
+  .alvos { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -22px; padding: 4px 22px 8px; }
+  .alvos::-webkit-scrollbar { display: none; }
+  .alvos button { flex: none; width: 124px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 10px; text-align: left; transition: background .25s var(--ease); }
+  .alvos button img { width: 64px; height: 64px; object-fit: contain; display: block; margin: -4px auto 4px; }
+  .alvos button b { display: block; font-size: 14.5px; font-weight: 640; }
+  .alvos button span { display: block; font-size: 12px; color: var(--text-3); }
+  .alvos button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; box-shadow: var(--shadow-2); }
+  .alvos button[aria-pressed="true"] span { color: rgba(255,255,255,.8); }
+  .vagas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (min-width: 560px) { .vagas { grid-template-columns: repeat(6, 1fr); } }
+  .vaga { aspect-ratio: 1; border-radius: 18px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    background: radial-gradient(110% 90% at 50% 95%, color-mix(in oklab, var(--c, var(--n-500)) 40%, var(--surface-2)) 0%, var(--surface-2) 75%); box-shadow: var(--shadow-1); transition: transform .35s var(--ease), box-shadow .3s; }
+  .vaga .arte { position: absolute; inset: 8% 8% 22%; }
+  .vaga.vazia { background: var(--bg-2); box-shadow: inset 0 2px 8px rgba(0,0,0,.18); color: var(--text-3); font-size: 12px; font-weight: 600; }
+  .vaga[aria-pressed="true"] { box-shadow: var(--focus-glow); transform: scale(1.03); }
+  .vaga .selo-m { position: absolute; left: 6px; right: 6px; bottom: 6px; height: 20px; border-radius: 999px; font-size: 10.5px; font-weight: 680; display: flex; align-items: center; justify-content: center; white-space: nowrap; overflow: hidden;
+    background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: var(--text); }
+  .m-perfeito { --m: var(--ok); } .m-forte { --m: var(--ok); } .m-tanque { --m: var(--data); } .m-vidro { --m: var(--warn); } .m-neutro { --m: var(--text-3); } .m-ruim { --m: var(--bad); }
+  .selo-m::before, .tag-m::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--m); display: inline-block; margin-right: 5px; vertical-align: 1px; }
+  .tag-m { font-size: 12.5px; font-weight: 600; color: var(--text-2); white-space: nowrap; }
+  .escolher { margin-top: 12px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-2); overflow: hidden; }
+  .escolher .cab-e { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 16px; }
+  .escolher .cab-e b { font-weight: 640; }
+  .escolher .cab-e button { font-size: 13.5px; font-weight: 620; color: var(--text-2); min-height: 36px; }
+  .escolher .linha.no-time { opacity: .45; }
+  .analise-t { display: grid; gap: 10px; }
+  .analise-t .a { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; padding: 14px 16px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); }
+  .analise-t .a .icone { color: var(--data); margin-top: 1px; }
+  .analise-t .a.alerta .icone { color: var(--warn); }
+  .analise-t .a.bom .icone { color: var(--ok); }
+  .analise-t .a b { font-weight: 640; }
 </style>
 </head>
 <body>
@@ -716,6 +752,38 @@ function fusaoHeld() {
 }
 const kk = v => (Math.round(v * 10) / 10).toLocaleString('pt-BR') + ' kk';
 
+/* ============ efetividade (2× e 0,5×, um elemento por Pokémon, como o PKA Helper) ============ */
+const FORTE = { fire:'grass ice bug steel', water:'fire ground rock', grass:'water ground rock', electric:'water flying', ice:'grass ground flying dragon',
+  fighting:'normal ice rock dark steel', poison:'grass fairy', ground:'fire electric poison rock steel', flying:'grass fighting bug', psychic:'fighting poison',
+  bug:'grass psychic dark', rock:'fire ice flying bug', ghost:'psychic ghost', dragon:'dragon', dark:'psychic ghost', steel:'ice rock fairy', fairy:'fighting dragon dark', normal:'' };
+const FRACO = { fire:'fire water rock dragon', water:'water grass dragon', grass:'fire grass poison flying bug dragon steel', electric:'electric grass dragon ground',
+  ice:'fire water ice steel', fighting:'poison flying psychic bug fairy ghost', poison:'poison ground rock ghost steel', ground:'grass bug flying', flying:'electric rock steel',
+  psychic:'psychic steel dark', bug:'fire fighting poison flying ghost steel fairy', rock:'fighting ground steel', ghost:'dark normal', dragon:'steel fairy',
+  dark:'fighting dark fairy', steel:'fire water electric steel', fairy:'fire poison steel', normal:'rock steel ghost' };
+const mult = (a, d) => FORTE[a].split(' ').includes(d) ? 2 : FRACO[a].split(' ').includes(d) ? .5 : 1;
+const ALVOS = [
+  { id:'swellow', n:277, nome:'Swellow', el:['normal','flying'], lvl:'Hoenn · 350+', sug:[[417,false],[125,false],[26,true],[405,false],[181,true],[135,true]] },
+  { id:'magmar', n:126, nome:'Magmar', el:['fire'], lvl:'Hoenn · 350+', sugNomes:'Shiny Blastoise, Shiny Feraligatr, Shiny Vaporeon, Shiny Starmie, Shiny Kingdra e Milotic' },
+  { id:'swampert', n:260, nome:'Swampert', el:['water','ground'], lvl:'Hoenn · 350+', sugNomes:'Tangrowth, Gogoat, Shiny Venusaur, Shiny Meganium, Shiny Tangela e Tropius' },
+  { id:'aggron', n:306, nome:'Aggron', el:['steel','rock'], lvl:'Hoenn · 350+', sugNomes:'Shiny Hitmontop, Shiny Steelix, Shiny Hitmonlee, Shiny Hitmonchan, Shiny Marowak e Torterra' },
+  { id:'sceptile', n:254, nome:'Sceptile', el:['grass'], lvl:'Hoenn · 350+', sugNomes:'Shiny Arcanine, Shiny Typhlosion, Shiny Charizard, Shiny Flareon, Infernape e Shiny Ninetales' },
+  { id:'gengar', n:94, nome:'Gengar', el:['ghost','poison'], lvl:'Hoenn · 350+', sugNomes:'Shiny Persian, Mightyena, Dusknoir, Shiny Dusknoir, Shiny Hitmonchan e Shiny Umbreon' },
+];
+const OFFTANK = new Set([417, 125]);
+function matchup(n, alvo) {
+  const e = DEX[n].el[0];
+  const atk = alvo.el.reduce((m, d) => m * mult(e, d), 1), def = Math.max(...alvo.el.map(a => mult(a, e)));
+  if (atk > 1 && def < 1) return { k:'perfeito', t:'bate forte e aguenta', c:'ideal', ord:0 };
+  if (atk > 1 && def > 1) return { k:'vidro', t:'bate forte, mas apanha', c:'arriscado', ord:2 };
+  if (atk > 1) return { k:'forte', t:'bate forte', c:'bate forte', ord:1 };
+  if (def < 1) return { k:'tanque', t:'aguenta, bate normal', c:'aguenta', ord:3 };
+  if (atk < 1) return { k:'ruim', t:'bate fraco', c:'fraco', ord:5 };
+  return { k:'neutro', t:'neutro', c:'neutro', ord:4 };
+}
+const TIMES = [
+  { id:'electric', nome:'Time Electric', alvo:'swellow', principal:true, slots:[[181,true],[125,false],[417,false],[25,true],null,null] },
+];
+
 /* ============ utilidades ============ */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
@@ -799,7 +867,7 @@ const TELAS = {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">Continuar</h3><a href="#/meus/planos">Ver tudo</a></div>
         <div class="trilho">
-          <a class="cartao tinto saltado" href="#/meus/times" style="--c:var(--el-electric)">
+          <a class="cartao tinto saltado" href="#/time/electric" style="--c:var(--el-electric)">
             <div class="c-arte">${arte(181, true)}</div>
             <div class="c-titulo">Time Electric</div>
             <div class="c-sub">4 de 6 · faltam Luxray e Shiny Jolteon</div>
@@ -897,20 +965,14 @@ const TELAS = {
         <a class="poke-tile" href="#/novo"><div class="quadro" style="display:grid;place-items:center;color:var(--text-3);box-shadow:inset 0 2px 10px rgba(0,0,0,.15);background:var(--bg-2)">${I.mais}</div><div class="nome">Adicionar</div><div class="meta">Um ou vários de uma vez</div></a>
       </div>`;
     } else if (aba === 'times') {
-      const slots = [[181,true],[125,false],[417,false],[25,true]];
-      corpo = `<section class="time">
-        <div class="time-cab"><div><h3 class="titulo">Time Electric</h3><p>Para as caçadas de rotação em Hoenn · principal</p></div><a class="btn btn-suave" href="#/meus/times">Editar</a></div>
+      corpo = TIMES.map(tm => { const alvo = ALVOS.find(a => a.id === tm.alvo); const cheios = tm.slots.filter(Boolean);
+        return `<section class="time">
+        <div class="time-cab"><div><h3 class="titulo">${esc(tm.nome)}</h3><p>${alvo ? `Contra ${alvo.nome} · ${alvo.lvl}` : 'Sem caçada escolhida'}${tm.principal ? ' · principal' : ''}</p></div><a class="btn btn-suave" href="#/time/${tm.id}">Editar</a></div>
         <div class="slots">
-          ${slots.map(([n,s]) => `<a class="slot" href="#/p/${n}${s ? 's' : ''}" style="--c:${cor(n)}" aria-label="${esc(nomeDe(n,s))}">${arte(n,s)}</a>`).join('')}
-          <a class="slot falta" href="#/p/405">${I.mais}Luxray</a>
-          <a class="slot falta" href="#/p/135s">${I.mais}Shiny Jolteon</a>
+          ${tm.slots.map((x, i) => x ? `<a class="slot" href="#/time/${tm.id}" style="--c:${cor(x[0])}" aria-label="${esc(nomeDe(x[0], x[1]))}">${arte(x[0], x[1])}</a>` : `<a class="slot falta" href="#/time/${tm.id}">${I.mais}Vaga ${i + 1}</a>`).join('')}
         </div>
-        <div class="analise">
-          <div class="a">${I.raio}<span>Bate forte em <b>Water</b> e <b>Flying</b> — a maioria dos alvos de Hoenn é Water.</span></div>
-          <div class="a alerta">${I.alerta}<span>Ninguém resolve <b>Ground</b>: evite a caçada de Marshtomp com este time.</span></div>
-          <div class="a">${I.alvo}<span>Do time sugerido pela comunidade, você tem <b>4 de 6</b>.</span></div>
-        </div>
-      </section>`;
+        <div class="analise">${resumoTime(tm).slice(0, 3).map(r => `<div class="a ${r.alerta ? 'alerta' : ''}">${r.ic}<span>${r.t}</span></div>`).join('')}</div>
+      </section>`; }).join('') + `<a class="btn btn-suave" href="#/time/novo" style="margin-top:14px;width:100%">${I.mais}Novo time</a>`;
     } else {
       const lista = [['25s'], ['125'], ['417'], ['181s']].map(([k]) => {
         const pl = planoDe(k), prox = proximoDe(pl), f = pl.passos.filter(x => x.estado === 'feito').length;
@@ -1039,7 +1101,8 @@ function fecharFicha(voltarHash = true) {
   camada.classList.remove('aberta');
   document.body.style.overflow = '';
   setTimeout(() => { camada.hidden = true; camada.innerHTML = ''; }, 450);
-  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null;
+  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null;
+  for (let i = TIMES.length - 1; i >= 0; i--) if (TIMES[i].novo) TIMES.splice(i, 1);
   if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
 }
 
@@ -1890,6 +1953,107 @@ document.addEventListener('click', e => {
   else if (t.dataset.heldT) { sisH.t = +t.dataset.heldT; abrirHelds(false); }
 });
 
+
+/* ============ montar time ============ */
+let timeAtual = null, vagaSel = null;
+const timeDe = id => TIMES.find(t => t.id === id);
+function resumoTime(tm) {
+  const alvo = ALVOS.find(a => a.id === tm.alvo), cheios = tm.slots.filter(Boolean), out = [];
+  if (!alvo) return [{ ic: I.alvo, t: 'Escolha a caçada primeiro. O time é montado contra os elementos dela.' }];
+  const els = alvo.el.map(e => EL[e] || e).join(' e ');
+  const fortes = cheios.filter(([n]) => matchup(n, alvo).ord <= 2).length;
+  if (cheios.length) out.push({ ic: I.raio, bom: fortes >= 4, alerta: fortes < 3, t: `<b>${fortes} de ${cheios.length}</b> batem forte em ${alvo.nome} (${els}).` });
+  const apanham = cheios.filter(([n]) => { const m = matchup(n, alvo); return m.k === 'vidro'; });
+  if (apanham.length) out.push({ ic: I.alerta, alerta: true, t: `${apanham.map(([n, s]) => `<b>${esc(nomeDe(n, s))}</b>`).join(', ')} ${apanham.length > 1 ? 'apanham' : 'apanha'} forte de ${alvo.nome}. Leve cura ou um held de defesa.` });
+  const fracos = cheios.filter(([n]) => matchup(n, alvo).k === 'ruim');
+  if (fracos.length) out.push({ ic: I.alerta, alerta: true, t: `${fracos.map(([n, s]) => `<b>${esc(nomeDe(n, s))}</b>`).join(', ')} ${fracos.length > 1 ? 'batem' : 'bate'} fraco aqui. Troque se tiver opção.` });
+  if (alvo.sug) {
+    const tem = alvo.sug.filter(([n, s]) => cheios.some(([a, b]) => a === n && b === s));
+    const falta = alvo.sug.filter(x => !tem.includes(x));
+    const evolui = falta.filter(([n, s]) => n === 26 && cheios.some(([a, b]) => a === 25 && b === s));
+    out.push({ ic: I.alvo, t: `Do time que a comunidade usa contra ${alvo.nome}, você tem <b>${tem.length} de 6</b>${falta.length ? `. Faltam ${falta.map(([n, s]) => esc(nomeDe(n, s))).join(', ')}` : ''}${evolui.length ? ' (o Shiny Pikachu vira Shiny Raichu no seu plano)' : ''}.` });
+  } else out.push({ ic: I.alvo, t: `A comunidade usa contra ${alvo.nome}: ${alvo.sugNomes}.` });
+  const off = cheios.filter(([n]) => OFFTANK.has(n)).length;
+  if (cheios.length >= 4) out.push({ ic: I.caixa, alerta: off === 0, t: off ? `<b>${off} offtank${off > 1 ? 's' : ''}</b> para abrir a rotação e ${cheios.length - off} de dano. Em Hoenn, a comunidade usa 2 e 4.` : 'Ninguém para segurar dano. Em Hoenn, a comunidade abre a rotação com 2 offtanks.' });
+  if (cheios.length < 6) out.push({ ic: I.mais, t: `${6 - cheios.length} vaga${6 - cheios.length > 1 ? 's' : ''} livre${6 - cheios.length > 1 ? 's' : ''}. A rotação precisa dos seis para sempre ter alguém pronto.` });
+  return out;
+}
+function abrirTime(id) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null;
+  if (id === 'novo') { const nid = 't' + Date.now().toString(36); TIMES.push({ id: nid, nome: `Time ${TIMES.length + 1}`, alvo: null, slots: [null, null, null, null, null, null], novo: true }); history.replaceState(null, '', '#/time/' + nid); id = nid; }
+  if (!timeDe(id)) return;
+  if (timeAtual !== id) vagaSel = null;
+  timeAtual = id;
+  pintarTime($('#camada').hidden);
+}
+function pintarTime(primeira) {
+  const tm = timeDe(timeAtual), alvo = ALVOS.find(a => a.id === tm.alvo);
+  const cheios = tm.slots.filter(Boolean);
+  const ranking = alvo ? COLECAO.map(c => ({ c, m: matchup(c.n, alvo) })).sort((a, b) => a.m.ord - b.m.ord || (b.c.s - a.c.s)) : COLECAO.map(c => ({ c, m: null }));
+  const noTime = c => tm.slots.some(x => x && x[0] === c.n && x[1] === c.s);
+  const html = `<article class="folha" role="dialog" aria-modal="true" aria-label="${esc(tm.nome)}" style="--c:${alvo ? `var(--el-${alvo.el[0]})` : 'var(--m-500)'}">
+    <div class="folha-palco time-palco">
+      ${alvo ? `<div class="fundo" style="background-image:url('${ART(alvo.n)}')"></div>` : ''}
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      ${alvo ? `<div class="alvo-arte"><img src="${ART(alvo.n)}" alt="${alvo.nome}"></div>` : ''}
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">${esc(tm.nome)}</h2>
+      <p class="plano-meta">${alvo ? `Contra ${alvo.nome}: ${alvo.el.map(e => EL[e] || e).join(' e ')} · ${alvo.lvl}` : 'Primeiro a caçada, depois o time.'}</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Para qual caçada</h3>
+      <div class="alvos" role="group" aria-label="Caçada">${ALVOS.map(a => `<button aria-pressed="${a.id === tm.alvo}" data-t-alvo="${a.id}"><img src="${ART(a.n)}" alt=""><b>${a.nome}</b><span>${a.el.map(e => EL[e] || e).join(' / ')}</span></button>`).join('')}</div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Os seis</h3>
+      <div class="vagas">${tm.slots.map((x, i) => { if (!x) return `<button class="vaga vazia" aria-pressed="${vagaSel === i}" data-t-vaga="${i}">${I.mais}Vaga ${i + 1}</button>`;
+        const m = alvo ? matchup(x[0], alvo) : null;
+        return `<button class="vaga" aria-pressed="${vagaSel === i}" data-t-vaga="${i}" style="--c:${cor(x[0])}" aria-label="${esc(nomeDe(x[0], x[1]))}${m ? ', ' + m.t : ''}">${arte(x[0], x[1])}${m ? `<span class="selo-m m-${m.k}">${m.c}</span>` : ''}</button>`; }).join('')}</div>
+      ${alvo && !cheios.length ? `<button class="btn btn-primario" data-t-sugerir style="width:100%;margin-top:12px">${I.raio}Montar com os melhores da minha coleção</button>` : ''}
+      ${vagaSel !== null ? `<div class="escolher">
+        <div class="cab-e"><b>Vaga ${vagaSel + 1}</b><span>${tm.slots[vagaSel] ? `<button data-t-tirar>Tirar</button> · ` : ''}<button data-t-fechar-vaga>Fechar</button></span></div>
+        <div class="lista" style="border-radius:0;box-shadow:none">${[...ranking].sort((a, b) => noTime(a.c) - noTime(b.c)).map(({ c, m }) => `<button class="linha ${noTime(c) ? 'no-time' : ''}" data-t-pick="${c.n}${c.s ? 's' : ''}" ${noTime(c) ? 'disabled' : ''}>
+          <span class="mini" style="--c:${cor(c.n)}"><img src="${ART(c.n, c.s)}" alt="" loading="lazy"></span>
+          <span><span class="l-t" style="display:block">${esc(nomeDe(c.n, c.s))}</span><span class="l-s">${tierDe(c.n, c.s)} · ${EL[DEX[c.n].el[0]]}${noTime(c) ? ' · já no time' : ''}</span></span>
+          ${m ? `<span class="dir"><span class="tag-m m-${m.k}">${m.t}</span></span>` : ''}</button>`).join('')}</div>
+      </div>` : ''}
+    </div>
+
+    <div class="sec"><h3 class="titulo">O que o app vê</h3>
+      <div class="analise-t">${resumoTime(tm).map(r => `<div class="a ${r.alerta ? 'alerta' : r.bom ? 'bom' : ''}">${r.ic}<span>${r.t}</span></div>`).join('')}</div>
+      <p class="aviso">Conta com um elemento por Pokémon e só forte (2×) ou fraco (½), como faz a ferramenta da comunidade. Times de referência: 22 times enviados ao Critical Catch até 17/09.</p>
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-t-compartilhar>Compartilhar</button>
+      <button class="btn btn-primario" data-t-salvar>Salvar time</button>
+    </div>
+  </article>`;
+  mostrarSistema(html, primeira);
+}
+document.addEventListener('click', e => {
+  if (!timeAtual || $('#camada').hidden || !$('#camada .time-palco')) return;
+  const t = e.target.closest('button'); if (!t) return;
+  const tm = timeDe(timeAtual);
+  if (t.dataset.tAlvo) { tm.alvo = t.dataset.tAlvo; pintarTime(false); }
+  else if (t.dataset.tVaga) { const i = +t.dataset.tVaga; vagaSel = vagaSel === i ? null : i; pintarTime(false); }
+  else if (t.matches('[data-t-fechar-vaga]')) { vagaSel = null; pintarTime(false); }
+  else if (t.matches('[data-t-tirar]')) { tm.slots[vagaSel] = null; vagaSel = null; pintarTime(false); }
+  else if (t.dataset.tPick) { const k = t.dataset.tPick; tm.slots[vagaSel] = [parseInt(k), k.endsWith('s')]; const prox = tm.slots.findIndex(x => !x); vagaSel = prox >= 0 ? prox : null; pintarTime(false); }
+  else if (t.matches('[data-t-sugerir]')) {
+    const alvo = ALVOS.find(a => a.id === tm.alvo);
+    const vistos = new Set();
+    const melhores = COLECAO.map(c => ({ c, m: matchup(c.n, alvo) })).filter(x => x.m.ord <= 3).sort((a, b) => a.m.ord - b.m.ord || (b.c.s - a.c.s))
+      .filter(({ c }) => { const k = c.n + (c.s ? 's' : ''); if (vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 6);
+    tm.slots = [...melhores.map(({ c }) => [c.n, c.s]), ...Array(6).fill(null)].slice(0, 6);
+    vagaSel = null; pintarTime(false); toast(`${melhores.length} Pokémon da sua coleção entraram`);
+  }
+  else if (t.matches('[data-t-compartilhar]')) { try { navigator.clipboard.writeText(location.href); } catch (err) {} toast('Link do time copiado. Cole no Discord'); }
+  else if (t.matches('[data-t-salvar]')) { delete tm.novo; fecharFicha(false); timeAtual = null; location.hash = '#/meus/times'; toast(`${tm.nome} salvo`); }
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -1906,6 +2070,12 @@ function rotear() {
   if (novo) {
     if (!baseAtual) desenhar('/meus/colecao');
     abrirCadastro(novo[1] ? { n:+novo[1], s:!!novo[2] } : null);
+    return;
+  }
+  const tmm = h.match(/^\/time\/([a-z0-9]+)$/);
+  if (tmm) {
+    if (!baseAtual) desenhar('/meus/times');
+    abrirTime(tmm[1]);
     return;
   }
   if (h === '/s/star' || h === '/s/helds') {
