@@ -1264,6 +1264,7 @@ function fecharFicha(voltarHash = true) {
   fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null; rockAberto = null;
   for (let i = TIMES.length - 1; i >= 0; i--) if (TIMES[i].novo) TIMES.splice(i, 1);
   if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
+  if (voltarHash && baseAtual && /^\/(inicio|meus)/.test(baseAtual)) { const y = scrollY; desenhar(baseAtual); scrollTo(0, y); }
 }
 
 
