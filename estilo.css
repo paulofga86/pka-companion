@@ -159,14 +159,14 @@ img { display: block; max-width: 100%; }
 .arte.shiny::before {
   content: ""; position: absolute; inset: 12%; border-radius: 50%; z-index: -1; pointer-events: none;
   background: conic-gradient(from 200deg, #ffd66b, #ff8fd0, #8fc7ff, #7dffc4, #ffd66b);
-  filter: blur(18px) saturate(1.3); opacity: .7;
+  filter: blur(42px) saturate(1.15); opacity: .42;
 }
 .arte.shiny { isolation: isolate; }
-.slot .arte.shiny::before, .c-arte .arte.shiny::before, .quadro .arte.shiny::before, .av .arte.shiny::before { inset: 16%; filter: blur(9px) saturate(1.3); opacity: .8; }
+.slot .arte.shiny::before, .c-arte .arte.shiny::before, .quadro .arte.shiny::before, .av .arte.shiny::before { inset: 14%; filter: blur(20px) saturate(1.2); opacity: .62; }
 .arte.shiny::after {
   content: ""; position: absolute; inset: 6%; border-radius: 50%; pointer-events: none;
   background: conic-gradient(from var(--ang, 0deg), transparent 0 20%, rgba(255,231,163,.0) 20%, rgba(255,231,163,.28) 30%, rgba(247,183,224,.28) 40%, rgba(169,216,255,.28) 50%, transparent 60%);
-  mix-blend-mode: screen; filter: blur(18px); animation: gira 7s linear infinite;
+  mix-blend-mode: screen; filter: blur(30px); opacity: .6; animation: gira 7s linear infinite;
 }
 @property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 @keyframes gira { to { --ang: 360deg; } }
