@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790012875">
+<link rel="stylesheet" href="estilo.css?v=1790013053">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -881,6 +881,40 @@
     radial-gradient(820px 600px at 70% 108%, rgba(238,111,158,.12), transparent 70%),
     var(--bg);
     background-attachment: fixed; }
+
+  /* ---------- fundo com textura ---------- */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(rgba(255,255,255,.07) 1px, transparent 1.6px) 0 0 / 22px 22px,
+      radial-gradient(1000px 620px at 92% -6%, color-mix(in oklab, var(--accent) 38%, transparent), transparent 68%),
+      radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
+      radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.20), transparent 70%),
+      radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.10), transparent 70%);
+    -webkit-mask-image: linear-gradient(#000, #000); }
+  body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .5; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  [data-tema="claro"] body::before { background:
+      radial-gradient(rgba(58,34,78,.08) 1px, transparent 1.6px) 0 0 / 22px 22px,
+      radial-gradient(1000px 620px at 92% -6%, rgba(171,125,211,.42), transparent 68%),
+      radial-gradient(820px 620px at -10% 30%, rgba(62,168,229,.24), transparent 68%),
+      radial-gradient(900px 640px at 58% 112%, rgba(238,111,158,.24), transparent 70%),
+      radial-gradient(640px 480px at 30% 4%, rgba(95,191,122,.14), transparent 70%); }
+  [data-tema="claro"] body::after { opacity: .25; mix-blend-mode: multiply; }
+  body { background: var(--bg) !important; }
+  /* ---------- shiny com brilho ---------- */
+  .poke-tile .quadro.brilho { background:
+      radial-gradient(90% 70% at 50% 100%, color-mix(in oklab, var(--c) 40%, transparent) 0%, transparent 70%),
+      conic-gradient(from 200deg at 50% 45%, rgba(255,214,107,.22), rgba(255,143,208,.22), rgba(143,199,255,.22), rgba(125,255,196,.22), rgba(255,214,107,.22)),
+      var(--surface); }
+  .poke-tile .quadro.brilho::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 2px; z-index: 2; pointer-events: none;
+    background: conic-gradient(from var(--ang, 0deg), #ffe7a3, #f7b7e0, #a9d8ff, #7dffc4, #ffe7a3);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: gira 6s linear infinite; }
+  .poke-tile .quadro.brilho::before { content: "✦"; position: absolute; left: 12px; top: 8px; z-index: 2; font-size: 18px; color: #fff;
+    text-shadow: 0 0 10px #ffe7a3, 0 0 18px #f7b7e0; animation: cintila 2.4s ease-in-out infinite; }
+  @keyframes cintila { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.1); } }
+  .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #f7b7e0 45%, #a9d8ff 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  [data-tema="claro"] .poke-tile:has(.brilho) .nome { background: linear-gradient(100deg, var(--text) 0%, #b0487e 45%, #2f6fb0 70%, var(--text) 100%); -webkit-background-clip: text; background-clip: text; }
 </style>
 </head>
 <body>
@@ -1210,7 +1244,7 @@ function toast(msg, ic = I.check) {
 }
 function pokeTile(n, s, meta, href) {
   return `<a class="poke-tile" href="${href || `#/p/${n}${s ? 's' : ''}`}" style="--c:${cor(n)}">
-    <div class="quadro">${arte(n, s)}</div>
+    <div class="quadro ${s ? 'brilho' : ''}">${arte(n, s)}</div>
     <div class="nome">${esc(nomeDe(n, s))}</div>
     <div class="meta">${meta ?? `${tierDe(n, s)} · ${DEX[n].el.map(e => EL[e]).join(' / ')}`}</div>
   </a>`;
@@ -1408,7 +1442,7 @@ const TELAS = {
       corpo = `<div class="resumo-col"><span><b>${COLECAO.length}</b> Pokémon</span><span>·</span><span><b>${shinies}</b> shiny</span><span>·</span><span><b>1</b> time</span></div>
       <div class="grade">
         ${COLECAO.map((p, i) => `<a class="poke-tile" href="#/meu/${i}" style="--c:${cor(p.n)}">
-          <div class="quadro">${arte(p.n, p.s)}</div>
+          <div class="quadro ${p.s ? 'brilho' : ''}">${arte(p.n, p.s)}</div>
           <div class="nome">${esc(nomeDe(p.n, p.s))}</div>
           <div class="invest">
             <span class="chip chip-tier">${tierDe(p.n, p.s)}</span>
