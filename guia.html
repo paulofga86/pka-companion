@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guia de implementação</title>
+<meta name="description" content="Guia tela a tela para implementar o novo PKA Companion: o que cada tela faz, de onde vem cada dado e as regras de cálculo.">
+<script>
+  (function () {
+    let salvo = new URLSearchParams(location.search).get('tema'); if (!salvo) { try { salvo = localStorage.getItem('pka-tema'); } catch (e) {} }
+    const mq = matchMedia('(prefers-color-scheme: light)');
+    const aplica = () => { document.documentElement.dataset.tema = salvo || (mq.matches ? 'claro' : 'escuro'); };
+    aplica(); mq.addEventListener('change', aplica);
+  })();
+</script>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  body { padding: 0 16px; }
+  .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
+  @media (min-width: 980px) { .doc { grid-template-columns: 230px minmax(0, 1fr); } }
+  .indice { display: none; }
+  @media (min-width: 980px) {
+    .indice { display: block; position: sticky; top: 24px; align-self: start; font-size: 14px; }
+    .indice a { display: block; padding: 6px 12px; border-radius: 10px; color: var(--text-2); }
+    .indice a:hover { background: var(--surface); color: var(--text); }
+    .indice .g { font-size: 12px; font-weight: 650; color: var(--text-3); margin: 16px 12px 4px; letter-spacing: .02em; }
+  }
+  .corpo { min-width: 0; }
+  .capa { padding-bottom: 28px; }
+  .capa .marca { font-stretch: 112%; font-weight: 720; font-size: 16px; }
+  .capa .marca b { color: var(--accent); font-weight: 720; }
+  .capa h1 { font-size: clamp(36px, 7vw, 60px); margin: 14px 0 14px; }
+  .capa p { font-size: 18px; color: var(--text-2); max-width: 60ch; margin: 0; }
+  .capa .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+  section.bloco-g { padding-top: 36px; }
+  h2.titulo { font-size: 30px; margin: 0 0 8px; }
+  h3.titulo { font-size: 20px; margin: 28px 0 8px; }
+  .corpo p, .corpo li { max-width: 72ch; }
+  .corpo p { margin: 0 0 12px; color: var(--text); }
+  .corpo ul, .corpo ol { margin: 0 0 12px; padding-left: 22px; }
+  .corpo li { margin-bottom: 6px; }
+  .leve { color: var(--text-2) !important; }
+  .tela { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); padding: 20px 22px; margin-top: 16px; }
+  .tela h3.titulo { margin-top: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .tela h3 a { font-size: 13.5px; font-weight: 620; color: var(--accent); }
+  .tela dl { display: grid; grid-template-columns: 1fr; gap: 4px 18px; margin: 10px 0 0; }
+  @media (min-width: 700px) { .tela dl { grid-template-columns: 150px 1fr; } }
+  .tela dt { font-size: 13px; font-weight: 650; color: var(--text-3); padding-top: 2px; }
+  .tela dd { margin: 0 0 10px; }
+  .tela dd ul { margin: 0; }
+  code, .cod { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em; background: var(--surface-2); padding: 1px 6px; border-radius: 6px; }
+  pre { background: var(--surface-2); border-radius: var(--r-md); padding: 14px 16px; overflow-x: auto; font-size: 13.5px; line-height: 1.55; margin: 8px 0 14px; }
+  pre code { background: none; padding: 0; }
+  .tab-w { overflow-x: auto; margin: 8px 0 14px; border-radius: var(--r-md); box-shadow: var(--shadow-1); background: var(--surface); }
+  table.t { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+  table.t th { text-align: left; font-size: 12.5px; font-weight: 650; color: var(--text-3); padding: 10px 14px 6px; white-space: nowrap; }
+  table.t td { padding: 9px 14px; box-shadow: inset 0 1px 0 var(--surface-2); vertical-align: top; }
+  .aviso-b { border-radius: var(--r-md); background: color-mix(in oklab, var(--warn) 12%, var(--surface)); padding: 14px 16px; margin: 12px 0; }
+  .aviso-b b { color: var(--text); }
+  .pilula { display: inline-block; font-size: 12px; font-weight: 650; padding: 2px 9px; border-radius: 999px; background: var(--surface-3); color: var(--text-2); vertical-align: 2px; }
+  .pilula.ok { background: color-mix(in oklab, var(--ok) 20%, var(--surface)); color: var(--ok); }
+  .pilula.falta { background: color-mix(in oklab, var(--warn) 20%, var(--surface)); color: var(--warn); }
+  a.inline { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+  .rodape { margin-top: 48px; font-size: 13px; color: var(--text-3); }
+</style>
+</head>
+<body>
+<div class="doc">
+  <nav class="indice" aria-label="Índice">
+    <div class="g">Começo</div>
+    <a href="#resumo">Resumo</a>
+    <a href="#estrutura">Estrutura e rotas</a>
+    <a href="#visual">Base visual</a>
+    <div class="g">Telas</div>
+    <a href="#t-entrada">Primeira entrada</a>
+    <a href="#t-inicio">Início</a>
+    <a href="#t-wiki">Wiki e busca</a>
+    <a href="#t-ficha">Ficha de Pokémon</a>
+    <a href="#t-item">Ficha de item</a>
+    <a href="#t-sistema">Páginas de sistema</a>
+    <a href="#t-colecao">Coleção e cadastro</a>
+    <a href="#t-meu">Meu Pokémon</a>
+    <a href="#t-time">Times</a>
+    <a href="#t-plano">Plano</a>
+    <a href="#t-eu">Eu</a>
+    <div class="g">Regras</div>
+    <a href="#calculos">Cálculos</a>
+    <a href="#dados">Dados do jogador</a>
+    <a href="#pendencias">Pendências</a>
+  </nav>
+
+  <main class="corpo">
+    <header class="capa">
+      <span class="marca">PKA <b>Companion</b></span>
+      <h1 class="display">Guia de implementação</h1>
+      <p>Para o Julio. O que cada tela faz, de onde vem cada dado na sua base e as regras de cálculo, na ordem em que o jogador usa. O protótipo é a referência visual: este guia explica o que ele não mostra.</p>
+      <div class="links">
+        <a class="btn btn-primario" href="index.html">Abrir o protótipo</a>
+        <a class="btn btn-suave" href="prancha.html">Prancha de estilo</a>
+      </div>
+    </header>
+
+    <section class="bloco-g" id="resumo">
+      <h2 class="titulo">Resumo</h2>
+      <ul>
+        <li><b>Duas metades ligadas:</b> a Wiki (completa, navegável, com fonte e data em todo número) e o Companion (personagem, coleção, times, plano de cada Pokémon).</li>
+        <li><b>Tudo funciona sem login.</b> Os dados do jogador ficam no aparelho. O login com Discord só sincroniza celular e PC, e fica para a fase 2.</li>
+        <li><b>Celular primeiro.</b> No PC, a barra de baixo vira coluna à esquerda e as camadas abrem pela direita.</li>
+        <li><b>Visual novo</b>, sem nada do site atual. Os valores estão em <code>DESIGN.md</code> e <code>estilo.css</code>.</li>
+        <li><b>Nada toca o cliente do jogo.</b> Entrada de dados é manual.</li>
+      </ul>
+    </section>
+
+    <section class="bloco-g" id="estrutura">
+      <h2 class="titulo">Estrutura e rotas</h2>
+      <p>Cinco portas fixas: <b>Início · Wiki · Buscar · Meus · Eu</b>. Todo o resto abre como <b>camada</b> por cima da porta atual: sobe de baixo no celular, entra pela direita no PC, com fundo desfocado e botão de voltar. Fechar a camada devolve o jogador exatamente onde estava.</p>
+      <p>Toda tela tem endereço próprio, para compartilhar no Discord e abrir direto no lugar certo:</p>
+      <div class="tab-w"><table class="t">
+        <thead><tr><th>Endereço</th><th>Tela</th><th>Tipo</th></tr></thead>
+        <tbody>
+          <tr><td><code>#/inicio</code> <code>#/wiki</code> <code>#/buscar</code> <code>#/meus/colecao|times|planos</code> <code>#/eu</code></td><td>As cinco portas</td><td>porta</td></tr>
+          <tr><td><code>#/entrada</code> <code>/personagem</code> <code>/pronto</code></td><td>Primeira entrada</td><td>tela cheia</td></tr>
+          <tr><td><code>#/p/26</code> · <code>#/p/26s</code></td><td>Ficha de Pokémon (o <code>s</code> é a forma shiny)</td><td>camada</td></tr>
+          <tr><td><code>#/i/thunder-stone</code></td><td>Ficha de item</td><td>camada</td></tr>
+          <tr><td><code>#/s/boost</code> <code>#/s/star</code> <code>#/s/helds</code></td><td>Página de sistema</td><td>camada</td></tr>
+          <tr><td><code>#/novo</code> · <code>#/novo/125</code></td><td>Cadastro rápido (com ou sem Pokémon escolhido)</td><td>camada</td></tr>
+          <tr><td><code>#/meu/0</code> · <code>#/meu/0/editar</code></td><td>Um Pokémon da coleção</td><td>camada</td></tr>
+          <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
+          <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
+        </tbody>
+      </table></div>
+      <p class="leve">No protótipo as rotas usam <code>#</code> porque é um arquivo estático. No site, podem virar caminhos normais (<code>/p/26s</code>), desde que abram direto quando alguém cola o link.</p>
+    </section>
+
+    <section class="bloco-g" id="visual">
+      <h2 class="titulo">Base visual</h2>
+      <ul>
+        <li><b>Paleta Mewtwo:</b> roxo acinzentado como tom principal, cinza arroxeado como neutro e <b>violeta só para o que é do jogador e para a próxima ação</b>. Se algo não é do jogador nem é o próximo passo, não é violeta.</li>
+        <li><b>Modo escuro e claro</b>, com escolha em Eu (automático, claro, escuro). Valores dos dois temas em <code>estilo.css</code>.</li>
+        <li><b>Profundidade por sombra</b>, quase sem borda. Desfoque só no que flutua: barra das portas, barra de ação das camadas, avisos.</li>
+        <li><b>Fonte:</b> Mona Sans (Google Fonts), com números tabulares.</li>
+        <li><b>18 elementos</b> com cor própria (<code>--el-fire</code>, <code>--el-water</code>…). A cor aparece no ponto dos chips e no brilho atrás da arte.</li>
+        <li><b>Shiny:</b> auréola iridescente girando atrás da arte e chip com brilho. Respeita o "reduzir movimento" do aparelho.</li>
+        <li><b>Arte dos Pokémon:</b> arte oficial via PokéAPI (<code>official-artwork/[shiny/]N.png</code>). Itens e sistemas não têm arte oficial: usamos desenho próprio na cor do elemento, ou o número do sistema em destaque ("+50", "5★", "T7").</li>
+      </ul>
+      <h3 class="titulo">Componentes que se repetem</h3>
+      <div class="tab-w"><table class="t">
+        <thead><tr><th>Componente</th><th>Onde</th><th>Regra</th></tr></thead>
+        <tbody>
+          <tr><td>Selo de fonte</td><td>todo fato com número</td><td>Verde: wiki oficial ou changelog. Amarelo: comunidade. Vermelho: estimativa ou sem fonte. Sempre com a data. Ao lado, "Reportar erro".</td></tr>
+          <tr><td>Cartão "Você precisa" / "Próximo"</td><td>item, sistema, meu Pokémon</td><td>Fundo violeta suave. Liga a Wiki ao Companion: "este item está no seu plano".</td></tr>
+          <tr><td>Barra de ação</td><td>toda camada</td><td>Flutua embaixo. No máximo 2 botões: um secundário e um principal violeta.</td></tr>
+          <tr><td>Calculadora</td><td>páginas de sistema</td><td>Começa preenchida com um Pokémon do jogador. Resultado grande em cima, tabela embaixo com as linhas usadas destacadas.</td></tr>
+          <tr><td>Aviso de "ainda não desenhada"</td><td>links sem página</td><td>Só no protótipo. No site, cada link leva à página real.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="bloco-g" id="telas">
+      <h2 class="titulo">Tela a tela</h2>
+      <p class="leve">Cada tela: para que serve, o que mostra, de onde vem o dado e as regras. Caminhos de arquivo apontam para o seu vault.</p>
+
+      <div class="tela" id="t-entrada">
+        <h3 class="titulo">Primeira entrada <a href="index.html#/entrada">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Primeira abertura. O jogador escolhe entre cadastrar o personagem ou só consultar a Wiki.</dd>
+          <dt>Passos</dt><dd><ol><li>Boas-vindas: "Começar", "Só consultar a wiki" e "Entrar com Discord" (fase 2: por enquanto só avisa).</li><li>Personagem: nome, mundo (Sun, Moon, Titan), level, VIP. Tudo opcional; "Pular" leva ao Início de visitante.</li><li>Pronto: leva ao cadastro rápido ou ao Início.</li></ol></dd>
+          <dt>Regra</dt><dd>Ao digitar o level, mostra na hora o que já está liberado: Johto e Wildscape (150), Hoenn (250), Mega e rotação de Hoenn (350). <b>O level nunca bloqueia nada</b>, só avisa.</dd>
+          <dt>Dados</dt><dd><code>Mundo/Johto.md</code>, <code>Mundo/Hoenn.md</code>, <code>Mundo/Wildscape.md</code>, <code>Combate/Mega Evoluções.md</code>.</dd>
+          <dt>Visitante</dt><dd>Sem personagem, o Início troca o destaque por "Cadastre seu personagem em 1 minuto" e mostra guias por faixa de level.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-inicio">
+        <h3 class="titulo">Início <a href="index.html#/inicio">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Responder "o que eu faço agora?" sem nenhum toque.</dd>
+          <dt>Mostra</dt><dd><ul><li>Destaque com o próximo passo do plano mais vantajoso, a arte do Pokémon como luz de fundo e "Ver o plano".</li><li>Continuar: times incompletos, contadores semanais (Rockets), capturas pendentes.</li><li>O que mudou no jogo: uma entrada por atualização, cada uma ligada à página afetada.</li></ul></dd>
+          <dt>Regra do destaque</dt><dd>Entre os planos do jogador, o passo que não está feito nem bloqueado, na ordem oficial de investimento (<code>Guias/Como ficar mais forte.md</code>). Na fase 1 basta essa regra simples.</dd>
+          <dt>Dados</dt><dd>Planos e times do jogador · <code>Patch Notes/</code> · <code>Combate/Rockets Semanais.md</code>.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-wiki">
+        <h3 class="titulo">Wiki e busca <a href="index.html#/wiki">ver no protótipo</a></h3>
+        <dl>
+          <dt>Wiki</dt><dd>Hub em fileiras: Pokédex, Itens, Sistemas, Combate, Quests e Tasks, Mundo. Cada fileira rola para o lado e tem "Ver tudo".</dd>
+          <dt>Busca</dt><dd>Um campo só que procura em tudo: Pokémon (as duas formas), itens, sistemas, NPCs <b>e a coleção do jogador</b>. Resultados agrupados; "Meus Pokémon" vem primeiro e marca "na coleção" / "você tem".</dd>
+          <dt>Meta</dt><dd>Achar qualquer Pokémon ou item em até 2 toques.</dd>
+          <dt>Vazio</dt><dd>"Nada com X. Tente o nome em inglês, como aparece no jogo."</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-ficha">
+        <h3 class="titulo">Ficha de Pokémon <a href="index.html#/p/26s">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>A página mais aberta. Uma ficha por forma (normal e shiny), com alternância no topo.</dd>
+          <dt>Mostra</dt><dd><ul><li>Número, nome, tier, elementos, chip shiny.</li><li>Três leituras rápidas: onde nasce, captura (teto e média da comunidade), drops ou locomoção.</li><li>Fatos com selo de fonte: evolução, tasks que pedem, Star.</li><li>O que dropa, com link para cada item.</li><li>Barra de ação: "Adicionar à coleção" ou, se já tem, "Você tem N" (abre o seu Pokémon) e "Planejar".</li></ul></dd>
+          <dt>Dados</dt><dd><code>Pokedex/Tier List.md</code>, <code>Mundo/Localizações e Spawns.md</code>, <code>Sistemas/Captura e Brokes.md</code>, <code>Itens/Drops por Pokémon.md</code>, <code>Quests/Tasks do Mundo.md</code>, <code>Sistemas/Máquina de Star.md</code>.</dd>
+          <dt>Lacuna</dt><dd>Evolução completa e lista de golpes não existem em fonte nenhuma. A ficha mostra o que há e oferece "Reportar erro".</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-item">
+        <h3 class="titulo">Ficha de item <a href="index.html#/i/thunder-stone">ver no protótipo</a></h3>
+        <dl>
+          <dt>Ordem fixa</dt><dd>Identidade (nome, tipo, elemento, resumo de uma linha) → "Você precisa" (planos do jogador que usam o item) → Para que serve → Quem dropa → Na receita, pode trocar por → Fatos com fonte.</dd>
+          <dt>Quem dropa</dt><dd>Índice reverso de <code>Itens/Drops por Pokémon.md</code>. Pokémon com arte primeiro, "você tem" nos que estão na coleção, resto em texto. Total de formas normais e shiny.</dd>
+          <dt>Dados</dt><dd><code>Itens/Stones.md</code> (usos, regras de drop de 06/09, venda no Kecleon), <code>Sistemas/Boost.md</code> (receitas).</dd>
+          <dt>Sem fonte</dt><dd>Preço de Market e taxa de drop: a tela diz "sem fonte" em vez de esconder.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-sistema">
+        <h3 class="titulo">Páginas de sistema <a href="index.html#/s/boost">ver no protótipo</a></h3>
+        <dl>
+          <dt>Ordem fixa</dt><dd>Número-chave em destaque → resumo em 3 linhas → calculadora → como funciona / como aplicar → de onde vem → fontes que discordam → perguntas comuns.</dd>
+          <dt>Boost</dt><dd>Calculadora "quantas pedras você precisa": escolhe um Pokémon seu e a faixa; mostra média e pior caso por tipo de pedra. Fonte: <code>Sistemas/Boost.md</code>.</dd>
+          <dt>Star</dt><dd>Calculadora de cópias e custo nas 3 formas de pagamento, comparando com os Diamonds do jogador. Tabela de dano por tier. Fonte: <code>Sistemas/Máquina de Star.md</code>.</dd>
+          <dt>Helds</dt><dd>Qual held usar (oficial × comunidade), calculadora de fusão, onde conseguir, como tirar. Fonte: <code>Sistemas/Helds.md</code>, <code>Itens/Helds - Catálogo.md</code>.</dd>
+          <dt>Divergências</dt><dd>Mostradas abertamente, com qual fonte vale. Ex.: "held não dá Boost".</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-colecao">
+        <h3 class="titulo">Coleção e cadastro rápido <a href="index.html#/novo">ver no protótipo</a></h3>
+        <dl>
+          <dt>Meta</dt><dd>Cadastrar um Pokémon em menos de 30 segundos, e a coleção inteira numa sentada.</dd>
+          <dt>Fluxo</dt><dd><ol><li>Busca a espécie. Tocar em um vai direto ao formulário; marcar vários cadastra em sequência ("1 de 3", com Pular e Próximo).</li><li>Formulário: Normal/Shiny, Boost (0 a +50), Stars (1 a 5), Held (tipo + T1 a T7), Mega, onde está (Bag, Depot, Expedição). Apelido, treino e addon ficam num bloco opcional fechado.</li></ol></dd>
+          <dt>Regras</dt><dd><ul><li>Tier, elemento e golpes vêm da Wiki sozinhos.</li><li>Stars só aparecem para T3 ou melhor.</li><li>Mega Stone e Stars se bloqueiam nas duas direções.</li><li>Trocar para shiny recalcula o tier e zera Stars se o novo tier não aceitar.</li></ul></dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-meu">
+        <h3 class="titulo">Meu Pokémon <a href="index.html#/meu/0">ver no protótipo</a></h3>
+        <dl>
+          <dt>Mostra</dt><dd>Próximo passo do plano · o que já investiu e quanto rende (Boost em níveis de dano, Stars em %, held e próximo tier, treino) · aviso de Mega × Star · times em que está · histórico com data.</dd>
+          <dt>Editar</dt><dd>Reaproveita o formulário do cadastro. Ao salvar, cada diferença vira uma linha no histórico ("Boost +12 → +13").</dd>
+          <dt>Tirar da coleção</dt><dd>Pede confirmação.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-time">
+        <h3 class="titulo">Times <a href="index.html#/time/electric">ver no protótipo</a></h3>
+        <dl>
+          <dt>Princípio</dt><dd>"Caçada primeiro, time depois" (<code>Guias/Montagem de Time.md</code>). O jogador escolhe o alvo antes das vagas.</dd>
+          <dt>Fluxo</dt><dd>Escolhe a caçada → toca numa vaga → a coleção aparece ordenada do melhor para o pior contra aquele alvo → escolhe. "Montar com os melhores da minha coleção" preenche sozinho.</dd>
+          <dt>Análise</dt><dd>Quantos batem forte, quem apanha forte, quem bate fraco, quantos offtanks, comparação com o time que a comunidade usa ("você tem 3 de 6; faltam…"), vagas livres.</dd>
+          <dt>Dados</dt><dd><code>Guias/Montagem de Time.md</code> (times por alvo, regra de matchup, 2 offtanks + 4 de dano em Hoenn), <code>Pokedex/Tabela de Efetividade.md</code>.</dd>
+          <dt>Compartilhar</dt><dd>Link que abre o time pronto para quem recebe.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-plano">
+        <h3 class="titulo">Plano de um Pokémon <a href="index.html#/plano/25s">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Transformar "quero deixar esse Pokémon forte" em passos com custo.</dd>
+          <dt>Mostra</dt><dd>De → para (quando há evolução) · meta em uma frase · progresso "N de M passos" · passos com estado · custo para fechar comparado com o que o jogador tem · adicionar passo.</dd>
+          <dt>Estados</dt><dd><b>a fazer · em andamento · feito · bloqueado</b>. Bloqueado quando depende de outro passo (ex.: estrelar só depois de evoluir, porque T4 não recebe Star). O primeiro passo livre é o "Próximo", destacado e aberto.</dd>
+          <dt>Materiais</dt><dd>Cada um com "tenho / falta" opcional e link para a página do item.</dd>
+          <dt>Ao concluir</dt><dd><b>O Pokémon se atualiza sozinho na coleção</b>: evoluir troca a espécie, o Boost vira o valor da meta, a Star vira 2★. Cada conclusão entra no histórico.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-eu">
+        <h3 class="titulo">Eu <a href="index.html#/eu">ver no protótipo</a></h3>
+        <dl>
+          <dt>Mostra</dt><dd>Personagem ativo, tema (automático, claro, escuro), vários personagens por conta (mundos diferentes), sincronizar com Discord (fase 2), exportar dados, apagar tudo do aparelho.</dd>
+          <dt>Privacidade</dt><dd>Público inclui menores (LGPD): com o Discord, guardar só o identificador e o apelido. Apagar tudo em um toque. Aviso de não afiliação sempre visível.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="bloco-g" id="calculos">
+      <h2 class="titulo">Regras de cálculo</h2>
+      <p>Todas partem da regra oficial. Onde é conta nossa e não medição do jogo, a tela avisa.</p>
+
+      <h3 class="titulo">Boost: pedras por ponto</h3>
+      <p>Chance inicial por faixa: +0–5 Novice 50%, +5–10 Elemental 40%, +10–15 Common 30%, +15–20 Enhanced 20%, +20–25 Potent 18%, +25–30 Advanced 15%, +30–35 Fortified 12%, +35–40 Supreme 10%, +40–45 Celestial 8%, +45–50 Mystic 5%. Cada falha soma 10 pontos percentuais; o sucesso zera.</p>
+<pre><code>media(p) = Σ P(chegar à tentativa k)      // chance sobe 0,1 a cada falha
+pior(p)  = teto((1 − p) × 10) + 1          // Mystic: 11 pedras por ponto
+total    = Σ por faixa: pontos × media(p)  // +5 a +20 ≈ 37 pedras</code></pre>
+      <p class="leve">Cada ponto de Boost vale 3 níveis a mais no dano dos golpes.</p>
+
+      <h3 class="titulo">Star: cópias e custo</h3>
+      <p>A cópia precisa ter a mesma espécie, o mesmo tier e <b>o mesmo número de Stars</b>. Por isso cada cópia também precisa ser estrelada.</p>
+<pre><code>cópias de s★ até N★ = Σ 2^(n−1), para n de s+1 até N   // 0→2★ = 3 cópias · 0→5★ = 31
+custo da etapa n    = n × custo da 1ª etapa do tier
+custo total(N)      = 2 × custo(N−1) + etapa(N)          // inclui estrelar as cópias
+opção Gold          = metade dos Diamonds, o dobro de gold
+opção mista         = média das duas</code></pre>
+      <div class="tab-w"><table class="t">
+        <thead><tr><th>Tier</th><th>1ª etapa (Diamond)</th><th>Dano por Star</th></tr></thead>
+        <tbody><tr><td>T3</td><td>4 D + 1 kk</td><td>+2%</td></tr><tr><td>T2</td><td>6 D + 1,5 kk</td><td>+4%</td></tr><tr><td>T1</td><td>12 D + 3 kk</td><td>+6%</td></tr><tr><td>Super Rare</td><td>16 D + 4 kk <span class="pilula falta">diverge</span></td><td>+8%</td></tr><tr><td>Ultra Rare</td><td>24 D + 6 kk</td><td>+10%</td></tr><tr><td>Legendary</td><td>48 D + 12 kk</td><td>+15%</td></tr></tbody>
+      </table></div>
+
+      <h3 class="titulo">Held: fusão</h3>
+<pre><code>3 helds do mesmo tier → 25% de 1 Held Ticket do tier seguinte
+falha → volta 1 Held Ticket do mesmo tier + 1 Relic Point
+10 Relic Points → recompensa garantida do tier seguinte
+média ≈ 8,5 helds por subida · pior caso 20</code></pre>
+
+      <h3 class="titulo">Time: matchup contra o alvo</h3>
+      <p>Mesma regra do "Qual Pokémon Usar" do PKA Helper: <b>um elemento por Pokémon</b>, só 2× e ½, sem imunidade.</p>
+      <div class="tab-w"><table class="t">
+        <thead><tr><th>Selo</th><th>Condição</th></tr></thead>
+        <tbody><tr><td>ideal</td><td>bate 2× e recebe ½</td></tr><tr><td>bate forte</td><td>bate 2×, recebe neutro</td></tr><tr><td>arriscado</td><td>bate 2×, mas recebe 2×</td></tr><tr><td>aguenta</td><td>bate neutro, recebe ½</td></tr><tr><td>neutro / fraco</td><td>o resto</td></tr></tbody>
+      </table></div>
+      <p class="leve">Contra alvo de dois elementos, o ataque multiplica os dois e a defesa usa o pior dos dois.</p>
+    </section>
+
+    <section class="bloco-g" id="dados">
+      <h2 class="titulo">Dados do jogador</h2>
+      <p>Tudo no aparelho, exportável em um arquivo. Estrutura mínima:</p>
+<pre><code>Personagem  { nome, mundo, level, vip, diamonds?, gold? }
+Pokémon     { especie, shiny, apelido?, boost, stars, held?, heldTier,
+              mega, onde: bag|depot|expedicao, treino{}, addon, historico[] }
+Time        { nome, alvo, principal, vagas[6] → Pokémon }
+Plano       { pokemon, meta, passos[] }
+Passo       { tipo, titulo, estado: afazer|andamento|feito,
+              dependeDe?, progresso?, materiais[{ item, tem }] }
+Historico   { data, mudanca, origem }</code></pre>
+      <p class="leve">Vários personagens por conta. Coleção, times e planos pertencem ao personagem ativo.</p>
+    </section>
+
+    <section class="bloco-g" id="pendencias">
+      <h2 class="titulo">Pendências e decisões</h2>
+      <div class="aviso-b"><b>Arte oficial dos Pokémon.</b> A decisão foi mostrar a arte oficial (via PokéAPI). O seu estudo evitava isso por risco de derrubada. Vale combinar entre vocês antes de publicar.</div>
+      <div class="tab-w"><table class="t">
+        <thead><tr><th>Pendência</th><th>Afeta</th><th>Como resolver</th></tr></thead>
+        <tbody>
+          <tr><td>Evolução completa</td><td>ficha, plano</td><td>Só dentro do jogo (Pokédex do cliente) ou pela comunidade via "Reportar erro".</td></tr>
+          <tr><td>Lista de golpes e dano em área</td><td>ficha, análise de time</td><td>Sem fonte. A análise de time hoje não conta "2 com dano em área".</td></tr>
+          <tr><td>Papel de cada Pokémon (offtank, dano)</td><td>análise de time</td><td>No protótipo vem dos times da comunidade. Precisa de uma lista por espécie.</td></tr>
+          <tr><td>Custo de Star do Super Rare</td><td>página Star, plano</td><td>Oficial 260 D + 70 kk × comunidade 240 D + 60 kk. Conferir no painel.</td></tr>
+          <tr><td>Preço de Market e taxa de drop</td><td>item</td><td>Sem fonte pública. Fase futura com a comunidade.</td></tr>
+          <tr><td>Receita das Boost Stones (quantidades)</td><td>Boost, plano</td><td>Só na máquina do jogo.</td></tr>
+          <tr><td>Login com Discord e sincronização</td><td>entrada, Eu</td><td>Fase 2.</td></tr>
+          <tr><td>Logo</td><td>marca</td><td>O Paulo gera. Ideia: um PDA que lembre uma Pokédex.</td></tr>
+        </tbody>
+      </table></div>
+      <h3 class="titulo">Fora da fase 1</h3>
+      <p>Rotina e checklists de tasks, importar caçadas do Hunt Analyzer, sugestões inteligentes, guilda, páginas de local, quest, NPC e combate completas.</p>
+    </section>
+
+    <p class="rodape">Paulo + Claude · 21/09/2026 · Projeto de fãs, sem vínculo com o PokeAlliance, a Nintendo ou a The Pokémon Company.</p>
+  </main>
+</div>
+</body>
+</html>
