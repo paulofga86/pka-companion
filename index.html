@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790012309">
+<link rel="stylesheet" href="estilo.css?v=1790012594">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -796,6 +796,45 @@
   .marco.passou .cx { opacity: .72; }
   .marco .cx .cab-m { padding: 10px 14px 4px; font-size: 12.5px; font-weight: 650; color: var(--text-3); }
   .marco .cx .linha { min-height: 46px; padding: 8px 14px; font-size: 14.5px; }
+
+  /* notícias com arte */
+  .cartao.largo.com-arte { padding-right: 104px; min-height: 124px; background: linear-gradient(200deg, color-mix(in oklab, var(--c) 22%, var(--surface)) 0%, var(--surface) 55%); }
+  .cartao.largo.com-arte .c-arte { right: 6px; top: 50%; width: 92px; height: 92px; transform: translateY(-50%); z-index: 0; }
+  /* setas das fileiras (só com mouse, no computador) */
+  .fileira-cab h3 { margin-right: auto; }
+  .setas { display: none; gap: 6px; }
+  .setas button { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow-1); color: var(--text); transition: opacity .2s, background .2s; }
+  .setas button:hover { background: var(--surface-2); }
+  .setas button:disabled { opacity: .3; cursor: default; }
+  .setas .icone { width: 18px; height: 18px; }
+  .setas button:first-child .icone { transform: rotate(180deg); }
+  @media (hover: hover) and (min-width: 900px) {
+    .setas { display: inline-flex; }
+    .trilho { scrollbar-width: none; }
+    .trilho.mais-dir { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 72px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 72px), transparent); }
+    .trilho.mais-esq { -webkit-mask-image: linear-gradient(90deg, transparent, #000 72px); mask-image: linear-gradient(90deg, transparent, #000 72px); }
+    .trilho.mais-esq.mais-dir { -webkit-mask-image: linear-gradient(90deg, transparent, #000 72px, #000 calc(100% - 72px), transparent); mask-image: linear-gradient(90deg, transparent, #000 72px, #000 calc(100% - 72px), transparent); }
+  }
+
+  /* ---------- destaques rotativos do Início ---------- */
+  .carrossel { display: block; }
+  .carrossel .slides { position: relative; min-height: inherit; border-radius: inherit; }
+  .carrossel .slide { position: absolute; inset: 0; display: flex; align-items: flex-end; border-radius: inherit; isolation: isolate;
+    opacity: 0; visibility: hidden; transition: opacity .9s var(--ease), visibility 0s linear .9s; }
+  .carrossel .slide.on { opacity: 1; visibility: visible; transition: opacity .9s var(--ease); }
+  .carrossel .slide::before { content: ""; position: absolute; inset: 0; z-index: -3; border-radius: inherit; background: var(--palco-cor); }
+  .carrossel .slide::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: linear-gradient(180deg, rgba(24,14,34,.2) 0%, rgba(24,14,34,0) 30%, rgba(24,14,34,.55) 68%, rgba(24,14,34,.82) 100%); }
+  .carrossel::after { display: none; }
+  .carrossel .slide .arte { transform: translateX(24px) scale(.96); transition: transform 1.2s var(--ease); }
+  .carrossel .slide.on .arte { transform: none; }
+  .carrossel .slide .texto { padding-bottom: 58px; }
+  .rotulo-d { display: inline-block; font-size: 13px; font-weight: 650; letter-spacing: .02em; color: rgba(255,255,255,.82); }
+  .pontos-c { position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 4px; z-index: 3; }
+  .pontos-c button { width: 28px; height: 28px; display: grid; place-items: center; }
+  .pontos-c i { display: block; width: 8px; height: 8px; border-radius: 8px; background: rgba(255,255,255,.4); transition: width .4s var(--ease), background .3s; }
+  .pontos-c button[aria-selected="true"] i { width: 26px; background: #fff; }
+  .pontos-c { justify-content: flex-start; padding-left: max(14px, calc((100% - 1080px) / 2 + 14px)); }
+  html[data-paleta="pokemon"] .carrossel .slide::before { background: color-mix(in oklab, var(--tinta) 40%, var(--palco-cor)); }
 </style>
 </head>
 <body>
@@ -1020,14 +1059,14 @@ const ROCK = { feitos: new Set(), contador: 52 };
 const HOENN_R = '3.000.000 XP · 5 Special Bubble Gum · 450 Mighty Token';
 // vault: Combate/Ginásios.md · elemento do líder = leitura pelo time, não é fonte
 const GINASIOS = [
-  { id:'pewter', cidade:'Pewter', lider:'Brock', ins:'Boulder Badge', task:'10 Shiny Marowak + 10 Shiny Steelix', time:'Shiny Marowak, Shiny Onix, Shiny Rhydon, Shiny Golem, Aerodactyl, Shiny Steelix', el:['rock','ground'], mapa:'https://imgur.com/a/TdDDQvL', feito:{ task:true, dungeon:true, ins:true } },
-  { id:'cerulean', cidade:'Cerulean', lider:'Misty', ins:'Cascade Badge', task:'10 Shiny Blastoise + 10 Shiny Feraligatr', time:'Shiny Blastoise, Shiny Vaporeon, Shiny Tentacruel, Shiny Feraligatr, Shiny Politoed, Shiny Mantine', el:['water'], mapa:'https://imgur.com/a/9zLq4Sq', feito:{ task:true, dungeon:true, ins:true } },
-  { id:'vermilion', cidade:'Vermilion', lider:'Lt. Surge', ins:'Thunder Badge', task:'10 Shiny Raichu + 10 Shiny Lanturn', time:'Shiny Magneton, Shiny Ampharos, Shiny Raichu, Shiny Lanturn, Shiny Jolteon, Shiny Electabuzz', el:['electric'], mapa:'https://imgur.com/a/X1JlKl5', feito:{ task:true } },
-  { id:'celadon', cidade:'Celadon', lider:'Erika', ins:'Rainbow Badge', task:'10 Shiny Venusaur + 10 Shiny Meganium', time:'Shiny Exeggutor, Shiny Venusaur, Shiny Meganium, Shiny Tangela, Shiny Vileplume, Vileplume', el:['grass'], mapa:'https://imgur.com/a/M7Jk4Ip', feito:{} },
-  { id:'fuchsia', cidade:'Fuchsia', lider:'Koga', ins:'Soul Badge', task:'10 Shiny Muk + 10 Shiny Tentacruel', time:'Shiny Nidoking, Shiny Nidoqueen, Shiny Crobat, Shiny Tentacruel, Shiny Venomoth, Shiny Muk', el:['poison'], mapa:'https://imgur.com/a/has6KOr', feito:{} },
-  { id:'saffron', cidade:'Saffron', lider:'Sabrina', ins:'Marsh Badge', task:'10 Shiny Espeon + 10 Shiny Xatu', time:'Shiny Alakazam, Shiny Xatu, Shiny Wobbuffet, Shiny Espeon, Shiny Mr. Mime, Shiny Hypno', el:['psychic'], mapa:'https://imgur.com/a/ZJrqy4w', feito:{} },
-  { id:'cinnabar', cidade:'Cinnabar', lider:'Blaine', ins:'Volcano Badge', task:'10 Shiny Charizard + 10 Shiny Typhlosion', time:'Shiny Magmar, Shiny Flareon, Shiny Ninetales, Shiny Arcanine, Shiny Charizard, Shiny Typhlosion', el:['fire'], mapa:'https://imgur.com/a/hLzaofv', feito:{} },
-  { id:'viridian', cidade:'Viridian', lider:'Giovanni', ins:'Earth Badge', task:'10 Shiny Nidoqueen + 10 Shiny Nidoking', time:'Shiny Kangaskhan, Shiny Nidoking, Shiny Nidoqueen, Shiny Dugtrio, Shiny Persian, Shiny Rhydon', el:['ground','normal'], mapa:'https://imgur.com/a/CNjdEEP', feito:{} },
+  { id:'pewter', art:[306,false], cidade:'Pewter', lider:'Brock', ins:'Boulder Badge', task:'10 Shiny Marowak + 10 Shiny Steelix', time:'Shiny Marowak, Shiny Onix, Shiny Rhydon, Shiny Golem, Aerodactyl, Shiny Steelix', el:['rock','ground'], mapa:'https://imgur.com/a/TdDDQvL', feito:{ task:true, dungeon:true, ins:true } },
+  { id:'cerulean', art:[134,false], cidade:'Cerulean', lider:'Misty', ins:'Cascade Badge', task:'10 Shiny Blastoise + 10 Shiny Feraligatr', time:'Shiny Blastoise, Shiny Vaporeon, Shiny Tentacruel, Shiny Feraligatr, Shiny Politoed, Shiny Mantine', el:['water'], mapa:'https://imgur.com/a/9zLq4Sq', feito:{ task:true, dungeon:true, ins:true } },
+  { id:'vermilion', art:[82,true], cidade:'Vermilion', lider:'Lt. Surge', ins:'Thunder Badge', task:'10 Shiny Raichu + 10 Shiny Lanturn', time:'Shiny Magneton, Shiny Ampharos, Shiny Raichu, Shiny Lanturn, Shiny Jolteon, Shiny Electabuzz', el:['electric'], mapa:'https://imgur.com/a/X1JlKl5', feito:{ task:true } },
+  { id:'celadon', art:[465,false], cidade:'Celadon', lider:'Erika', ins:'Rainbow Badge', task:'10 Shiny Venusaur + 10 Shiny Meganium', time:'Shiny Exeggutor, Shiny Venusaur, Shiny Meganium, Shiny Tangela, Shiny Vileplume, Vileplume', el:['grass'], mapa:'https://imgur.com/a/M7Jk4Ip', feito:{} },
+  { id:'fuchsia', art:[94,false], cidade:'Fuchsia', lider:'Koga', ins:'Soul Badge', task:'10 Shiny Muk + 10 Shiny Tentacruel', time:'Shiny Nidoking, Shiny Nidoqueen, Shiny Crobat, Shiny Tentacruel, Shiny Venomoth, Shiny Muk', el:['poison'], mapa:'https://imgur.com/a/has6KOr', feito:{} },
+  { id:'saffron', art:[178,true], cidade:'Saffron', lider:'Sabrina', ins:'Marsh Badge', task:'10 Shiny Espeon + 10 Shiny Xatu', time:'Shiny Alakazam, Shiny Xatu, Shiny Wobbuffet, Shiny Espeon, Shiny Mr. Mime, Shiny Hypno', el:['psychic'], mapa:'https://imgur.com/a/ZJrqy4w', feito:{} },
+  { id:'cinnabar', art:[126,false], cidade:'Cinnabar', lider:'Blaine', ins:'Volcano Badge', task:'10 Shiny Charizard + 10 Shiny Typhlosion', time:'Shiny Magmar, Shiny Flareon, Shiny Ninetales, Shiny Arcanine, Shiny Charizard, Shiny Typhlosion', el:['fire'], mapa:'https://imgur.com/a/hLzaofv', feito:{} },
+  { id:'viridian', art:[53,true], cidade:'Viridian', lider:'Giovanni', ins:'Earth Badge', task:'10 Shiny Nidoqueen + 10 Shiny Nidoking', time:'Shiny Kangaskhan, Shiny Nidoking, Shiny Nidoqueen, Shiny Dugtrio, Shiny Persian, Shiny Rhydon', el:['ground','normal'], mapa:'https://imgur.com/a/CNjdEEP', feito:{} },
 ];
 const NOVIDADES = [
   { id:'defense-curl', d:'19/09', t:'Selvagens sem Defense Curl', x:'Dezenas de Pokémon selvagens (Clefairy, Lickitung, Azumarill, Marill, Phanpy, Sealeo e outros, também os shiny) não usam mais Defense Curl. Caçadas mais rápidas.', cat:'Hunts' },
@@ -1057,6 +1096,14 @@ const MARCOS = [
 ];
 const CORTE_XP = [[1, 100], [100, 80], [130, 60], [150, 40], [200, 12.5], [320, 5], [400, 1]];
 const xpDe = lv => [...CORTE_XP].reverse().find(([l]) => lv >= l)[1];
+function DESTAQUES() {
+  const pr = proxGin(), jt = TASKS.find(t => t.estado === 'aceita'), tm = TIMES[0];
+  const d = [{ rot:'Seu próximo passo', cor:'#3a1d5c', art:[26, true], t:'Evolua o Shiny Pikachu', p:'Ele vira Shiny Raichu, sobe de T4 para T1 e fecha mais um lugar do seu time Electric.', a:['Ver o plano', '#/plano/25s'], b:['Outros passos', '#/meus/planos'] }];
+  if (ROCK.feitos.size < 13) d.push({ rot:'Missão da semana', cor:'#3b1422', art:[53, true], t:`Vença os ${13 - ROCK.feitos.size} Rockets da semana`, p:`Cada vitória conta para o Giovanni: você tem ${ROCK.contador} de 130. A semana ${renovaTxt()}.`, a:['Ver os Rockets', '#/rockets'], b:['Onde ficam', '#/rockets'] });
+  if (tm && tm.alvo) { const a = ALVOS.find(x => x.id === tm.alvo), c = CACADA[tm.alvo]; d.push({ rot:'Caçada para o seu time', cor:'#1c2f4a', art:[a.n, false], t:`Cace ${a.nome} com o ${tm.nome}`, p:`${resumoTime(tm)[0].t.replace(/<[^>]+>/g, '')} ${c.kills.toLocaleString('pt-BR')} abates por hora${jt && jt.cacada === tm.alvo ? `, e a task da ${jt.npc} já está aceita` : ''}.`, a:['Ver a caçada', `#/c/${a.id}`], b:['Ver o time', `#/time/${tm.id}`] }); }
+  if (pr) d.push({ rot:'Preparação para Hoenn', cor:'#3a3212', art:pr.g.art, t:`Conquiste a ${pr.g.ins}`, p:`Falta ${pr.e[1].toLowerCase()} de ${pr.g.cidade}. Cada insígnia tira 1 segundo da espera do seu time guardado.`, a:['Ver o ginásio', `#/ginasios/${pr.g.id}`], b:['Todos os ginásios', '#/ginasios'] });
+  return d;
+}
 const VEM_AI = 'Na semana de 21/09: Hunt Finder, canais de Hoenn no Wildscape e no Primal, e a Jenny Quest, que libera talentos novos.';
 const ETAPAS = [['task', 'Task', 0], ['dungeon', 'Dungeon', 200], ['ins', 'Insígnia', 250]];
 const TASKS = [
@@ -1137,9 +1184,9 @@ function inicioVisitante() {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/novidades">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/novidades/stones"><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
-          <a class="cartao largo" href="#/novidades/titan3"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
-          <a class="cartao largo" href="#/novidades/treino"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/stones" style="--c:${cor(59)}"><div class="c-arte">${arte(59, true)}</div><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/titan3" style="--c:${cor(178)}"><div class="c-arte">${arte(178, true)}</div><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/treino" style="--c:${cor(448)}"><div class="c-arte">${arte(448, false)}</div><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
       </div>
     </div>`;
@@ -1150,18 +1197,22 @@ const TELAS = {
   inicio() {
     if (!SESSAO.temPersonagem) return inicioVisitante();
     return `
-    <section class="palco" style="--palco-cor:#3a1d5c">
-      <div class="palco-clip"><div class="fundo" style="background-image:url('${ART(26, true)}')"></div></div>
-      ${arte(26, true)}
+    <section class="palco carrossel" aria-roledescription="carrossel" aria-label="Suas missões">
+      <div class="slides">${DESTAQUES().map((d, k) => `<div class="slide ${k === 0 ? 'on' : ''}" style="--palco-cor:${d.cor}" role="group" aria-roledescription="destaque" aria-label="${k + 1} de ${DESTAQUES().length}" ${k ? 'aria-hidden="true"' : ''}>
+        <div class="palco-clip"><div class="fundo" style="background-image:url('${ART(d.art[0], d.art[1])}')"></div></div>
+        <div class="arte ${d.art[1] ? 'shiny' : ''}"><img src="${ART(d.art[0], d.art[1])}" alt=""></div>
+        <div class="conteudo"><div class="texto">
+          <span class="rotulo-d">${d.rot}</span>
+          <h2 class="display">${d.t}</h2>
+          <p>${d.p}</p>
+          <div class="acoes">
+            <a class="btn btn-primario" href="${d.a[1]}" ${k ? 'tabindex="-1"' : ''}>${d.a[0]}</a>
+            <a class="btn btn-vidro" href="${d.b[1]}" ${k ? 'tabindex="-1"' : ''}>${d.b[0]}</a>
+          </div>
+        </div></div>
+      </div>`).join('')}</div>
       <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
-      <div class="conteudo"><div class="texto">
-        <h2 class="display">Evolua o Shiny Pikachu</h2>
-        <p>Seu próximo passo: ele vira Shiny Raichu, sobe de T4 para T1 e fecha mais um lugar do seu time Electric.</p>
-        <div class="acoes">
-          <a class="btn btn-primario" href="#/plano/25s">Ver o plano</a>
-          <a class="btn btn-vidro" href="#/meus/planos">Outros passos</a>
-        </div>
-      </div></div>
+      <div class="pontos-c" role="tablist" aria-label="Escolher destaque">${DESTAQUES().map((d, k) => `<button role="tab" aria-selected="${k === 0}" aria-label="${d.rot}" data-destaque="${k}"><i></i></button>`).join('')}</div>
     </section>
 
     <div class="conteudo">
@@ -1185,12 +1236,14 @@ const TELAS = {
             <div class="c-titulo">Task da ${t.npc}</div>
             <div class="c-sub">${t.obj.join(' · ')}</div>
           </a>`; }).join('')}
-          ${(() => { const m = MARCOS.find(x => x.lv > PERSONAGEM.level); return m ? `<a class="cartao tinto" href="#/jornada" style="--c:var(--v-500)">
+          ${(() => { const m = MARCOS.find(x => x.lv > PERSONAGEM.level); return m ? `<a class="cartao tinto saltado" href="#/jornada" style="--c:var(--v-500)">
+            <div class="c-arte">${arte(130, false)}</div>
             <div class="c-titulo">Próximo marco: level ${m.lv}</div>
             <div class="c-sub">Faltam ${m.lv - PERSONAGEM.level} levels · ${m.itens[0][0].split(':')[0]}</div>
             <div class="barra"><i style="--v:${Math.round(PERSONAGEM.level / m.lv * 100)}%"></i></div>
           </a>` : ''; })()}
-          ${(() => { const pr = proxGin(); return pr ? `<a class="cartao tinto" href="#/ginasios/${pr.g.id}" style="--c:var(--el-${pr.g.el[0]})">
+          ${(() => { const pr = proxGin(); return pr ? `<a class="cartao tinto saltado" href="#/ginasios/${pr.g.id}" style="--c:var(--el-${pr.g.el[0]})">
+            <div class="c-arte">${arte(pr.g.art[0], pr.g.art[1])}</div>
             <div class="c-titulo">Ginásio de ${pr.g.cidade}</div>
             <div class="c-sub">Falta: ${pr.e[1].toLowerCase()} · ${insignias()} de 8 insígnias</div>
             <div class="barra"><i style="--v:${insignias() / 8 * 100}%"></i></div>
@@ -1206,9 +1259,9 @@ const TELAS = {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/novidades">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/novidades/stones"><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
-          <a class="cartao largo" href="#/novidades/titan3"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
-          <a class="cartao largo" href="#/novidades/treino"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/stones" style="--c:${cor(59)}"><div class="c-arte">${arte(59, true)}</div><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/titan3" style="--c:${cor(178)}"><div class="c-arte">${arte(178, true)}</div><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo com-arte" href="#/novidades/treino" style="--c:${cor(448)}"><div class="c-arte">${arte(448, false)}</div><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
       </div>
     </div>`;
@@ -2962,6 +3015,60 @@ function abrirJornada(primeira) {
   </article>`, primeira);
 }
 
+
+/* ============ setas das fileiras ============ */
+function estadoTrilho(t) {
+  const fim = t.scrollWidth - t.clientWidth - 2, esq = t.scrollLeft > 2, dir = t.scrollLeft < fim;
+  t.classList.toggle('mais-esq', esq); t.classList.toggle('mais-dir', dir);
+  const cab = t.previousElementSibling; if (!cab || !cab.classList.contains('fileira-cab')) return;
+  const [a, b] = cab.querySelectorAll('.setas button'); if (a) { a.disabled = !esq; b.disabled = !dir; }
+  const setas = cab.querySelector('.setas'); if (setas) setas.style.visibility = fim > 0 ? '' : 'hidden';
+}
+function prepararTrilhos(raiz = document) {
+  raiz.querySelectorAll('.trilho').forEach(t => {
+    const cab = t.previousElementSibling;
+    if (cab && cab.classList.contains('fileira-cab') && !cab.querySelector('.setas')) {
+      const sp = document.createElement('span'); sp.className = 'setas';
+      sp.innerHTML = `<button type="button" data-rolar="-1" aria-label="Anteriores">${I.seta}</button><button type="button" data-rolar="1" aria-label="Próximos">${I.seta}</button>`;
+      cab.appendChild(sp);
+    }
+    if (!t.dataset.ouvindo) { t.dataset.ouvindo = '1'; t.addEventListener('scroll', () => estadoTrilho(t), { passive: true }); }
+    estadoTrilho(t);
+  });
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-rolar]'); if (!b) return;
+  const t = b.closest('.fileira-cab').nextElementSibling;
+  t.scrollBy({ left: +b.dataset.rolar * Math.max(260, t.clientWidth * .8), behavior: 'smooth' });
+});
+addEventListener('resize', () => prepararTrilhos());
+
+
+/* ============ destaques rotativos ============ */
+let destaqueTimer = null, destaqueK = 0;
+function irDestaque(k) {
+  const c = document.querySelector('.carrossel'); if (!c) return;
+  const sl = c.querySelectorAll('.slide'), n = sl.length; destaqueK = (k + n) % n;
+  sl.forEach((el, i) => { const on = i === destaqueK; el.classList.toggle('on', on); el.setAttribute('aria-hidden', !on); el.querySelectorAll('a').forEach(a => on ? a.removeAttribute('tabindex') : a.setAttribute('tabindex', '-1')); });
+  c.querySelectorAll('.pontos-c button').forEach((b, i) => b.setAttribute('aria-selected', i === destaqueK));
+}
+function iniciarCarrossel() {
+  clearInterval(destaqueTimer);
+  const c = document.querySelector('.carrossel'); if (!c) return;
+  destaqueK = 0;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let pausado = false;
+  c.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') pausado = true; });
+  c.addEventListener('pointerleave', () => { pausado = false; });
+  c.addEventListener('focusin', () => { pausado = true; });
+  c.addEventListener('focusout', () => { pausado = false; });
+  let x0 = null;
+  c.addEventListener('pointerdown', e => { x0 = e.clientX; });
+  c.addEventListener('pointerup', e => { if (x0 === null) return; const dx = e.clientX - x0; x0 = null; if (Math.abs(dx) > 45) { irDestaque(destaqueK + (dx < 0 ? 1 : -1)); pausado = false; } });
+  destaqueTimer = setInterval(() => { if (!pausado && !document.hidden && $('#camada').hidden && document.querySelector('.carrossel')) irDestaque(destaqueK + 1); }, 7000);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-destaque]'); if (b) irDestaque(+b.dataset.destaque); });
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -3067,6 +3174,8 @@ function desenhar(h) {
   document.querySelectorAll('.porta').forEach(a => { if (a.dataset.porta === porta) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   window.scrollTo(0, 0);
   if (porta === 'buscar') { const q = $('#q'); buscar(q.value); q.addEventListener('input', e => buscar(e.target.value)); }
+  prepararTrilhos(tela); document.fonts?.ready.then(() => prepararTrilhos(tela));
+  iniciarCarrossel();
 }
 
 /* ============ eventos ============ */
