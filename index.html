@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790015362">
+<link rel="stylesheet" href="estilo.css?v=1790015673">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -539,6 +539,35 @@
     .ent-painel h1 { font-size: 42px; }
   }
   @media (prefers-reduced-motion: reduce) { .vitrine .mira, .vt .heroi img { animation: none; } }
+  /* professora Sonia: acompanha o cadastro e reage ao que o jogador informa */
+  .prof { position: relative; min-height: 290px; display: flex; align-items: flex-end; padding: 0 22px; margin-bottom: -46px; }
+  .prof-texto { padding-bottom: 54px; position: relative; z-index: 2; width: calc(100% - 118px); }
+  .prof-texto h2 { margin: 6px 0 14px; font-size: clamp(30px, 7.5vw, 40px); }
+  .prof-corpo { position: absolute; right: -6px; bottom: 0; width: 230px; height: 290px; overflow: hidden; z-index: 1; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
+  .prof-corpo img { position: absolute; width: 580px; max-width: none; left: 50%; top: -30px; translate: -50% 0; animation: respira 4.6s var(--ease) infinite alternate; transition: opacity .5s var(--ease); }
+  @keyframes respira { from { transform: translateY(0); } to { transform: translateY(3px) rotate(.4deg); } }
+  .prof-fala { position: relative; padding: 14px 16px 14px 52px; border-radius: 22px 22px 6px 22px; min-height: 64px;
+    background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+    border: 1px solid color-mix(in oklab, var(--text) 12%, transparent); box-shadow: 0 16px 34px -18px rgba(8,4,16,.55), inset 0 1px 0 rgba(255,255,255,.1); }
+  .prof-fala::after { content: ""; position: absolute; right: -7px; bottom: 10px; width: 14px; height: 14px; background: inherit; border: inherit; border-width: 0 1px 1px 0; rotate: -45deg; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .prof-fala .f-quem { display: block; font-size: 12px; font-weight: 660; letter-spacing: .03em; color: var(--text-3); }
+  .prof-fala .f-t { display: block; margin-top: 2px; font-size: 15.5px; line-height: 1.4; color: var(--text); transition: opacity .35s var(--ease), transform .5s cubic-bezier(.16,1,.3,1), filter .35s; }
+  .prof-fala .f-t.troca { opacity: 0; transform: translateY(6px); filter: blur(3px); transition-duration: .01s; }
+  .prof-fala .f-rea { position: absolute; left: -10px; top: -14px; width: 54px; height: 54px; filter: drop-shadow(0 6px 10px rgba(8,4,16,.35)); }
+  .prof-fala .f-rea.pula { animation: reage .7s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes reage { 0% { transform: scale(.55) rotate(-14deg); opacity: .2; } 60% { transform: scale(1.1) rotate(4deg); opacity: 1; } 100% { transform: none; } }
+  .prof + .campo-grupo { position: relative; z-index: 2; }
+  .prof-mini { display: flex; margin: 10px 0 0; }
+  .prof-mini .prof-fala { border-radius: 22px 22px 22px 6px; flex: 1; }
+  .prof-mini .prof-fala::after { display: none; }
+  .ent-pronto .ent-palco { min-height: 52dvh; -webkit-mask-image: linear-gradient(180deg, #000 78%, transparent); mask-image: linear-gradient(180deg, #000 78%, transparent); }
+  .ent-pronto .sonia-aceno { position: absolute; left: 50%; bottom: -2%; height: 96%; translate: -74% 0; object-fit: contain; filter: drop-shadow(0 24px 30px rgba(8,4,16,.45)); animation: flutua 8s var(--ease) infinite alternate; }
+  .ent-pronto .pika { position: absolute; left: 50%; bottom: 4%; width: min(40vw, 190px); aspect-ratio: 1; translate: 20% 0; }
+  .ent-pronto .prof-fala { position: absolute; left: 50%; top: calc(18px + env(safe-area-inset-top)); translate: 2% 0; max-width: min(46vw, 230px); border-radius: 22px 22px 22px 6px; }
+  .ent-pronto .prof-fala::after { right: auto; left: -7px; rotate: 45deg; border-width: 0 0 1px 1px; }
+  @media (min-width: 900px) { .ent-pronto .ent-palco { min-height: 60dvh; } }
+  @media (prefers-reduced-motion: reduce) { .prof-corpo img, .ent-pronto .sonia-aceno { animation: none; } .prof-fala .f-rea.pula { animation: none; } }
   .ent-passo { width: 100%; max-width: 580px; margin: 0 auto; padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
   .ent-barra { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(14px + env(safe-area-inset-top)) 16px 10px; background: color-mix(in oklab, var(--bg) 55%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); }
   .ent-barra .redondo { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
@@ -1872,7 +1901,9 @@ function htmlBusca() {
   const n = cad.sel.length;
   const rotulo = n === 0 ? 'Escolha um Pokémon' : n === 1 ? `Cadastrar ${DEX[cad.sel[0]].nome}` : `Cadastrar ${n} Pokémon`;
   return `<article class="folha" role="dialog" aria-modal="true" aria-label="Adicionar Pokémon">
-    <div class="cad-cab"><div style="flex:1"><h2 class="display">Adicionar</h2><p>Toque em um para cadastrar. Marque vários para cadastrar em sequência.</p></div><button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div>
+    <div class="cad-cab"><div style="flex:1"><h2 class="display">Adicionar</h2>
+      <div class="prof-mini">${n === 0 ? falaSonia('oi', 'Toque nos Pokémon que você tem. Pode marcar vários: eu anoto um de cada vez.') : n === 1 ? falaSonia('pensa', `${DEX[cad.sel[0]].nome} marcado. Tem mais algum?`) : falaSonia('viva', `${n} marcados! Vou anotar um de cada vez.`)}</div>
+    </div><button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div>
     <div class="cad-busca"><label class="campo-busca">${I.busca}<span class="sr">Buscar espécie</span><input id="cad-q" type="search" placeholder="Nome do Pokémon" autocomplete="off"></label></div>
     <div style="padding:0 22px"><div class="lista" id="cad-lista"></div></div>
     <div class="barra-acao"><button class="btn btn-primario" data-cad-seguir ${n ? '' : 'disabled'}>${rotulo}</button></div>
@@ -2290,6 +2321,28 @@ function htmlEntBoas() {
     </div>
   </section>`;
 }
+const SONIA = { jaleco:'img/sonia/jaleco.webp', casaco:'img/sonia/casaco.webp', casaco2:'img/sonia/casaco2.webp', aceno:'img/sonia/aceno.webp',
+  oi:'img/sonia/oi.webp', pensa:'img/sonia/pensa.webp', opa:'img/sonia/opa.webp', viva:'img/sonia/viva.webp', forca:'img/sonia/forca.webp' };
+const falaSonia = (rea, texto) => `<div class="prof-fala" aria-live="polite"><img class="f-rea pula" src="${SONIA[rea]}" alt=""><span class="f-quem">Professora Sonia</span><span class="f-t">${texto}</span></div>`;
+let falaTimer = null;
+function falar(rea, texto, espera = 0) {
+  clearTimeout(falaTimer);
+  falaTimer = setTimeout(() => {
+    const f = $('.prof-fala'); if (!f) return;
+    const t = f.querySelector('.f-t'), r = f.querySelector('.f-rea');
+    if (t.textContent === texto) return;
+    t.classList.add('troca'); r.classList.remove('pula'); void r.offsetWidth;
+    r.src = SONIA[rea]; r.classList.add('pula');
+    setTimeout(() => { t.textContent = texto; void t.offsetWidth; t.classList.remove('troca'); }, 40);
+  }, espera);
+}
+function falaDoLevel(lv) {
+  if (!lv) return ['pensa', 'Qual é o level do personagem? Eu digo o que já está aberto para você.'];
+  if (lv >= 350) return ['viva', `Level ${lv}! Johto, Hoenn e Mega já estão abertos para você.`];
+  if (lv >= 250) return ['opa', `Level ${lv}: Hoenn já está aberto. Mega vem no 350.`];
+  if (lv >= 150) return ['opa', `Level ${lv}: Johto e Wildscape liberados. Hoenn abre no 250.`];
+  return ['pensa', `Level ${lv}, anotado. Eu aviso quando Johto abrir, no 150.`];
+}
 function htmlEntLibera() {
   const lv = +ent.level;
   if (!lv) return `<p class="aviso" style="margin:10px 4px 0">Informe o level para ver o que já está liberado.</p>`;
@@ -2305,9 +2358,12 @@ function htmlEntPersonagem() {
       <span class="pontos" aria-label="Passo 1 de 2"><i class="on"></i><i></i></span>
       <button class="pular" data-ent-pular>Pular</button>
     </div>
-    <div class="ent-cab">
-      <h2 class="display">Seu personagem</h2>
-      <p>Tudo opcional. Serve para o app avisar o que já está liberado para você.</p>
+    <div class="prof">
+      <div class="prof-texto">
+        <h2 class="display">Seu personagem</h2>
+        ${falaSonia('oi', ent.nome ? `Oi de novo, ${esc(ent.nome)}. Confira o que eu anotei.` : 'Oi, sou a Sonia. Vou anotar seu personagem. Tudo é opcional e dá para mudar depois.')}
+      </div>
+      <div class="prof-corpo"><img src="${SONIA.jaleco}" alt="Professora Sonia, de jaleco"></div>
     </div>
     <div class="campo-grupo">
       <label for="ent-nome" class="rot-c" style="display:flex"><b>Nome</b><span>como aparece no jogo</span></label>
@@ -2333,7 +2389,9 @@ function htmlEntPronto() {
   return `<section class="ent-pronto" aria-label="Pronto">
     <div class="ent-palco">
       <div class="fundo" style="background-image:url('${ART(25, true)}')"></div>
-      <div class="heroi" style="width:min(70vw,360px)">${arte(25, true)}</div>
+      <img class="sonia-aceno" src="${SONIA.aceno}" alt="Professora Sonia acenando">
+      <div class="pika">${arte(25, true)}</div>
+      ${falaSonia('viva', 'Tudo anotado! Agora me mostre seus Pokémon.')}
     </div>
     <div class="ent-texto">
       <h1 class="display">Pronto, ${esc(nome)}</h1>
@@ -2347,14 +2405,14 @@ function htmlEntPronto() {
 }
 document.addEventListener('input', e => {
   if (!ent) return;
-  if (e.target.id === 'ent-nome') ent.nome = e.target.value;
-  if (e.target.id === 'ent-level') { ent.level = e.target.value.replace(/\D/g, '').slice(0, 3); $('#ent-libera').innerHTML = htmlEntLibera(); }
+  if (e.target.id === 'ent-nome') { ent.nome = e.target.value; const n = ent.nome.trim(); falar(n ? 'pensa' : 'oi', n ? `Anotei: ${n}. Em qual mundo você joga?` : 'Pode deixar o nome em branco, se preferir.', 450); }
+  if (e.target.id === 'ent-level') { ent.level = e.target.value.replace(/\D/g, '').slice(0, 3); $('#ent-libera').innerHTML = htmlEntLibera(); const [r, f] = falaDoLevel(+ent.level); falar(r, f, 450); }
 });
 document.addEventListener('click', e => {
   if (!ent) return;
   const t = e.target.closest('button'); if (!t) return;
-  if (t.dataset.entMundo) { ent.mundo = t.dataset.entMundo; document.querySelectorAll('[data-ent-mundo]').forEach(b => b.setAttribute('aria-pressed', b === t)); }
-  else if (t.matches('[data-ent-vip]')) { ent.vip = !ent.vip; t.setAttribute('aria-checked', ent.vip); }
+  if (t.dataset.entMundo) { ent.mundo = t.dataset.entMundo; document.querySelectorAll('[data-ent-mundo]').forEach(b => b.setAttribute('aria-pressed', b === t)); falar('oi', `Mundo ${ent.mundo}, anotado. Agora o level do personagem.`); }
+  else if (t.matches('[data-ent-vip]')) { ent.vip = !ent.vip; t.setAttribute('aria-checked', ent.vip); falar(ent.vip ? 'forca' : 'pensa', ent.vip ? 'VIP anotado. Os bônus de VIP entram em todas as contas.' : 'Sem VIP, anotado.'); }
   else if (t.dataset.vt) mostrarVitrine(+t.dataset.vt);
   else if (t.matches('[data-ent-discord]')) toast('Login com Discord chega na fase 2');
   else if (t.matches('[data-ent-visitar]')) { SESSAO.temPersonagem = false; ent = null; location.hash = '#/inicio'; }
