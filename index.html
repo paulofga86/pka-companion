@@ -585,6 +585,30 @@
   .analise-t .a.alerta .icone { color: var(--warn); }
   .analise-t .a.bom .icone { color: var(--ok); }
   .analise-t .a b { font-weight: 640; }
+
+  /* ---------- Meu Pokémon ---------- */
+  .apelido { font-size: 15px; color: var(--text-3); font-weight: 600; margin: -6px 0 10px; }
+  .inv-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .inv { border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px; display: flex; flex-direction: column; gap: 6px; min-height: 112px; }
+  .inv .r { font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+  .inv .v { font-stretch: 118%; font-weight: 720; font-size: 28px; letter-spacing: -0.02em; line-height: 1.05; }
+  .inv .v small { font-size: 14px; color: var(--text-3); font-weight: 600; letter-spacing: 0; }
+  .inv .d { font-size: 12.5px; color: var(--text-2); margin-top: auto; }
+  .inv .barra { margin-top: 2px; }
+  .inv .st { display: flex; gap: 3px; color: var(--surface-3); }
+  .inv .st .icone { width: 20px; height: 20px; fill: currentColor; stroke-width: 1.2; }
+  .inv .st .on { color: #f2c230; }
+  .hist { position: relative; display: grid; gap: 14px; padding-left: 22px; }
+  .hist::before { content: ""; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: var(--surface-3); }
+  .hist li { list-style: none; position: relative; }
+  .hist li::before { content: ""; position: absolute; left: -21px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); box-shadow: inset 0 0 0 3px var(--data); }
+  .hist li:first-child::before { box-shadow: inset 0 0 0 3px var(--accent); }
+  .hist .q { font-size: 12.5px; color: var(--text-3); font-weight: 600; }
+  .hist .o { font-weight: 620; }
+  .hist .c { font-size: 13px; color: var(--text-3); }
+  .times-meu { display: flex; gap: 8px; flex-wrap: wrap; }
+  .times-meu a { height: 38px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface); box-shadow: var(--shadow-1); font-size: 14px; font-weight: 620; }
+  .tirar { display: block; margin: 26px auto 0; min-height: 44px; font-size: 14px; font-weight: 620; color: var(--bad); }
 </style>
 </head>
 <body>
@@ -662,8 +686,9 @@ const cor = n => `var(--el-${DEX[n].el[0]})`;
 const PERSONAGEM = { nome:'Denzar', level:262, mundo:'Sun' };
 const SESSAO = { temPersonagem: true };
 const COLECAO = [
-  { n:181, s:true,  boost:12, stars:0 },
-  { n:25,  s:true,  boost:5,  stars:0 },
+  { n:181, s:true,  boost:12, stars:0, held:'X-Attack', heldTier:3, onde:'bag', apelido:'Farol',
+    hist:[['19/09','Boost +10 → +12','2 pedras Common'],['12/09','Held X-Attack T2 → T3',''],['02/09','Boost +5 → +10','Pedras Elemental'],['28/08','Entrou na coleção','Capturado no Wildscape']] },
+  { n:25,  s:true,  boost:5,  stars:0, held:'X-Attack', heldTier:1, onde:'bag', hist:[['15/09','Boost +0 → +5','Pedras Novice'],['10/09','Entrou na coleção','']] },
   { n:125, s:false, boost:8,  stars:0 },
   { n:417, s:false, boost:0,  stars:0 },
   { n:178, s:true,  boost:0,  stars:0 },
@@ -952,7 +977,7 @@ const TELAS = {
     if (aba === 'colecao') {
       corpo = `<div class="resumo-col"><span><b>${COLECAO.length}</b> Pokémon</span><span>·</span><span><b>${shinies}</b> shiny</span><span>·</span><span><b>1</b> time</span></div>
       <div class="grade">
-        ${COLECAO.map(p => `<a class="poke-tile" href="#/p/${p.n}${p.s ? 's' : ''}" style="--c:${cor(p.n)}">
+        ${COLECAO.map((p, i) => `<a class="poke-tile" href="#/meu/${i}" style="--c:${cor(p.n)}">
           <div class="quadro">${arte(p.n, p.s)}</div>
           <div class="nome">${esc(nomeDe(p.n, p.s))}</div>
           <div class="invest">
@@ -1043,7 +1068,7 @@ function buscar(q) {
   const meus = COLECAO.filter(p => nomeDe(p.n,p.s).toLowerCase().includes(q));
   if (!achados.length && !meus.length) { alvo.innerHTML = `<p class="vazio">Nada com “${esc(q)}”. Tente o nome em inglês, como aparece no jogo.</p>`; return; }
   const grupos = {};
-  if (meus.length) grupos['Meus Pokémon'] = meus.map(p => ({ t:nomeDe(p.n,p.s), s:`${tierDe(p.n,p.s)}${p.boost ? ` · +${p.boost}` : ''}`, n:p.n, sh:p.s, h:`#/p/${p.n}${p.s?'s':''}`, meu:true }));
+  if (meus.length) grupos['Meus Pokémon'] = meus.map(p => ({ t:nomeDe(p.n,p.s), s:`${tierDe(p.n,p.s)}${p.boost ? ` · +${p.boost}` : ''}`, n:p.n, sh:p.s, h:`#/meu/${COLECAO.indexOf(p)}`, meu:true }));
   achados.forEach(r => (grupos[r.tipo] ||= []).push(r));
   alvo.innerHTML = Object.entries(grupos).map(([g, rs]) => `<div class="grupo-res"><h3>${g}</h3><div class="lista">
     ${rs.slice(0,6).map(r => `<a class="linha" href="${r.h}">
@@ -1086,7 +1111,7 @@ function abrirFicha(n, s) {
       ${n === 26 ? `<div class="sec"><h3 class="titulo">O que dropa</h3><div class="drops"><a class="chip" href="#/i/electric-ear">Electric Ear</a><a class="chip" href="#/i/thunder-stone">Thunder Stone</a><span class="chip">Screw</span></div></div>` : ''}
       <div class="barra-acao">
         ${tenho
-          ? `<a class="btn btn-suave" href="#/meus">Você tem ${tenho}</a><button class="btn btn-primario" data-planejar>Planejar</button>`
+          ? `<a class="btn btn-suave" href="#/meu/${COLECAO.findIndex(c => c.n === n && c.s === s)}">Você tem ${tenho}</a><button class="btn btn-primario" data-planejar>Planejar</button>`
           : `<button class="btn btn-primario" data-adicionar>${I.mais}Adicionar à coleção</button>`}
       </div>
     </article>`;
@@ -1101,7 +1126,7 @@ function fecharFicha(voltarHash = true) {
   camada.classList.remove('aberta');
   document.body.style.overflow = '';
   setTimeout(() => { camada.hidden = true; camada.innerHTML = ''; }, 450);
-  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null;
+  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
   for (let i = TIMES.length - 1; i >= 0; i--) if (TIMES[i].novo) TIMES.splice(i, 1);
   if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
 }
@@ -1156,7 +1181,7 @@ function htmlForm() {
     <div class="folha-palco" style="height:300px">
       <div class="fundo" style="background-image:url('${ART(n, p.s)}')"></div>
       <span class="puxador"></span>
-      <div class="folha-topo"><button class="redondo" ${cad.i > 0 ? 'data-cad-ant aria-label="Anterior"' : 'data-cad-lista aria-label="Voltar à lista"'}>${I.voltar}</button><div class="fila">${pontos}<button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div></div>
+      <div class="folha-topo"><button class="redondo" ${cad.editar !== undefined ? 'data-cad-voltar-meu aria-label="Voltar"' : cad.i > 0 ? 'data-cad-ant aria-label="Anterior"' : 'data-cad-lista aria-label="Voltar à lista"'}>${I.voltar}</button><div class="fila">${pontos}<button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div></div>
       <div class="arte ${p.s ? 'shiny' : ''}" style="position:absolute;left:50%;top:40px;width:240px;height:240px;transform:translateX(-50%)"><img src="${ART(n, p.s)}" alt="${esc(nomeDe(n, p.s))}"></div>
     </div>
     <div class="etiqueta">
@@ -1216,13 +1241,25 @@ function htmlForm() {
 
     <div class="barra-acao">
       ${total > 1 && !ultimo ? `<button class="btn btn-suave" data-cad-pular>Pular</button>` : ''}
-      <button class="btn btn-primario" data-cad-salvar>${ultimo ? (total > 1 ? `Salvar os ${total}` : 'Salvar na coleção') : 'Próximo'}</button>
+      <button class="btn btn-primario" data-cad-salvar>${cad.editar !== undefined ? 'Salvar alterações' : ultimo ? (total > 1 ? `Salvar os ${total}` : 'Salvar na coleção') : 'Próximo'}</button>
     </div>
   </article>`;
 }
 function atualCad() { return cad.fila[cad.i]; }
 function repintarForm() { const sc = $('#camada .folha').scrollTop; pintarCadastro(false); $('#camada .folha').scrollTop = sc; }
 function salvarCad(pular) {
+  if (cad.editar !== undefined) {
+    const i = cad.editar, antes = COLECAO[i], p = atualCad(), mud = [];
+    if (antes.boost !== p.boost) mud.push(`Boost +${antes.boost} → +${p.boost}`);
+    if ((antes.stars || 0) !== p.stars) mud.push(`Stars ${antes.stars || 0} → ${p.stars}`);
+    if ((antes.held || null) !== p.held || (antes.heldTier || 1) !== p.heldTier) mud.push(p.held ? `Held ${p.held} T${p.heldTier}` : 'Held retirado');
+    if (antes.s !== p.s) mud.push(p.s ? 'Marcado como shiny' : 'Marcado como normal');
+    COLECAO[i] = { ...antes, ...p, treino: { ...p.treino }, hist: [...(mud.length ? [['21/09', mud.join(' · '), 'Editado no app']] : []), ...(antes.hist || [])] };
+    cad = null;
+    location.hash = '#/meu/' + i;
+    toast(mud.length ? 'Alterações salvas' : 'Nada mudou');
+    return;
+  }
   if (!pular) { const p = atualCad(); COLECAO.push({ n:p.n, s:p.s, boost:p.boost, stars:p.stars, held:p.held, heldTier:p.heldTier }); cad.salvos = (cad.salvos || 0) + 1; }
   if (cad.i < cad.fila.length - 1) { cad.i++; pintarCadastro(false); $('#camada .folha').scrollTop = 0; return; }
   const k = cad.salvos || 0;
@@ -1255,6 +1292,7 @@ document.addEventListener('click', e => {
   else if (t.matches('[data-cad-mega]')) { p.mega = !p.mega; if (p.mega) p.stars = 0; repintarForm(); }
   else if (t.matches('[data-cad-addon]')) { p.addon = !p.addon; t.setAttribute('aria-checked', p.addon); }
   else if (t.dataset.cadOnde) { p.onde = t.dataset.cadOnde; repintarForm(); }
+  else if (t.matches('[data-cad-voltar-meu]')) { const i = cad.editar; cad = null; location.hash = '#/meu/' + i; }
   else if (t.matches('[data-cad-salvar]')) salvarCad(false);
   else if (t.matches('[data-cad-pular]')) salvarCad(true);
 });
@@ -2054,6 +2092,74 @@ document.addEventListener('click', e => {
   else if (t.matches('[data-t-salvar]')) { delete tm.novo; fecharFicha(false); timeAtual = null; location.hash = '#/meus/times'; toast(`${tm.nome} salvo`); }
 });
 
+
+/* ============ meu Pokémon ============ */
+let meuAtual = null;
+function abrirMeu(i) {
+  const p = COLECAO[i]; if (!p) return;
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = i;
+  const n = p.n, s = p.s, tier = tierDe(n, s), starOk = STAR_OK.includes(tier), k = `${n}${s ? 's' : ''}`;
+  const pl = Object.values(PLANOS).find(x => x.n === n && x.s === s) || planoDe(k);
+  const prox = pl ? proximoDe(pl) : null;
+  const chavePl = pl ? Object.keys(PLANOS).find(c => PLANOS[c] === pl) : k;
+  const times = TIMES.filter(t => t.slots.some(x => x && x[0] === n && x[1] === s));
+  const onde = { bag:'Bag', depot:'Depot', exp:'Expedição' }[p.onde || 'bag'];
+  const treinos = Object.entries(p.treino || {}).filter(([, v]) => +v > 0);
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="${esc(nomeDe(n, s))}" style="--c:${cor(n)}">
+    <div class="folha-palco">
+      <div class="fundo" style="background-image:url('${ART(n, s)}')"></div>
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      ${arte(n, s)}
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">${esc(nomeDe(n, s))}</h2>
+      ${p.apelido ? `<p class="apelido">“${esc(p.apelido)}”</p>` : ''}
+      <div class="chips"><span class="chip chip-tier">${tier}</span>${chipsEl(n)}${s ? '<span class="chip chip-shiny">Shiny</span>' : ''}<span class="chip">${onde}</span></div>
+    </div>
+
+    ${prox || !pl ? `<div class="sec"><a class="seu-plano" href="#/plano/${chavePl}" style="--c:${cor(n)}">
+      <span class="estado andando" style="width:40px;height:40px">${I.relogio}</span>
+      <span><span class="l-t">${prox ? `Próximo: ${esc(prox.t)}` : 'Criar um plano'}</span><span class="l-s">${prox ? `Plano · ${pl.passos.filter(x => x.estado === 'feito').length} de ${pl.passos.length} passos` : 'O app monta os passos na ordem que a wiki recomenda'}</span></span>${I.seta}</a></div>` : ''}
+
+    <div class="sec"><h3 class="titulo">O que você já investiu</h3>
+      <div class="inv-grade">
+        <div class="inv"><span class="r">Boost</span><span class="v">+${p.boost}<small> de +50</small></span><div class="barra"><i style="--v:${Math.max(2, p.boost * 2)}%"></i></div><span class="d">+${p.boost * 3} níveis no dano dos golpes</span></div>
+        <div class="inv"><span class="r">Stars</span>${starOk ? `<span class="st">${[1,2,3,4,5].map(k => `<span class="${k <= (p.stars || 0) ? 'on' : ''}">${I.estrela}</span>`).join('')}</span><span class="d">${p.stars ? `+${p.stars * STAR_DANO[tier]}% de dano` : `Cada uma vale +${STAR_DANO[tier]}% de dano`}</span>` : `<span class="v" style="font-size:20px">Não recebe</span><span class="d">${tier} não entra na máquina de Star</span>`}</div>
+        <div class="inv"><span class="r">Held</span><span class="v" style="font-size:22px">${p.held ? `${p.held}<small> T${p.heldTier}</small>` : 'Nenhum'}</span><span class="d">${p.held ? (p.heldTier < 7 ? `Próximo: T${p.heldTier + 1}` : 'No máximo') : 'Veja qual usar'}</span></div>
+        <div class="inv"><span class="r">Treino</span><span class="v" style="font-size:22px">${treinos.length ? treinos.map(([a, v]) => `${a} ${v}`).join(' · ') : 'Nenhum'}</span><span class="d">${treinos.length ? '' : 'Quem causa dano começa por Attack'}</span></div>
+      </div>
+      ${MEGA.has(n) ? `<p class="nota" style="margin:12px 4px 0">${I.alerta}${DEX[n].nome} tem Mega. ${p.stars ? 'Como esta bola já tem Stars, não aceita mais a Mega Stone.' : 'Se colocar a Mega Stone, a bola não recebe mais Stars.'}</p>` : ''}
+    </div>
+
+    <div class="sec"><h3 class="titulo">Nos seus times</h3>
+      ${times.length ? `<div class="times-meu">${times.map(t => `<a href="#/time/${t.id}">${esc(t.nome)}${I.seta}</a>`).join('')}</div>` : `<p class="aviso" style="margin:0 4px">Ainda em nenhum time. <a class="link-sis" style="margin:0" href="#/time/novo">Montar um time</a></p>`}
+    </div>
+
+    <div class="sec"><h3 class="titulo">Histórico</h3>
+      ${p.hist && p.hist.length ? `<ul class="hist">${p.hist.map(([q, o, c]) => `<li><span class="q">${q}</span><div class="o">${esc(o)}</div>${c ? `<div class="c">${esc(c)}</div>` : ''}</li>`).join('')}</ul>` : '<p class="aviso" style="margin:0 4px">Cada mudança que você salvar aparece aqui, com a data.</p>'}
+      <button class="tirar" data-meu-tirar>Tirar da coleção</button>
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/p/${k}">Na wiki</a>
+      <button class="btn btn-primario" data-meu-editar>Editar</button>
+    </div>
+  </article>`, $('#camada').hidden);
+}
+document.addEventListener('click', e => {
+  if (meuAtual === null || $('#camada').hidden) return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.matches('[data-meu-editar]')) {
+    const i = meuAtual, p = COLECAO[i];
+    meuAtual = null;
+    cad = { etapa:'form', q:'', sel:[], i:0, editar:i, fila:[{ ...novoPoke(p.n, p.s), ...p, held: p.held || null, heldTier: p.heldTier || 1, onde: p.onde || 'bag', apelido: p.apelido || '', treino: { ...(p.treino || {}) }, addon: !!p.addon, mega: !!p.mega }] };
+    history.replaceState(null, '', '#/meu/' + i + '/editar');
+    pintarCadastro(false); $('#camada .folha').scrollTop = 0;
+  }
+  else if (t.matches('[data-meu-tirar]')) toast('No protótipo nada é apagado. No app, pede confirmação antes', I.alerta);
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2070,6 +2176,13 @@ function rotear() {
   if (novo) {
     if (!baseAtual) desenhar('/meus/colecao');
     abrirCadastro(novo[1] ? { n:+novo[1], s:!!novo[2] } : null);
+    return;
+  }
+  const mm = h.match(/^\/meu\/(\d+)(\/editar)?$/);
+  if (mm) {
+    if (!baseAtual) desenhar('/meus/colecao');
+    if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
+    abrirMeu(+mm[1]);
     return;
   }
   const tmm = h.match(/^\/time\/([a-z0-9]+)$/);
