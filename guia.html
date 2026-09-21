@@ -83,6 +83,7 @@
     <a href="#t-time">Times</a>
     <a href="#t-plano">Plano</a>
     <a href="#t-cacada">Caçada</a>
+    <a href="#t-rockets">Rockets da semana</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -128,6 +129,7 @@
           <tr><td><code>#/meu/0</code> · <code>#/meu/0/editar</code></td><td>Um Pokémon da coleção</td><td>camada</td></tr>
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
+          <tr><td><code>#/rockets</code></td><td>Rockets da semana</td><td>camada</td></tr>
           <tr><td><code>#/c/swellow</code> · <code>#/time/novo/swellow</code></td><td>Caçada · novo time já contra ela</td><td>camada</td></tr>
         </tbody>
       </table></div>
@@ -274,6 +276,16 @@
         </dl>
       </div>
 
+      <div class="tela" id="t-rockets">
+        <h3 class="titulo">Rockets da semana <a href="index.html#/rockets">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Checklist semanal que também é a página da Wiki sobre o sistema.</dd>
+          <dt>Mostra</dt><dd>"N/13 vencidos" e quantos dias faltam para a segunda · contador até o Giovanni (N de 130, quantas semanas faltam) com os requisitos dele (130 vitórias, level 300 comparado ao do jogador) · os 13 em ordem de força, cada um com botão de marcar, tokens da vitória, time dele e counters da comunidade (destacando os que o jogador tem) · tokens somados da semana.</dd>
+          <dt>Regras</dt><dd>Marcar soma 1 na semana e 1 no contador permanente; desmarcar desfaz. A semana zera toda segunda; o contador nunca zera. Bronze é garantido; Silver e Gold dependem da rolagem.</dd>
+          <dt>Dados</dt><dd><code>Combate/Rockets Semanais.md</code> (regras, tokens, Giovanni, times e counters). O time do Rocket Blaze ainda não foi levantado.</dd>
+        </dl>
+      </div>
+
       <div class="tela" id="t-eu">
         <h3 class="titulo">Eu <a href="index.html#/eu">ver no protótipo</a></h3>
         <dl>
@@ -325,7 +337,8 @@ média ≈ 8,5 helds por subida · pior caso 20</code></pre>
     <section class="bloco-g" id="dados">
       <h2 class="titulo">Dados do jogador</h2>
       <p>Tudo no aparelho, exportável em um arquivo. Estrutura mínima:</p>
-<pre><code>Personagem  { nome, mundo, level, vip, diamonds?, gold? }
+<pre><code>Personagem  { nome, mundo, level, vip, diamonds?, gold?,
+              rockets: { semana: [vencidos], contador } }
 Pokémon     { especie, shiny, apelido?, boost, stars, held?, heldTier,
               mega, onde: bag|depot|expedicao, treino{}, addon, historico[] }
 Time        { nome, alvo, principal, vagas[6] → Pokémon }

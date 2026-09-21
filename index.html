@@ -653,6 +653,43 @@
   .mini-slots { display: flex; gap: 4px; margin-top: 6px; }
   .mini-slots img { width: 26px; height: 26px; object-fit: contain; }
   a.externo { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ---------- Rockets da semana ---------- */
+  .rock-palco { height: 270px; }
+  .rock-palco::before { background: radial-gradient(90% 90% at 75% 15%, #7a1f2e 0%, #2b1426 55%, #150d18 100%) !important; }
+  [data-tema="claro"] .rock-palco::before { background: radial-gradient(90% 90% at 75% 15%, #f0b9c0 0%, #f1e3ec 60%, #f5f1f6 100%) !important; }
+  .rock-palco .teto .n { font-size: 96px; }
+  .rock-palco .r-letra { position: absolute; right: -10px; top: 6px; font-stretch: 125%; font-weight: 800; font-size: 240px; line-height: 1; color: rgba(255,255,255,.06); pointer-events: none; }
+  [data-tema="claro"] .rock-palco .r-letra { color: rgba(122,31,46,.08); }
+  .rock-palco .pontos13 { display: grid; grid-template-columns: repeat(13, 1fr); gap: 3px; margin-top: 14px; }
+  .rock-palco .pontos13 i { height: 8px; border-radius: 3px; background: rgba(255,255,255,.18); }
+  .rock-palco .pontos13 i.on { background: #f07b7b; }
+  [data-tema="claro"] .rock-palco .pontos13 i { background: rgba(122,31,46,.14); }
+  [data-tema="claro"] .rock-palco .pontos13 i.on { background: #c43d3d; }
+  .rocket { border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); }
+  .rocket + .rocket { margin-top: 8px; }
+  .rocket .cab { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 14px; min-height: 60px; }
+  .rocket .ord { width: 28px; font-size: 13px; font-weight: 700; color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .rocket .nome { flex: 1; min-width: 0; text-align: left; }
+  .rocket .nome b { display: block; font-weight: 640; }
+  .rocket .nome span { display: block; font-size: 12.5px; color: var(--text-3); }
+  .rocket .marcar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); box-shadow: inset 0 0 0 1.5px var(--surface-3); flex: none; transition: background .25s var(--ease), color .2s, transform .3s var(--ease); }
+  .rocket .marcar[aria-pressed="true"] { background: var(--ok); color: #10231a; box-shadow: none; transform: scale(1.04); }
+  [data-tema="claro"] .rocket .marcar[aria-pressed="true"] { color: #fff; }
+  .rocket.feito .nome b { color: var(--text-2); }
+  .rocket .abrir { color: var(--text-3); width: 36px; height: 40px; display: grid; place-items: center; }
+  .rocket .abrir[aria-expanded="true"] .icone { transform: rotate(90deg); }
+  .rocket .abrir .icone { transition: transform .3s var(--ease); }
+  .rocket .det { padding: 0 14px 14px; display: grid; gap: 10px; }
+  .rocket .det .rot { font-size: 12px; font-weight: 650; color: var(--text-3); }
+  .rocket .det .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .rocket .det .chip.tem { background: color-mix(in oklab, var(--accent-strong) 22%, var(--surface-2)); color: var(--text); }
+  .giovanni { border-radius: var(--r-lg); padding: 18px; background: linear-gradient(160deg, color-mix(in oklab, #7a1f2e 30%, var(--surface)) 0%, var(--surface) 70%); box-shadow: var(--shadow-2); }
+  .giovanni h3 { margin: 0 0 4px; font-size: 20px; }
+  .giovanni .req { display: grid; gap: 8px; margin-top: 12px; }
+  .giovanni .req div { display: flex; gap: 10px; align-items: center; font-size: 14.5px; }
+  .giovanni .req .estado { width: 22px; height: 22px; }
+  .tokens-t td.num { text-align: right; }
 </style>
 </head>
 <body>
@@ -858,6 +895,22 @@ const CACADA = {
   gengar:   { kills:1350, mapa:'https://imgur.com/a/wFcUcVR', local:'Tubos · Mewtwo Island', shiny:'Legendary', drops:['Ghost Essence','Bottle Of Poison','Ectoplasm','Venom Stone','Ghost Stone'] },
 };
 const OFFTANK = new Set([417, 125]);
+const ROCKETS = [
+  ['Blaze', null, null], ['Frost', 'Misdreavus, Magcargo, Hypno, Gligar, Houndour, Murkrow', 'Shiny Persian, Shiny Starmie, Scizor, Shiny Jynx, Shiny Hitmontop, Shiny Golem'],
+  ['Thorn', 'Shiny Arbok, Shiny Golbat, Shiny Hypno, Shiny Haunter, Shiny Murkrow, Houndoom', 'Shiny Sandslash, Shiny Golem, Scizor, Shiny Persian, Shiny Jynx, Shiny Starmie'],
+  ['Shadow', 'Feraligatr, Shiny Gengar, Alakazam, Shiny Crobat, Muk, Houndoom', 'Shiny Raichu, Shiny Sandslash, Scizor, Shiny Golem, Shiny Marowak, Shiny Starmie'],
+  ['Cipher', 'Feraligatr, Shiny Persian, Venusaur, Electabuzz, Typhlosion, Meganium', 'Shiny Raichu, Shiny Hitmontop, Shiny Pidgeot, Shiny Sandslash, Shiny Starmie, Shiny Arcanine'],
+  ['Phoenix', 'Charizard, Shiny Blastoise, Venusaur, Shiny Electrode, Shiny Magneton, Blastoise', 'Shiny Golem, Shiny Venusaur, Shiny Pidgeot, Shiny Sandslash, Shiny Arcanine, Shiny Raichu'],
+  ['Scythe', 'Scyther, Shiny Ampharos, Shiny Raichu, Nidoqueen, Arcanine, Shiny Houndoom', 'Shiny Arcanine, Shiny Golem, Shiny Sandslash, Shiny Jynx, Shiny Starmie, Shiny Hitmontop'],
+  ['Mirage', 'Charizard, Shiny Charizard, Venusaur, Shiny Venusaur, Blastoise, Shiny Blastoise', 'Shiny Golem, Shiny Starmie, Shiny Pidgeot, Shiny Arcanine, Shiny Venusaur, Shiny Raichu'],
+  ['Zephyr', 'Typhlosion, Shiny Typhlosion, Meganium, Shiny Meganium, Feraligatr, Shiny Feraligatr', 'Shiny Golem, Shiny Starmie, Shiny Pidgeot, Shiny Arcanine, Shiny Venusaur, Shiny Raichu'],
+  ['Obsidian', 'Shiny Gyarados, Shiny Persian, Shiny Machamp, Shiny Kingdra, Shiny Pidgeot, Shiny Scizor', 'Shiny Raichu, Shiny Hitmontop, Shiny Pidgeot, Shiny Clefable, Shiny Golem, Shiny Arcanine'],
+  ['Vortex', 'Shiny Ninetales, Shiny Magneton, Shiny Kabutops, Shiny Omastar, Shiny Pidgeot, Shiny Ampharos', 'Shiny Starmie, Shiny Arcanine, Shiny Venusaur, Shiny Raichu, Shiny Golem, Shiny Sandslash'],
+  ['Tempest', 'Shiny Magmar, Shiny Snorlax, Shiny Mr. Mime, Shiny Pupitar, Shiny Umbreon, Shiny Misdreavus', 'Shiny Starmie, Shiny Hitmontop, Scizor, Shiny Venusaur, Shiny Clefable, Shiny Persian'],
+  ['Eclipse', 'Shiny Dragonair, Shiny Arcanine, Shiny Espeon, Shiny Pinsir, Shiny Tauros, Shiny Skarmory', 'Shiny Clefable, Shiny Starmie, Shiny Persian, Shiny Pidgeot, Shiny Hitmontop, Shiny Arcanine'],
+];
+const TOKENS = k => k === 0 ? [5, 15, '2 a 5', '1'] : k === 1 ? [10, 18, '3 a 6', '1'] : k === 2 ? [15, 23, '5 a 10', '1 a 3'] : [20, 30, '8 a 15', '3 a 5'];
+const ROCK = { feitos: new Set(), contador: 52 };
 function matchup(n, alvo) {
   const e = DEX[n].el[0];
   const atk = alvo.el.reduce((m, d) => m * mult(e, d), 1), def = Math.max(...alvo.el.map(a => mult(a, e)));
@@ -961,11 +1014,11 @@ const TELAS = {
             <div class="c-sub">4 de 6 · faltam Luxray e Shiny Jolteon</div>
             <div class="barra"><i style="--v:66%"></i></div>
           </a>
-          <a class="cartao tinto saltado" href="#/wiki" style="--c:var(--el-dark)">
+          <a class="cartao tinto saltado" href="#/rockets" style="--c:var(--el-dark)">
             <div class="c-arte">${arte(53, true)}</div>
             <div class="c-titulo">Rockets da semana</div>
-            <div class="c-sub">0 de 13 · renova segunda</div>
-            <div class="barra"><i style="--v:2%"></i></div>
+            <div class="c-sub">${ROCK.feitos.size} de 13 · ${renovaTxt()}</div>
+            <div class="barra"><i style="--v:${Math.max(2, ROCK.feitos.size / 13 * 100)}%"></i></div>
           </a>
           <a class="cartao tinto saltado" href="#/p/405" style="--c:var(--el-electric)">
             <div class="c-arte">${arte(405, false)}</div>
@@ -1022,7 +1075,7 @@ const TELAS = {
       ${secoes.map(([t, itens]) => `
         <div class="fileira">
           <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
-          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
+          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
         </div>`).join('')}
     </div>`;
   },
@@ -1139,6 +1192,7 @@ const INDICE = [
   { tipo:'Sistemas', t:'Star', s:'Cópias e custo para estrelar', h:'#/s/star' },
   { tipo:'Sistemas', t:'Helds', s:'Tipos, fusão e como tirar', h:'#/s/helds' },
   ...ALVOS.map(a => ({ tipo:'Caçadas', t:`Caçada de ${a.nome}`, s:`${a.el.map(e => EL[e] || e).join(' / ')} · ${CACADA[a.id].local}`, n:a.n, sh:false, h:`#/c/${a.id}` })),
+  { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/wiki' },
 ];
 function buscar(q) {
@@ -1207,7 +1261,7 @@ function fecharFicha(voltarHash = true) {
   camada.classList.remove('aberta');
   document.body.style.overflow = '';
   setTimeout(() => { camada.hidden = true; camada.innerHTML = ''; }, 450);
-  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null; rockAberto = null;
   for (let i = TIMES.length - 1; i >= 0; i--) if (TIMES[i].novo) TIMES.splice(i, 1);
   if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
 }
@@ -2356,6 +2410,91 @@ function abrirCacada(id) {
   </article>`, $('#camada').hidden);
 }
 
+
+/* ============ Rockets da semana ============ */
+let rockAberto = null;
+const diasAteSegunda = () => { const d = (8 - new Date().getDay()) % 7; return d === 0 ? 7 : d; };
+const renovaTxt = () => { const d = diasAteSegunda(); return d === 1 ? 'renova amanhã' : `renova em ${d} dias`; };
+function abrirRockets(primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  const f = ROCK.feitos.size, falta130 = Math.max(0, 130 - ROCK.contador), semanas = Math.ceil(falta130 / 13);
+  const meusNomes = new Set(COLECAO.map(c => nomeDe(c.n, c.s)));
+  const bronze = [...ROCK.feitos].reduce((a, k) => [a[0] + TOKENS(k)[0], a[1] + TOKENS(k)[1]], [0, 0]);
+  const lvOk = PERSONAGEM.level >= 300;
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Rockets da semana">
+    <div class="folha-palco sis-palco rock-palco">
+      <span class="r-letra" aria-hidden="true">R</span>
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">${f}/13</div><div class="k">vencidos esta semana · ${renovaTxt()}</div>
+        <div class="pontos13" aria-hidden="true">${ROCKETS.map((_, k) => `<i class="${ROCK.feitos.has(k) ? 'on' : ''}"></i>`).join('')}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Rockets da semana</h2>
+      <div class="chips"><span class="chip">Combate</span><span class="chip">Premium</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.relogio}<span>13 membros da Team Rocket. Uma vitória por Rocket por semana, com reset na segunda.</span></li>
+        <li>${I.alvo}<span>PokéView, até 6 Pokémon, 5 minutos por batalha. Os primeiros são fracos; os últimos têm time Shiny.</span></li>
+        <li>${I.estrela}<span>Cada vitória soma 1 no contador até o Giovanni, que nunca zera.</span></li>
+      </ul>
+    </div>
+
+    <div class="sec"><div class="giovanni">
+      <h3 class="titulo">Giovanni: ${ROCK.contador} de 130</h3>
+      <div class="barra" style="margin-top:10px"><i style="--v:${Math.min(100, ROCK.contador / 130 * 100)}%"></i></div>
+      <p class="aviso" style="margin:8px 0 0">${falta130 ? `Faltam ${falta130} vitórias: ${semanas} semana${semanas > 1 ? 's' : ''} fazendo os 13.` : 'Liberado. Monte um time completo antes de chamar.'}</p>
+      <div class="req">
+        <div><span class="estado ${ROCK.contador >= 130 ? 'feito' : ''}">${ROCK.contador >= 130 ? I.check : I.ponto}</span>130 vitórias contra Rockets</div>
+        <div><span class="estado ${lvOk ? 'feito' : ''}">${lvOk ? I.check : I.ponto}</span>Level 300 ${lvOk ? '' : `<span class="tag-m m-vidro">você está no ${PERSONAGEM.level}</span>`}</div>
+        <div><span class="estado">${I.alerta}</span>Time dele: seis Shiny. Revive e Potion bloqueados</div>
+      </div>
+      <p class="aviso" style="margin:12px 0 0">Primeira vitória: 5.000.000 de XP, 50 tokens de cada tipo, 1 held T7, 3 helds T5 e a liberação dos Policiais Semanais.</p>
+    </div></div>
+
+    <div class="sec"><h3 class="titulo">Os 13, do mais fraco ao mais forte</h3>
+      ${ROCKETS.map(([nome, time, counters], k) => { const feito = ROCK.feitos.has(k), aberto = rockAberto === k;
+        return `<div class="rocket ${feito ? 'feito' : ''}">
+          <div class="cab">
+            <span class="ord">${k + 1}</span>
+            <button class="nome abrir-r" data-rock-abrir="${k}" aria-expanded="${aberto}"><b>Rocket ${nome}</b><span>${feito ? 'vencido esta semana' : `${TOKENS(k)[0]} a ${TOKENS(k)[1]} Bronze garantidos`}</span></button>
+            <button class="abrir" data-rock-abrir="${k}" aria-expanded="${aberto}" aria-label="Ver o time">${I.seta}</button>
+            <button class="marcar" aria-pressed="${feito}" data-rock-marcar="${k}" aria-label="Marcar Rocket ${nome} como vencido">${I.check}</button>
+          </div>
+          ${aberto ? `<div class="det">${time ? `
+            <div><span class="rot">Time dele</span><div class="chips">${time.split(', ').map(t => `<span class="chip">${t}</span>`).join('')}</div></div>
+            <div><span class="rot">Counters que a comunidade usa</span><div class="chips">${[...new Set(counters.split(', '))].map(t => `<span class="chip ${meusNomes.has(t) ? 'tem' : ''}">${meusNomes.has(t) ? '✓ ' : ''}${t}</span>`).join('')}</div></div>`
+            : `<p class="aviso" style="margin:0">O time do Rocket Blaze ainda não foi levantado. É o mais fraco dos 13.</p>`}
+            <p class="aviso" style="margin:0">Vitória: ${TOKENS(k)[0]} a ${TOKENS(k)[1]} Bronze (garantido), ${TOKENS(k)[2]} Silver e ${TOKENS(k)[3]} Gold se a rolagem ajudar.</p>
+          </div>` : ''}
+        </div>`; }).join('')}
+      <p class="aviso">Counter com fundo violeta: você tem na coleção. Times e counters: planilha da comunidade (PKA Helper, 19/09).</p>
+    </div>
+
+    <div class="sec">
+      ${fatoSis('Tokens desta semana', f ? `Pelo que você marcou, entre ${bronze[0]} e ${bronze[1]} Bronze Rocket Tokens garantidos. Silver e Gold dependem da rolagem.` : 'Marque os Rockets que venceu para somar os tokens da semana.', ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Onde gastar', 'A comunidade troca os tokens por helds na máquina de helds do Trade Center. A wiki oficial ainda não confirma.', ['parcial','Comunidade · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="https://imgur.com/a/p3eK6yV" target="_blank" rel="noopener">Onde ficam</a>
+      ${f < 13 ? `<button class="btn btn-primario" data-rock-proximo>${I.check}Venci o Rocket ${ROCKETS[[...Array(13).keys()].find(k => !ROCK.feitos.has(k))][0]}</button>` : `<button class="btn btn-primario" disabled>Semana completa</button>`}
+    </div>
+  </article>`, primeira);
+}
+function marcarRocket(k) {
+  if (ROCK.feitos.has(k)) { ROCK.feitos.delete(k); ROCK.contador--; }
+  else { ROCK.feitos.add(k); ROCK.contador++; toast(ROCK.feitos.size === 13 ? 'Semana completa: os 13 vencidos' : `Rocket ${ROCKETS[k][0]} vencido`); }
+  abrirRockets(false);
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .rock-palco')) return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.rockMarcar) marcarRocket(+t.dataset.rockMarcar);
+  else if (t.dataset.rockAbrir) { const k = +t.dataset.rockAbrir; rockAberto = rockAberto === k ? null : k; abrirRockets(false); }
+  else if (t.matches('[data-rock-proximo]')) marcarRocket([...Array(13).keys()].find(k => !ROCK.feitos.has(k)));
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2379,6 +2518,11 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  if (h === '/rockets') {
+    if (!baseAtual) desenhar('/inicio');
+    abrirRockets();
     return;
   }
   const cc = h.match(/^\/c\/([a-z]+)$/);
