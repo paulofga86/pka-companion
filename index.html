@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790012090">
+<link rel="stylesheet" href="estilo.css?v=1790012309">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -50,6 +50,10 @@
     }
     .porta[aria-current="page"]::after { bottom: auto; left: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; border-radius: 4px; }
     .tela { padding-left: 124px; padding-bottom: 40px; }
+    .palco { margin-right: 18px; border-radius: 0 0 36px 36px; }
+    .tela .palco .arte { right: 3%; top: auto; bottom: -84px; width: min(42vw, 560px); z-index: 1; }
+    .tela .palco .arte img { filter: drop-shadow(0 30px 40px rgba(0,0,0,.5)); }
+    .tela .palco + .conteudo .fileira:first-child { margin-top: 64px; }
   }
 
   /* cabeçalho de tela */
@@ -64,10 +68,11 @@
   .pilula-char span { color: var(--text-3); font-weight: 520; }
 
   /* ---------- Início: palco com a arte ---------- */
-  .palco { position: relative; overflow: hidden; isolation: isolate; min-height: min(66vh, 580px); display: flex; align-items: flex-end; border-radius: 0 0 34px 34px; box-shadow: var(--shadow-3); }
-  .palco .fundo { position: absolute; inset: -12%; z-index: -2; background-size: cover; background-position: center; filter: blur(60px) saturate(1.5); opacity: .9; transform: scale(1.1); }
-  .palco::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--palco-cor, #3a3a8a); }
-  .palco::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(24,14,34,.2) 0%, rgba(24,14,34,0) 30%, rgba(24,14,34,.55) 68%, rgba(24,14,34,.82) 100%); }
+  .palco { position: relative; isolation: isolate; min-height: min(66vh, 580px); display: flex; align-items: flex-end; border-radius: 0 0 34px 34px; box-shadow: var(--shadow-3); }
+  .palco-clip { position: absolute; inset: 0; z-index: -2; overflow: hidden; border-radius: inherit; }
+  .palco .fundo { position: absolute; inset: -12%; background-size: cover; background-position: center; filter: blur(60px) saturate(1.5); opacity: .9; transform: scale(1.1); }
+  .palco::before { content: ""; position: absolute; inset: 0; z-index: -3; border-radius: inherit; background: var(--palco-cor, #3a3a8a); }
+  .palco::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: linear-gradient(180deg, rgba(24,14,34,.2) 0%, rgba(24,14,34,0) 30%, rgba(24,14,34,.55) 68%, rgba(24,14,34,.82) 100%); }
   .palco .arte { position: absolute; right: -8%; top: 11%; width: min(70vw, 440px); aspect-ratio: 1; z-index: -1; }
   .palco .arte img { animation: flutua 9s var(--ease) infinite alternate; }
   @keyframes flutua { from { transform: translateY(0); } to { transform: translateY(-10px); } }
@@ -107,6 +112,7 @@
   .cartao.tinto { background: linear-gradient(160deg, color-mix(in oklab, var(--c) 34%, var(--surface)) 0%, var(--surface) 70%); }
   /* cartão saltado: o fundo começa mais abaixo e o Pokémon sai por cima da borda */
   .trilho:has(.saltado) { padding-top: 12px; }
+  .trilho:has(.saltado) .cartao:not(.saltado) { margin-top: 18px; }
   .cartao.saltado { overflow: visible; background: none; box-shadow: none; height: 194px; }
   .cartao.saltado::before {
     content: ""; position: absolute; inset: 18px 0 0 0; z-index: -2; border-radius: var(--r-lg);
@@ -1105,7 +1111,7 @@ function pilula() {
 function inicioVisitante() {
   return `
     <section class="palco" style="--palco-cor:#3a1d5c">
-      <div class="fundo" style="background-image:url('${ART(26, true)}')"></div>
+      <div class="palco-clip"><div class="fundo" style="background-image:url('${ART(26, true)}')"></div></div>
       ${arte(26, true)}
       <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
       <div class="conteudo"><div class="texto">
@@ -1145,7 +1151,7 @@ const TELAS = {
     if (!SESSAO.temPersonagem) return inicioVisitante();
     return `
     <section class="palco" style="--palco-cor:#3a1d5c">
-      <div class="fundo" style="background-image:url('${ART(26, true)}')"></div>
+      <div class="palco-clip"><div class="fundo" style="background-image:url('${ART(26, true)}')"></div></div>
       ${arte(26, true)}
       <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
       <div class="conteudo"><div class="texto">
