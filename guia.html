@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790012594">
+<link rel="stylesheet" href="estilo.css?v=1790012875">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -88,6 +88,7 @@
     <a href="#t-ginasios">Ginásios</a>
     <a href="#t-novidades">O que mudou</a>
     <a href="#t-jornada">Sua jornada</a>
+    <a href="#t-dungeons">Dungeons</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -134,6 +135,7 @@
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
           <tr><td><code>#/tasks</code> · <code>#/tasks/juliana</code></td><td>Tasks do Mundo (com foco num NPC)</td><td>camada</td></tr>
+          <tr><td><code>#/dungeons</code> · <code>#/dungeons/plains</code></td><td>Dungeons (com foco num portal)</td><td>camada</td></tr>
           <tr><td><code>#/jornada</code></td><td>Sua jornada (roteiro por level)</td><td>camada</td></tr>
           <tr><td><code>#/novidades</code> · <code>#/novidades/titan3</code></td><td>O que mudou no jogo (com foco numa mudança)</td><td>camada</td></tr>
           <tr><td><code>#/ginasios</code> · <code>#/ginasios/vermilion</code></td><td>Ginásios (com foco numa cidade)</td><td>camada</td></tr>
@@ -153,6 +155,8 @@
         <li><b>Fonte:</b> Mona Sans (Google Fonts), com números tabulares.</li>
         <li><b>18 elementos</b> com cor própria (<code>--el-fire</code>, <code>--el-water</code>…). A cor aparece no ponto dos chips e no brilho atrás da arte.</li>
         <li><b>Shiny:</b> auréola iridescente girando atrás da arte e chip com brilho. Respeita o "reduzir movimento" do aparelho.</li>
+        <li><b>Fundo com cor:</b> o fundo das telas não é chapado: três brilhos grandes e suaves (violeta no alto à direita, azul à esquerda, rosa embaixo), fixos enquanto a página rola. Versões próprias para o tema claro.</li>
+        <li><b>Cards da Wiki com imagem:</b> todo card de seção tem uma imagem e fundo na cor dela: itens com a pedra ou peça desenhada na cor do elemento, sistemas com o número-símbolo (+50, 5★, T7), combate, quests e mundo com a arte de um Pokémon ligado ao tema.</li>
         <li><b>Arte dos Pokémon:</b> arte oficial via PokéAPI (<code>official-artwork/[shiny/]N.png</code>). Itens e sistemas não têm arte oficial: usamos desenho próprio na cor do elemento, ou o número do sistema em destaque ("+50", "5★", "T7").</li>
       </ul>
       <h3 class="titulo">Componentes que se repetem</h3>
@@ -335,6 +339,16 @@
           <dt>Mostra</dt><dd>Level em destaque numa trilha Kanto · Johto · Hoenn · quanto a caçada rende de XP no level dele · "Faça agora" (Rockets se ainda não tem 130, ginásios se tem level 200+ e faltam insígnias, próximo passo do plano) · marcos por level (liberado, você está aqui, próximo com quantos levels faltam), cada um ligado à tela certa.</dd>
           <dt>Regras</dt><dd>Cortes de XP da caçada: 100% até 99, 80% até 129, 60% até 149, 40% até 199, 12,5% até 319, 5% até 399, 1% do 400. Quest, task e ginásio pagam XP fixo. Level nunca bloqueia.</dd>
           <dt>Dados</dt><dd><code>Guias/Roadmap - Iniciante.md</code>, <code>Roadmap - Johto.md</code>, <code>Roadmap - Hoenn.md</code>.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-dungeons">
+        <h3 class="titulo">Dungeons <a href="index.html#/dungeons">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Mostrar onde conseguir fragmentos e stones de cada elemento, o material das Boost Stones.</dd>
+          <dt>Mostra</dt><dd>18 portais, cada um com a pedra desenhada na cor do elemento, família, fragmento, stone, tempo de referência e mapa · filtro por elemento · destaque violeta nos portais do elemento de um plano com Boost pendente · tabela shard → dificuldade → level → XP · tarefa diária · Arcane Shard Box.</dd>
+          <dt>Regras</dt><dd>O shard é gasto na entrada; perder não devolve. Até 60 min, individual, Hazard desligado. O painel do portal é a referência final.</dd>
+          <dt>Dados</dt><dd><code>Combate/Dungeons.md</code> · <code>Itens/Arcane Shards.md</code> · <code>Sistemas/Boost.md</code>.</dd>
         </dl>
       </div>
 

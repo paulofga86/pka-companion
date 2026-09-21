@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790012594">
+<link rel="stylesheet" href="estilo.css?v=1790012875">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -835,6 +835,52 @@
   .pontos-c button[aria-selected="true"] i { width: 26px; background: #fff; }
   .pontos-c { justify-content: flex-start; padding-left: max(14px, calc((100% - 1080px) / 2 + 14px)); }
   html[data-paleta="pokemon"] .carrossel .slide::before { background: color-mix(in oklab, var(--tinta) 40%, var(--palco-cor)); }
+
+  /* ---------- Dungeons ---------- */
+  .dg-palco::before { background: radial-gradient(90% 90% at 75% 15%, #2f5a5a 0%, #172628 55%, #0f1415 100%) !important; }
+  [data-tema="claro"] .dg-palco::before { background: radial-gradient(90% 90% at 75% 15%, #b8e2e0 0%, #e5f0ef 60%, #f3f6f6 100%) !important; }
+  .dg-palco .glifos { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+  .dg-palco .glifos i { width: 16px; height: 16px; border-radius: 5px; transform: rotate(45deg); background: var(--c); box-shadow: 0 2px 8px color-mix(in oklab, var(--c) 50%, transparent); }
+  .dg { display: flex; gap: 14px; align-items: center; padding: 12px 14px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); }
+  .dg + .dg { margin-top: 8px; }
+  .dg.sugerida { background: color-mix(in oklab, var(--accent-strong) 12%, var(--surface)); box-shadow: var(--shadow-2); }
+  .dg .gema { width: 52px; height: 52px; flex: none; }
+  .dg .gema svg { width: 100%; height: 100%; }
+  .dg .info { flex: 1; min-width: 0; }
+  .dg .info b { display: block; font-weight: 650; }
+  .dg .info span { display: block; font-size: 12.5px; color: var(--text-3); }
+  .dg .info .porque { color: var(--accent); font-weight: 620; }
+  .dg .mapa { flex: none; font-size: 13px; font-weight: 620; color: var(--text-2); min-height: 40px; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* ---------- cards da Wiki com imagem ---------- */
+  .secao-tile.vis { position: relative; overflow: hidden; isolation: isolate; min-height: 164px; justify-content: flex-end; gap: 4px;
+    background: linear-gradient(210deg, color-mix(in oklab, var(--c) 30%, var(--surface)) 0%, var(--surface) 62%); }
+  .secao-tile.vis .t { position: relative; }
+  .secao-tile.vis .d { position: relative; }
+  .secao-tile .vis-i { position: absolute; right: -8px; top: -6px; width: 104px; height: 104px; z-index: -1; }
+  .secao-tile .vis-i img { filter: drop-shadow(0 10px 16px rgba(0,0,0,.35)); }
+  .secao-tile .vis-n { position: absolute; right: 14px; top: 10px; z-index: -1; font-stretch: 125%; font-weight: 820; font-size: 44px; letter-spacing: -0.04em; line-height: 1; text-shadow: 0 8px 22px color-mix(in oklab, currentColor 45%, transparent); }
+  .secao-tile .vis-g { position: absolute; right: 8px; top: 8px; width: 78px; height: 78px; z-index: -1; filter: drop-shadow(0 10px 16px rgba(0,0,0,.35)); }
+  .secao-tile .vis-g svg { width: 100%; height: 100%; }
+  .secao-tile .vis-g.tres { width: 110px; display: flex; }
+  .secao-tile .vis-g.tres span { width: 46px; height: 58px; margin-left: -10px; }
+  .secao-tile .vis-g.tres span:nth-child(2) { margin-top: 16px; }
+  .secao-tile .vis-g.tres svg { width: 100%; height: 100%; }
+  @media (hover: hover) { .secao-tile.vis:hover .vis-i, .secao-tile.vis:hover .vis-g { transform: translateY(-3px) scale(1.04); } }
+  .secao-tile .vis-i, .secao-tile .vis-g { transition: transform .5s var(--ease); }
+  /* ---------- fundo com cor ---------- */
+  body { background:
+    radial-gradient(900px 520px at 88% -8%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(760px 520px at -8% 38%, rgba(62,168,229,.10), transparent 70%),
+    radial-gradient(820px 600px at 70% 108%, rgba(238,111,158,.08), transparent 70%),
+    var(--bg);
+    background-attachment: fixed; }
+  [data-tema="claro"] body { background:
+    radial-gradient(900px 520px at 88% -8%, rgba(171,125,211,.26), transparent 70%),
+    radial-gradient(760px 520px at -8% 38%, rgba(62,168,229,.12), transparent 70%),
+    radial-gradient(820px 600px at 70% 108%, rgba(238,111,158,.12), transparent 70%),
+    var(--bg);
+    background-attachment: fixed; }
 </style>
 </head>
 <body>
@@ -1104,6 +1150,26 @@ function DESTAQUES() {
   if (pr) d.push({ rot:'Preparação para Hoenn', cor:'#3a3212', art:pr.g.art, t:`Conquiste a ${pr.g.ins}`, p:`Falta ${pr.e[1].toLowerCase()} de ${pr.g.cidade}. Cada insígnia tira 1 segundo da espera do seu time guardado.`, a:['Ver o ginásio', `#/ginasios/${pr.g.id}`], b:['Todos os ginásios', '#/ginasios'] });
   return d;
 }
+const DUNGEONS = [
+  ['plains', 'The Electric Plains', 'electric', 'Mareep, Flaaffy e Ampharos', 'Thunder Stone', 'https://imgur.com/a/Mcc2tDO', null],
+  ['dojo', 'The Fighting Dojo', 'fighting', 'Machop, Machoke e Machamp', 'Punch Stone', 'https://imgur.com/a/DTSPjVD', '1h25'],
+  ['psychic', 'The Psychic Realm', 'psychic', 'Abra, Kadabra e Alakazam', 'Enigma Stone', 'https://imgur.com/a/rheBd69', '1h35'],
+  ['volcano', 'The Big Volcano', 'fire', 'Cyndaquil, Quilava e Typhlosion', 'Fire Stone', 'https://imgur.com/a/bZlqknr', '2h'],
+  ['cavern', 'The Flooded Cavern', 'water', 'Totodile, Croconaw e Feraligatr', 'Water Stone', 'https://imgur.com/a/8AOBeci', '2h50'],
+  ['garden', 'The Verdant Garden', 'grass', 'Chikorita, Bayleef e Meganium', 'Leaf Stone', 'https://imgur.com/a/WUFWUoC', '2h30'],
+  ['power', 'The Power Plant', 'steel', 'Magnemite, Magneton e Skarmory', 'Metal Stone', 'https://imgur.com/a/71ylvsZ', null],
+  ['graveyard', 'The Bone Graveyard', 'ground', 'Cubone, Rhydon e Marowak', 'Earth Stone', 'https://imgur.com/a/bxWbOIL', null],
+  ['rocky', 'The Rocky Mountain', 'rock', 'Larvitar, Pupitar e Tyranitar', 'Rock Stone', 'https://imgur.com/a/FYqUGWs', null],
+  ['sky', 'The Sky Nest', 'flying', 'Pidgey, Pidgeotto e Pidgeot', 'Feather Stone', 'https://imgur.com/a/zr9dusV', null],
+  ['tundra', 'The Frozen Tundra', 'ice', 'Swinub, Piloswine e Lapras', 'Ice Stone', 'https://imgur.com/a/x6Vhx3k', null],
+  ['lair', "The Dragon's Lair", 'dragon', 'Dratini, Dragonair e Dragonite', 'Crystal Stone', 'https://imgur.com/a/ca4NlMA', null],
+  ['tower', 'The Haunted Tower', 'ghost', 'Gastly, Haunter e Gengar', 'Darkness Stone', 'https://imgur.com/a/407kGXI', '2h'],
+  ['abyss', 'The Dark Abyss', 'dark', 'Deino, Zweilous e Hydreigon', 'Darkness Stone', 'https://imgur.com/a/Nv70mug', null],
+  ['swamp', 'The Toxic Swamp', 'poison', 'Grimer, Muk e Toxicroak', 'Venom Stone', 'https://imgur.com/a/aKs3fNp', null],
+  ['forest', 'The Steel Forest', 'bug', 'Pineco, Forretress e Scizor', 'Cocoon Stone', 'https://imgur.com/a/DNwqsCH', null],
+  ['fairy', 'The Fairy Garden', 'fairy', 'Flabébé, Floette e Florges', 'Fairy Stone', 'https://imgur.com/a/dw5JWuO', null],
+  ['vault', 'The Treasure Vault', 'normal', 'Meowth, Persian e Tauros', 'Heart Stone', 'https://imgur.com/a/f3auU8w', '2h'],
+].map(([id, nome, el, fam, stone, mapa, tempo]) => ({ id, nome, el, fam, stone, mapa, tempo }));
 const VEM_AI = 'Na semana de 21/09: Hunt Finder, canais de Hoenn no Wildscape e no Primal, e a Jenny Quest, que libera talentos novos.';
 const ETAPAS = [['task', 'Task', 0], ['dungeon', 'Dungeon', 200], ['ins', 'Insígnia', 250]];
 const TASKS = [
@@ -1268,6 +1334,21 @@ const TELAS = {
   },
 
   wiki() {
+    const VIS = {
+      'Thunder Stone':{ g:'stone', el:'electric' }, 'Electric Ear':{ g:'parte', el:'electric' }, 'Stones':{ g:'stones' }, 'Helds':{ num:'T7', c:'#8fb1c4' },
+      'Boost':{ num:'+50', c:'#ab7dd3' }, 'Star':{ num:'5★', c:'#f2c230' }, 'Talentos':{ art:[448, false] }, 'Shiny':{ art:[181, true] },
+      'Ginásios':{ art:[82, true] }, 'Rockets':{ art:[53, true] }, 'Dungeons':{ g:'stones' }, 'Hazard':{ art:[306, false] },
+      'Linked Tasks':{ art:[125, false] }, 'Tasks do Mundo':{ art:[277, false] }, 'Quests principais':{ art:[243, false] },
+      'Kanto':{ art:[25, false] }, 'Johto':{ art:[181, false] }, 'Hoenn':{ art:[260, false] }, 'Wildscape':{ art:[405, false] },
+    };
+    let uid = 0;
+    const unico = svg => { uid++; return svg.replace(/id="g([A-C])"/g, `id="g$1w${uid}"`).replace(/url\(#g([A-C])\)/g, `url(#g$1w${uid})`); };
+    const vis = nome => { const v = VIS[nome]; if (!v) return ['', 'var(--m-500)'];
+      if (v.art) return [`<div class="vis-i">${arte(v.art[0], v.art[1])}</div>`, cor(v.art[0])];
+      if (v.num) return [`<div class="vis-n" style="color:${v.c}">${v.num}</div>`, v.c];
+      if (v.g === 'stones') return [`<div class="vis-g tres">${['fire', 'water', 'electric'].map(e => `<span style="--c:var(--el-${e})">${unico(GLIFO.stone)}</span>`).join('')}</div>`, 'var(--el-water)'];
+      return [`<div class="vis-g" style="--c:var(--el-${v.el})">${unico(GLIFO[v.g])}</div>`, `var(--el-${v.el})`]; };
+    const tile = (nome, desc, href) => { const [v, c] = vis(nome); return `<a class="secao-tile vis" href="${href}" style="--c:${c}">${v}<span class="t">${nome}</span><span class="d">${desc}</span></a>`; };
     const secoes = [
       ['Sistemas', [['Boost','De +0 a +50, uma pedra por vez'],['Star','Até 5 estrelas, sem chance de falha'],['Helds','T1 a T7, fusão 3 por 1'],['Talentos','Bônus permanentes por elemento'],['Shiny','Onde cada tier pode nascer']]],
       ['Combate', [['Ginásios','8 em Kanto, insígnia vira CDR'],['Rockets','13 por semana, 130 até o Giovanni'],['Dungeons','Chave: Arcane Shard'],['Hazard','Mais XP, menos dano']]],
@@ -1293,17 +1374,17 @@ const TELAS = {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">Itens</h3><a href="#/buscar">871 itens</a></div>
         <div class="trilho">
-          <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Thunder Stone</span><span class="d">Stone de Electric · evolução e Boost</span></a>
-          <a class="secao-tile" href="#/i/electric-ear"><span class="t">Electric Ear</span><span class="d">Drop de Raichu · receita de Boost</span></a>
-          <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Stones</span><span class="d">Uma por elemento, 18 no total</span></a>
-          <a class="secao-tile" href="#/s/helds"><span class="t">Helds</span><span class="d">T1 a T7, fusão 3 por 1</span></a>
+          ${tile('Thunder Stone', 'Stone de Electric · evolução e Boost', '#/i/thunder-stone')}
+          ${tile('Electric Ear', 'Drop de Raichu · receita de Boost', '#/i/electric-ear')}
+          ${tile('Stones', 'Uma por elemento, 18 no total', '#/i/thunder-stone')}
+          ${tile('Helds', 'T1 a T7, fusão 3 por 1', '#/s/helds')}
         </div>
       </div>
 
       ${secoes.map(([t, itens]) => `
         <div class="fileira">
           <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
-          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks', 'Ginásios':'#/ginasios' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
+          <div class="trilho">${itens.map(([a,b]) => tile(a, b, ({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds', Rockets:'#/rockets', 'Tasks do Mundo':'#/tasks', 'Ginásios':'#/ginasios', 'Dungeons':'#/dungeons', Hoenn:'#/c/swellow', Wildscape:'#/jornada', Kanto:'#/jornada', Johto:'#/jornada' })[a] || '#/wiki')).join('')}</div>
         </div>`).join('')}
     </div>`;
   },
@@ -1409,7 +1490,7 @@ const TELAS = {
             ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
             ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
             ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
-            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'], ['Sua jornada', '#/jornada'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'], ['Sua jornada', '#/jornada'], ['Dungeons', '#/dungeons'],
             ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
             ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
             ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
@@ -1444,6 +1525,8 @@ const INDICE = [
   ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/ginasios' },
+  { tipo:'Combate', t:'Dungeons', s:'18 portais: fragmentos e stones de cada elemento', h:'#/dungeons' },
+  ...DUNGEONS.map(d => ({ tipo:'Combate', t:d.nome, s:`Dungeon · ${d.fam}`, h:`#/dungeons/${d.id}` })),
   { tipo:'Guias', t:'Sua jornada', s:'O que abre em cada level e o que fazer agora', h:'#/jornada' },
   { tipo:'Novidades', t:'O que mudou no jogo', s:'Atualizações de 04 a 19/09', h:'#/novidades' },
   ...NOVIDADES.map(n => ({ tipo:'Novidades', t:n.t, s:n.d, h:`#/novidades/${n.id}` })),
@@ -2160,7 +2243,7 @@ function pintarSistema(primeira) {
       <div class="lista uso">
         <div class="linha">${I.caixa}<span><span class="l-t" style="display:block">Máquina de craft</span><span class="l-s">Pede itens de Pokémon do elemento, fragmentos do elemento e a stone do elemento. A receita muda: confira na máquina antes de juntar material.</span></span></div>
         <a class="linha" href="#/i/thunder-stone">${I.raio}<span><span class="l-t" style="display:block">Para Electric</span><span class="l-s">Thunder Stone, electric fragment e itens como Electric Ear</span></span><span class="dir">${I.seta}</span></a>
-        <div class="linha">${I.local}<span><span class="l-t" style="display:block">Fragmentos</span><span class="l-s">Vêm das dungeons do mesmo elemento.</span></span></div>
+        <a class="linha" href="#/dungeons/plains">${I.local}<span><span class="l-t" style="display:block">Fragmentos</span><span class="l-s">Vêm das dungeons do mesmo elemento. Electric: The Electric Plains</span></span><span class="dir">${I.seta}</span></a>
       </div>
     </div>
 
@@ -3069,6 +3152,73 @@ function iniciarCarrossel() {
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-destaque]'); if (b) irDestaque(+b.dataset.destaque); });
 
+
+/* ============ Dungeons ============ */
+let dgFiltro = 'todas';
+function elementosDoPlano() {
+  const els = new Set();
+  Object.values(PLANOS).forEach(pl => { if (pl.passos.some(x => x.id === 'boost' && x.estado !== 'feito')) els.add(DEX[pl.n].el[0]); });
+  return els;
+}
+function abrirDungeons(foco, primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  const doPlano = elementosDoPlano();
+  const els = [...new Set(DUNGEONS.map(d => d.el))];
+  const lista = DUNGEONS.filter(d => dgFiltro === 'todas' || d.el === dgFiltro).sort((a, b) => doPlano.has(b.el) - doPlano.has(a.el));
+  const gema = el => GLIFO.stone.replace(/id="g([AB])"/g, `id="g$1-${el}"`).replace(/url\(#g([AB])\)/g, `url(#g$1-${el})`);
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Dungeons">
+    <div class="folha-palco sis-palco dg-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">${DUNGEONS.length}</div><div class="k">portais de dungeon, um por família de Pokémon</div>
+        <div class="glifos" aria-hidden="true">${DUNGEONS.map(d => `<i style="--c:var(--el-${d.el})"></i>`).join('')}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Dungeons</h2>
+      <div class="chips"><span class="chip">Combate</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.caixa}<span>A chave é o Arcane Shard da família. Ele é gasto na entrada: perder a dungeon não devolve.</span></li>
+        <li>${I.raio}<span>Cada portal dá o fragmento e a stone do seu elemento, os dois materiais das Boost Stones.</span></li>
+        <li>${I.relogio}<span>Individual, até 60 minutos, com etapas e um chefe no fim. O Hazard não vale lá dentro.</span></li>
+      </ul>
+      <div class="filtros-t" role="group" aria-label="Elemento">${[['todas', 'Todas'], ...els.map(e => [e, EL[e] || e])].map(([k, v]) => `<button aria-pressed="${dgFiltro === k}" data-dg-filtro="${k}">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="sec" style="margin-top:14px">
+      ${lista.map(d => { const pq = doPlano.has(d.el);
+        return `<div class="dg ${pq ? 'sugerida' : ''} ${foco === d.id ? 'foco' : ''}" id="dg-${d.id}" style="--c:var(--el-${d.el})">
+          <span class="gema">${gema(d.el)}</span>
+          <span class="info"><b>${d.nome}</b><span>${d.fam}</span><span>${EL[d.el] || d.el} fragment · ${d.stone}${d.tempo ? ` · run de ${d.tempo}` : ''}</span>${pq ? `<span class="porque">Dá o material do Boost do seu plano</span>` : ''}</span>
+          <a class="mapa" href="${d.mapa}" target="_blank" rel="noopener">Mapa${I.seta}</a>
+        </div>`; }).join('')}
+      <p class="aviso">Famílias, fragmentos e mapas: planilha da comunidade (PKA Helper, 19/09). Tempos são de uma run de referência.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Dificuldade e chave</h3>
+      <div class="lista"><table class="mini-tabela"><thead><tr><th>Shard</th><th>Dificuldade</th><th class="num">Level comum</th><th class="num">XP ao terminar</th></tr></thead>
+        <tbody><tr><td>Common</td><td>Easy</td><td class="num">50</td><td class="num">50.000</td></tr><tr><td>Rare</td><td>Medium</td><td class="num">100</td><td class="num">100.000</td></tr><tr><td>Ultra Rare</td><td>Hard</td><td class="num">200</td><td class="num">150.000</td></tr></tbody></table></div>
+      <p class="aviso">Algumas famílias têm regras próprias: o painel do portal é a palavra final.</p>
+    </div>
+
+    <div class="sec">
+      ${fatoSis('Tarefa diária de dungeon', 'Easy: 1 Common Arcane Shard e 10.000 de XP. Medium: 1 Rare Arcane Shard, 50.000 de XP e 1 Daily Point. Hard: 1 Ultra Rare Arcane Shard, 200.000 de XP e 3 Daily Points.', ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Arcane Shard Box', 'Sorteia a raridade e a família do shard. As chances não são divulgadas.', ['ok','Wiki oficial · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/s/boost">Boost</a>
+      ${doPlano.size ? `<button class="btn btn-primario" data-dg-filtro="${[...doPlano][0]}">Só as do meu plano</button>` : `<button class="btn btn-primario" data-dg-filtro="todas">Todas</button>`}
+    </div>
+  </article>`, primeira);
+  if (foco) document.getElementById('dg-' + foco)?.scrollIntoView({ block: 'center' });
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .dg-palco')) return;
+  const t = e.target.closest('button'); if (!t || !t.dataset.dgFiltro) return;
+  dgFiltro = t.dataset.dgFiltro; abrirDungeons(null, false); $('#camada .folha').scrollTop = 470;
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -3092,6 +3242,12 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  const dg = h.match(/^\/dungeons(?:\/([a-z]+))?$/);
+  if (dg) {
+    if (!baseAtual) desenhar('/wiki');
+    abrirDungeons(dg[1] || null);
     return;
   }
   if (h === '/jornada') {
