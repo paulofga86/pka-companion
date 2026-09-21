@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790014578">
+<link rel="stylesheet" href="estilo.css?v=1790015362">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -184,9 +184,10 @@
         <h3 class="titulo">Primeira entrada <a href="index.html#/entrada">ver no protótipo</a></h3>
         <dl>
           <dt>Para quê</dt><dd>Primeira abertura. O jogador escolhe entre cadastrar o personagem ou só consultar a Wiki.</dd>
-          <dt>Passos</dt><dd><ol><li>Boas-vindas: "Começar", "Só consultar a wiki" e "Entrar com Discord" (fase 2: por enquanto só avisa).</li><li>Personagem: nome, mundo (Sun, Moon, Titan), level, VIP. Tudo opcional; "Pular" leva ao Início de visitante.</li><li>Pronto: leva ao cadastro rápido ou ao Início.</li></ol></dd>
+          <dt>Passos</dt><dd><ol><li>Boas-vindas: vitrine com quatro abas (Wiki, Coleção, Plano, Times). Cada aba mostra um Pokémon grande sobre um mostrador que gira devagar, um cartão de vidro com um exemplo real do app e uma frase que troca junto. Troca sozinha a cada 6,5 s (a barra da aba enche como timer); o mouse sobre a vitrine pausa; tocar numa aba vai direto. Cada troca pinta a interface com as cores do Pokémon, com a mesma regra da aura. Ações: "Começar", "Entrar com Discord" (fase 2: por enquanto só avisa) e "Só ver a wiki". No computador, a vitrine fica à esquerda e as ações num painel de vidro à direita. Sem animação automática para quem pede menos movimento.</li><li>Personagem: nome, mundo (Sun, Moon, Titan), level, VIP. Tudo opcional; "Pular" leva ao Início de visitante.</li><li>Pronto: leva ao cadastro rápido ou ao Início.</li></ol></dd>
           <dt>Regra</dt><dd>Ao digitar o level, mostra na hora o que já está liberado: Johto e Wildscape (150), Hoenn (250), Mega e rotação de Hoenn (350). <b>O level nunca bloqueia nada</b>, só avisa.</dd>
           <dt>Dados</dt><dd><code>Mundo/Johto.md</code>, <code>Mundo/Hoenn.md</code>, <code>Mundo/Wildscape.md</code>, <code>Combate/Mega Evoluções.md</code>.</dd>
+          <dt>Fundo</dt><dd>A entrada usa o mesmo fundo com textura e a mesma aura do app. Ao abrir, o app por baixo some em fade; ao sair, volta em fade.</dd>
           <dt>Visitante</dt><dd>Sem personagem, o Início troca o destaque por "Cadastre seu personagem em 1 minuto" e mostra guias por faixa de level.</dd>
         </dl>
       </div>
