@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011750">
+<link rel="stylesheet" href="estilo.css?v=1790011875">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -747,6 +747,24 @@
   .gin .etapas button[aria-pressed="true"] { background: color-mix(in oklab, var(--ok) 22%, var(--surface)); color: var(--ok); }
   .gin .ins-dot { width: 30px; height: 30px; border-radius: 50%; flex: none; background: var(--surface-2); box-shadow: inset 0 0 0 2px var(--surface-3); }
   .gin .ins-dot.on { background: radial-gradient(circle at 35% 30%, #fff3c4, #f2c230 45%, #a77c10); box-shadow: 0 3px 10px rgba(242,194,48,.3); }
+
+  /* ---------- O que mudou ---------- */
+  .nov-palco::before { background: radial-gradient(90% 90% at 75% 15%, #2d4d7a 0%, #1b2233 55%, #111318 100%) !important; }
+  [data-tema="claro"] .nov-palco::before { background: radial-gradient(90% 90% at 75% 15%, #bcd3f2 0%, #e7edf5 60%, #f4f5f8 100%) !important; }
+  .dia { font-size: 13px; font-weight: 680; color: var(--text-3); margin: 22px 4px 8px; letter-spacing: .02em; }
+  .dia:first-child { margin-top: 4px; }
+  .nov { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px; transition: box-shadow .4s var(--ease); }
+  .nov + .nov { margin-top: 10px; }
+  .nov.pra-voce { background: color-mix(in oklab, var(--accent-strong) 12%, var(--surface)); }
+  .nov.foco { box-shadow: var(--shadow-2), var(--focus-glow); }
+  .nov b { display: block; font-weight: 650; font-size: 16px; line-height: 1.3; }
+  .nov p { margin: 6px 0 0; color: var(--text-2); font-size: 14.5px; }
+  .nov .pe-n { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+  .nov .porque { font-size: 13px; color: var(--accent); font-weight: 620; display: inline-flex; gap: 5px; align-items: center; }
+  .nov .porque .icone { width: 15px; height: 15px; }
+  .vem-ai { border-radius: var(--r-lg); padding: 16px; background: linear-gradient(160deg, color-mix(in oklab, #2d4d7a 30%, var(--surface)) 0%, var(--surface) 70%); box-shadow: var(--shadow-1); }
+  .vem-ai b { display: block; font-weight: 650; margin-bottom: 4px; }
+  .vem-ai p { margin: 0; color: var(--text-2); font-size: 14.5px; }
 </style>
 </head>
 <body>
@@ -980,6 +998,23 @@ const GINASIOS = [
   { id:'cinnabar', cidade:'Cinnabar', lider:'Blaine', ins:'Volcano Badge', task:'10 Shiny Charizard + 10 Shiny Typhlosion', time:'Shiny Magmar, Shiny Flareon, Shiny Ninetales, Shiny Arcanine, Shiny Charizard, Shiny Typhlosion', el:['fire'], mapa:'https://imgur.com/a/hLzaofv', feito:{} },
   { id:'viridian', cidade:'Viridian', lider:'Giovanni', ins:'Earth Badge', task:'10 Shiny Nidoqueen + 10 Shiny Nidoking', time:'Shiny Kangaskhan, Shiny Nidoking, Shiny Nidoqueen, Shiny Dugtrio, Shiny Persian, Shiny Rhydon', el:['ground','normal'], mapa:'https://imgur.com/a/CNjdEEP', feito:{} },
 ];
+const NOVIDADES = [
+  { id:'defense-curl', d:'19/09', t:'Selvagens sem Defense Curl', x:'Dezenas de Pokémon selvagens (Clefairy, Lickitung, Azumarill, Marill, Phanpy, Sealeo e outros, também os shiny) não usam mais Defense Curl. Caçadas mais rápidas.', cat:'Hunts' },
+  { id:'clefable', d:'19/09', t:'Mega Clefable: +300% no Wildscape e Pokélog', x:'Desde 13/09 a Mega Clefable aparece 300% mais, só no Wildscape. Em 19/09 ganhou Pokélog.', cat:'Hunts' },
+  { id:'titan-lag', d:'18/09', t:'Queda no Titan 2 e 3', x:'Lag e queda de conexão. As mortes foram ressarcidas sem precisar abrir ticket.', cat:'Mundos', mundos:['Titan'] },
+  { id:'rollback', d:'15/09', t:'Rollback de 10 minutos em todos os mundos', x:'Manutenção de emergência por um erro nos Credit Cards. Tudo feito nos 10 minutos anteriores voltou.', cat:'Mundos', mundos:['todos'] },
+  { id:'canais-sun', d:'14/09', t:'18 canais novos no Sun e no Moon', x:'Mais canais para distribuir os jogadores nas caçadas.', cat:'Mundos', mundos:['Sun','Moon'], link:['Caçadas de Hoenn', '#/c/swellow'] },
+  { id:'canais', d:'10/09', t:'Canais mostram quem está caçando', x:'Ao clicar na entrada do canal, aparece quem está caçando e há quanto tempo foi a última ação.', cat:'Hunts', link:['Ver caçadas', '#/c/swellow'] },
+  { id:'twitch', d:'10/09', t:'Twitch Shop em todos os Titans', x:'A loja da Twitch passa a valer também no Titan 1, 2 e 3.', cat:'Interface', mundos:['Titan'] },
+  { id:'guild', d:'09/09', t:'Guild agora pode trocar de mundo', x:'O líder tira os membros e transfere o personagem; a guild vai junto. Nome repetido no destino vira aleatório.', cat:'Mundos', mundos:['todos'] },
+  { id:'pix', d:'09/09', t:'Histórico de PIX na Wallet', x:'A Wallet mostra o histórico de PIX dentro do jogo.', cat:'Interface' },
+  { id:'titan3', d:'08/09', t:'Titan 3 aberto, com 20% a mais de shiny', x:'Mundo novo para desafogar o Titan 1 e 2. Bônus de shiny até 30/09. Jogadores do Titan 1 e 2 ganharam o ticket de transferência.', cat:'Mundos', mundos:['Titan'] },
+  { id:'senha', d:'07/09', t:'A equipe nunca pede login e senha', x:'Há Discords falsos usando o nome de membros da equipe. Ninguém da equipe pede sua senha.', cat:'Segurança', mundos:['todos'] },
+  { id:'stones', d:'06/09', t:'Drop de stones padronizado', x:'Todo shiny dropa as stones da forma normal com 4× a chance. No Primal a chance sobe; na base e no Wildscape, desce.', cat:'Itens', itens:['thunder-stone'], link:['Thunder Stone', '#/i/thunder-stone'] },
+  { id:'cranidos', d:'06/09', t:'Wildscape de Cranidos em Hoenn', x:'Novo ponto de caça perto da entrada do Rampardos.', cat:'Hunts' },
+  { id:'treino', d:'04/09', t:'Treino sem casa', x:'Training Camp no andar de baixo do Trade Center: treinar Pokémon sem ter casa. 5 Diamonds ou 5 kk por vaga.', cat:'Treino', treino:true },
+];
+const VEM_AI = 'Na semana de 21/09: Hunt Finder, canais de Hoenn no Wildscape e no Primal, e a Jenny Quest, que libera talentos novos.';
 const ETAPAS = [['task', 'Task', 0], ['dungeon', 'Dungeon', 200], ['ins', 'Insígnia', 250]];
 const TASKS = [
   { id:'juliana', npc:'Juliana', reg:'Hoenn', obj:['300 Taillow','1.500 Swellow'], rec:HOENN_R, xp:3e6, cacada:'swellow', lvl:350, estado:'aceita' },
@@ -1057,11 +1092,11 @@ function inicioVisitante() {
       </div>
 
       <div class="fileira">
-        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
+        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/novidades">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/i/thunder-stone"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+          <a class="cartao largo" href="#/novidades/stones"><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/novidades/titan3"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo" href="#/novidades/treino"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
       </div>
     </div>`;
@@ -1121,11 +1156,11 @@ const TELAS = {
       </div>
 
       <div class="fileira">
-        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
+        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/novidades">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/i/thunder-stone"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
-          <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+          <a class="cartao largo" href="#/novidades/stones"><span class="data">06/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/novidades/titan3"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo" href="#/novidades/treino"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
       </div>
     </div>`;
@@ -1273,7 +1308,7 @@ const TELAS = {
             ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
             ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
             ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
-            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'], ['Ginásios', '#/ginasios'], ['O que mudou no jogo', '#/novidades'],
             ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
             ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
             ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
@@ -1308,6 +1343,8 @@ const INDICE = [
   ...TASKS.map(t => ({ tipo:'NPCs', t:t.npc, s:`Task: ${t.obj.join(', ')}`, h:`#/tasks/${t.id}` })),
   { tipo:'Combate', t:'Rockets da semana', s:'13 por semana, 130 até o Giovanni', h:'#/rockets' },
   { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/ginasios' },
+  { tipo:'Novidades', t:'O que mudou no jogo', s:'Atualizações de 04 a 19/09', h:'#/novidades' },
+  ...NOVIDADES.map(n => ({ tipo:'Novidades', t:n.t, s:n.d, h:`#/novidades/${n.id}` })),
   { tipo:'Combate', t:'Ginásios', s:'8 insígnias, até 8 s de CDR', h:'#/ginasios' },
   ...GINASIOS.map(g => ({ tipo:'Combate', t:`Ginásio de ${g.cidade}`, s:`${g.lider} · ${g.ins}`, h:`#/ginasios/${g.id}` })),
 ];
@@ -2766,6 +2803,60 @@ document.addEventListener('click', e => {
   }
 });
 
+
+/* ============ O que mudou no jogo ============ */
+let novFiltro = 'pra-voce';
+function porqueNov(n) {
+  const m = PERSONAGEM.mundo;
+  if (n.mundos && (n.mundos.includes('todos') || n.mundos.some(x => m.startsWith(x)))) return n.mundos.includes('todos') ? 'Vale para todos os mundos' : `Seu mundo: ${m}`;
+  if (n.itens && n.itens.some(i => Object.values(PLANOS).some(pl => pl.passos.some(x => x.estado !== 'feito' && x.mats.some(mt => mt.i === i))))) return 'Mexe num item do seu plano';
+  if (n.treino) return 'Seus Pokémon ainda não têm treino';
+  return null;
+}
+function abrirNovidades(foco, primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  if (foco) novFiltro = 'tudo';
+  const pv = NOVIDADES.filter(porqueNov).length;
+  const cats = ['Mundos', 'Hunts', 'Itens', 'Interface', 'Segurança', 'Treino'];
+  const lista = NOVIDADES.filter(n => novFiltro === 'tudo' ? true : novFiltro === 'pra-voce' ? porqueNov(n) : n.cat === novFiltro);
+  const dias = [...new Set(lista.map(n => n.d))];
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="O que mudou no jogo">
+    <div class="folha-palco sis-palco nov-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">${pv}</div><div class="k">de ${NOVIDADES.length} mudanças das últimas 2 semanas afetam você</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">O que mudou no jogo</h2>
+      <div class="chips"><span class="chip">04 a 19/09</span>${selo(['ok','Discord oficial · 19/09'])}</div>
+      <div class="filtros-t" role="group" aria-label="Filtrar">${[['pra-voce', `Para você · ${pv}`], ['tudo', 'Tudo'], ...cats.map(c => [c, c])].map(([k, v]) => `<button aria-pressed="${novFiltro === k}" data-nov-filtro="${k}">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="sec" style="margin-top:16px"><div class="vem-ai"><b>Vem aí</b><p>${VEM_AI}</p></div></div>
+
+    <div class="sec">
+      ${dias.length ? dias.map(d => `<div class="dia">${d}</div>${lista.filter(n => n.d === d).map(n => { const pq = porqueNov(n);
+        return `<section class="nov ${pq ? 'pra-voce' : ''} ${foco === n.id ? 'foco' : ''}" id="nov-${n.id}">
+          <b>${n.t}</b><p>${n.x}</p>
+          <div class="pe-n"><span class="chip">${n.cat}</span>${pq ? `<span class="porque">${I.raio}${pq}</span>` : ''}${n.link ? `<a class="link-sis" style="margin:0 0 0 auto" href="${n.link[1]}">${n.link[0]} ${I.seta}</a>` : ''}</div>
+        </section>`; }).join('')}`).join('') : '<p class="vazio">Nada neste filtro.</p>'}
+      <p class="aviso">Resumo dos canais oficiais do Discord (#changelog-br, #informativos e #anuncios), coletado em 19/09. Fundo violeta: afeta você.</p>
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-nov-filtro="tudo">Tudo</button>
+      <button class="btn btn-primario" data-nov-filtro="pra-voce">Só o que me afeta · ${pv}</button>
+    </div>
+  </article>`, primeira);
+  if (foco) document.getElementById('nov-' + foco)?.scrollIntoView({ block: 'center' });
+}
+document.addEventListener('click', e => {
+  if ($('#camada').hidden || !$('#camada .nov-palco')) return;
+  const t = e.target.closest('button'); if (!t || !t.dataset.novFiltro) return;
+  novFiltro = t.dataset.novFiltro; abrirNovidades(null, false); $('#camada .folha').scrollTop = 330;
+});
+
 /* ============ roteador ============ */
 let baseAtual = null;
 function rotear() {
@@ -2789,6 +2880,12 @@ function rotear() {
     if (!baseAtual) desenhar('/meus/colecao');
     if (mm[2]) { if (!cad) location.replace('#/meu/' + mm[1]); return; }
     abrirMeu(+mm[1]);
+    return;
+  }
+  const nv = h.match(/^\/novidades(?:\/([a-z0-9-]+))?$/);
+  if (nv) {
+    if (!baseAtual) desenhar('/inicio');
+    abrirNovidades(nv[1] || null);
     return;
   }
   const gi = h.match(/^\/ginasios(?:\/([a-z]+))?$/);

@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790011750">
+<link rel="stylesheet" href="estilo.css?v=1790011875">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -86,6 +86,7 @@
     <a href="#t-rockets">Rockets da semana</a>
     <a href="#t-tasks">Tasks do Mundo</a>
     <a href="#t-ginasios">Ginásios</a>
+    <a href="#t-novidades">O que mudou</a>
     <a href="#t-eu">Eu</a>
     <div class="g">Regras</div>
     <a href="#calculos">Cálculos</a>
@@ -132,6 +133,7 @@
           <tr><td><code>#/time/electric</code> · <code>#/time/novo</code></td><td>Montar ou editar time</td><td>camada</td></tr>
           <tr><td><code>#/plano/25s</code></td><td>Plano de um Pokémon</td><td>camada</td></tr>
           <tr><td><code>#/tasks</code> · <code>#/tasks/juliana</code></td><td>Tasks do Mundo (com foco num NPC)</td><td>camada</td></tr>
+          <tr><td><code>#/novidades</code> · <code>#/novidades/titan3</code></td><td>O que mudou no jogo (com foco numa mudança)</td><td>camada</td></tr>
           <tr><td><code>#/ginasios</code> · <code>#/ginasios/vermilion</code></td><td>Ginásios (com foco numa cidade)</td><td>camada</td></tr>
           <tr><td><code>#/rockets</code></td><td>Rockets da semana</td><td>camada</td></tr>
           <tr><td><code>#/c/swellow</code> · <code>#/time/novo/swellow</code></td><td>Caçada · novo time já contra ela</td><td>camada</td></tr>
@@ -307,6 +309,16 @@
           <dt>Mostra</dt><dd>"N/8" insígnias e o CDR correspondente · próximo passo (a primeira etapa pendente, na ordem) · cada ginásio com as 3 etapas marcáveis (Task do Alfred, Dungeon, Insígnia) · detalhe: task, time do líder, Pokémon do jogador que batem forte, mapa da dungeon, aviso de level · regras da dungeon e das batalhas · divergência sobre as Potent Boost Stones.</dd>
           <dt>Regras</dt><dd>1 insígnia = 1 s de CDR, para todos os Pokémon guardados. Dungeon a partir do level 200; batalhas a partir do 250. O elemento do líder é inferido pelo time e a tela diz isso.</dd>
           <dt>Dados</dt><dd><code>Combate/Ginásios.md</code> · <code>Sistemas/Talentos.md</code>.</dd>
+        </dl>
+      </div>
+
+      <div class="tela" id="t-novidades">
+        <h3 class="titulo">O que mudou no jogo <a href="index.html#/novidades">ver no protótipo</a></h3>
+        <dl>
+          <dt>Para quê</dt><dd>Mostrar as atualizações do jogo separando o que afeta o jogador.</dd>
+          <dt>Mostra</dt><dd>Quantas mudanças afetam você · "Vem aí" · mudanças agrupadas por dia, com categoria (Mundos, Hunts, Itens, Interface, Segurança, Treino) · link para a página afetada · filtros.</dd>
+          <dt>"Afeta você"</dt><dd>Vale para todos os mundos ou para o mundo do personagem · mexe num item de um plano ativo · toca em algo que o jogador ainda não fez (ex.: treino).</dd>
+          <dt>Dados</dt><dd><code>Patch Notes/</code> (digest de #changelog-br, #informativos e #anuncios). Depende da atualização semanal do vault.</dd>
         </dl>
       </div>
 
