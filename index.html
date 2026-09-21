@@ -1,0 +1,1980 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PKA Companion</title>
+<meta name="description" content="Protótipo navegável do PKA Companion: wiki e companion do PokeAlliance.">
+<meta name="theme-color" content="#17131c">
+<script>
+  (function () {
+    let salvo = new URLSearchParams(location.search).get('tema'); if (!salvo) { try { salvo = localStorage.getItem('pka-tema'); } catch (e) {} }
+    const mq = matchMedia('(prefers-color-scheme: light)');
+    const aplica = () => { document.documentElement.dataset.tema = salvo || (mq.matches ? 'claro' : 'escuro'); };
+    aplica(); mq.addEventListener('change', aplica);
+    window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
+  })();
+</script>
+<link rel="stylesheet" href="estilo.css">
+<style>
+  /* ---------- casca do app ---------- */
+  .app { min-height: 100dvh; }
+  .tela { padding-bottom: calc(var(--dock-h) + 28px + env(safe-area-inset-bottom)); }
+  .conteudo { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  /* dock: 5 portas */
+  .dock {
+    position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
+    height: var(--dock-h); border-radius: 26px;
+    display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
+    background: var(--glass); backdrop-filter: blur(28px) saturate(1.6); -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge);
+  }
+  .porta {
+    height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: var(--text-3); position: relative; border-radius: 20px;
+    transition: color .25s;
+  }
+  .porta .icone { transition: transform .4s var(--ease); }
+  .porta[aria-current="page"] { color: var(--text); }
+  .porta[aria-current="page"] .icone { color: var(--accent); transform: translateY(-1px) scale(1.08); }
+  .porta[aria-current="page"]::after {
+    content: ""; position: absolute; bottom: 8px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+  }
+
+  @media (min-width: 900px) {
+    .dock {
+      left: 18px; top: 18px; bottom: 18px; right: auto; width: 88px; height: auto;
+      grid-template-columns: 1fr; grid-template-rows: repeat(5, 76px); align-content: center; border-radius: 30px;
+    }
+    .porta[aria-current="page"]::after { bottom: auto; left: 6px; top: 50%; transform: translateY(-50%); width: 4px; height: 18px; border-radius: 4px; }
+    .tela { padding-left: 124px; padding-bottom: 40px; }
+  }
+
+  /* cabeçalho de tela */
+  .topo { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding: 28px 0 18px; }
+  .topo h1 { font-size: clamp(30px, 7vw, 44px); margin: 0; }
+  .pilula-char {
+    display: inline-flex; align-items: center; gap: 10px; height: 40px; padding: 0 14px 0 6px; border-radius: 999px;
+    background: var(--surface); box-shadow: var(--shadow-1); font-size: 13.5px; font-weight: 600; white-space: nowrap;
+  }
+  .pilula-char .av { width: 28px; height: 28px; border-radius: 50%; background: var(--surface-3); overflow: hidden; }
+  .pilula-char .av img { width: 100%; height: 100%; object-fit: contain; transform: scale(1.3); }
+  .pilula-char span { color: var(--text-3); font-weight: 520; }
+
+  /* ---------- Início: palco com a arte ---------- */
+  .palco { position: relative; overflow: hidden; isolation: isolate; min-height: min(66vh, 580px); display: flex; align-items: flex-end; border-radius: 0 0 34px 34px; box-shadow: var(--shadow-3); }
+  .palco .fundo { position: absolute; inset: -12%; z-index: -2; background-size: cover; background-position: center; filter: blur(60px) saturate(1.5); opacity: .9; transform: scale(1.1); }
+  .palco::before { content: ""; position: absolute; inset: 0; z-index: -2; background: var(--palco-cor, #3a3a8a); }
+  .palco::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(24,14,34,.2) 0%, rgba(24,14,34,0) 30%, rgba(24,14,34,.55) 68%, rgba(24,14,34,.82) 100%); }
+  .palco .arte { position: absolute; right: -8%; top: 11%; width: min(70vw, 440px); aspect-ratio: 1; z-index: -1; }
+  .palco .arte img { animation: flutua 9s var(--ease) infinite alternate; }
+  @keyframes flutua { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+  .palco .texto { padding: 0 0 26px; max-width: 520px; color: #fff; }
+  .palco .texto .rotulo { color: rgba(255,255,255,.78); }
+  .palco h2 { font-size: clamp(34px, 9vw, 60px); margin: 8px 0 12px; }
+  .palco p { margin: 0 0 20px; color: rgba(255,255,255,.86); font-size: 16.5px; max-width: 34ch; }
+  .palco .acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+  .palco .topo-palco { position: absolute; top: 0; left: 0; right: 0; }
+  .palco .topo-palco .conteudo { display: flex; justify-content: space-between; align-items: center; padding-top: 18px; }
+  .marca { font-stretch: 112%; font-weight: 720; letter-spacing: -0.01em; font-size: 17px; color: #fff; }
+  .marca b { color: var(--v-300); font-weight: 720; }
+
+  /* ---------- fileiras de cartões (console) ---------- */
+  .fileira { margin-top: 26px; }
+  .palco + .conteudo .fileira:first-child { margin-top: 30px; }
+  .fileira-cab { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .fileira-cab h3 { margin: 0; font-size: 20px; }
+  .fileira-cab a { font-size: 14px; color: var(--text-2); font-weight: 600; }
+  .trilho {
+    display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 6px 20px 30px; margin: 0 -20px;
+    scrollbar-width: none;
+  }
+  .trilho::-webkit-scrollbar { display: none; }
+  .cartao {
+    flex: none; scroll-snap-align: start; position: relative; overflow: hidden; isolation: isolate;
+    width: 232px; height: 176px; border-radius: var(--r-lg); padding: 16px;
+    background: var(--surface); box-shadow: var(--shadow-2);
+    display: flex; flex-direction: column; justify-content: flex-end; text-align: left;
+    transition: transform .45s var(--ease), box-shadow .45s var(--ease);
+  }
+  .cartao:hover, .cartao:focus-visible { transform: translateY(-4px) scale(1.035); box-shadow: var(--shadow-3), var(--focus-glow); border-radius: var(--r-lg); }
+  .cartao .c-titulo { font-weight: 650; font-size: 16px; line-height: 1.2; }
+  .cartao .c-sub { font-size: 13.5px; color: var(--text-2); margin-top: 3px; }
+  .cartao .c-arte { position: absolute; right: 8px; top: 8px; width: 92px; height: 92px; z-index: -1; }
+  .cartao .c-arte img { width: 100%; height: 100%; object-fit: contain; }
+  .cartao.tinto { background: linear-gradient(160deg, color-mix(in oklab, var(--c) 34%, var(--surface)) 0%, var(--surface) 70%); }
+  /* cartão saltado: o fundo começa mais abaixo e o Pokémon sai por cima da borda */
+  .trilho:has(.saltado) { padding-top: 12px; }
+  .cartao.saltado { overflow: visible; background: none; box-shadow: none; height: 194px; }
+  .cartao.saltado::before {
+    content: ""; position: absolute; inset: 18px 0 0 0; z-index: -2; border-radius: var(--r-lg);
+    background: linear-gradient(160deg, color-mix(in oklab, var(--c) 34%, var(--surface)) 0%, var(--surface) 70%);
+    box-shadow: var(--shadow-2); transition: box-shadow .45s var(--ease);
+  }
+  .cartao.saltado:hover, .cartao.saltado:focus-visible { box-shadow: none; }
+  .cartao.saltado:hover::before, .cartao.saltado:focus-visible::before { box-shadow: var(--shadow-3), var(--focus-glow); }
+  .cartao.saltado .c-arte { right: 2px; top: 0; width: 116px; height: 116px; }
+  .cartao.saltado .c-arte img { filter: drop-shadow(0 14px 18px rgba(0,0,0,.45)); }
+  .barra { height: 6px; border-radius: 6px; background: var(--surface-3); margin-top: 12px; overflow: hidden; }
+  .barra > i { display: block; height: 100%; width: var(--v); border-radius: 6px; background: var(--accent); }
+  .cartao.largo { width: 290px; height: auto; justify-content: flex-start; gap: 4px; }
+  .cartao .data { font-size: 12.5px; font-weight: 600; color: var(--text-3); }
+
+  /* ---------- Wiki ---------- */
+  .campo-busca {
+    display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 18px; border-radius: 18px;
+    background: var(--surface); box-shadow: var(--shadow-1); color: var(--text-3); font-size: 16px; width: 100%;
+  }
+  .campo-busca input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; color: var(--text); font-size: 16px; }
+  .campo-busca input:focus-visible { box-shadow: none; }
+  .campo-busca input::placeholder { color: var(--text-3); }
+  .campo-busca:focus-within { box-shadow: var(--shadow-2), var(--focus-glow); }
+  .poke-tile {
+    flex: none; width: 150px; scroll-snap-align: start; text-align: left; border-radius: var(--r-lg);
+    transition: transform .45s var(--ease);
+  }
+  .poke-tile .quadro {
+    height: 150px; border-radius: var(--r-lg); position: relative; overflow: hidden; isolation: isolate;
+    background: radial-gradient(120% 90% at 50% 90%, color-mix(in oklab, var(--c) 42%, var(--surface)) 0%, var(--surface) 70%);
+    box-shadow: var(--shadow-2); transition: box-shadow .45s var(--ease);
+  }
+  .poke-tile .quadro .arte { position: absolute; inset: 10px; }
+  .poke-tile .nome { margin-top: 10px; font-weight: 640; font-size: 15px; }
+  .poke-tile .meta { font-size: 12.5px; color: var(--text-3); margin-top: 2px; }
+  .poke-tile:hover, .poke-tile:focus-visible { transform: translateY(-3px); box-shadow: none; }
+  .poke-tile:hover .quadro, .poke-tile:focus-visible .quadro { box-shadow: var(--shadow-3), var(--focus-glow); }
+  .secao-tile {
+    flex: none; width: 190px; height: 118px; scroll-snap-align: start; border-radius: var(--r-lg); padding: 16px;
+    display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+    background: var(--surface); box-shadow: var(--shadow-2); transition: transform .45s var(--ease), box-shadow .45s var(--ease);
+  }
+  .secao-tile:hover, .secao-tile:focus-visible { transform: translateY(-3px) scale(1.03); box-shadow: var(--shadow-3), var(--focus-glow); }
+  .secao-tile .t { font-weight: 650; font-size: 16px; }
+  .secao-tile .d { font-size: 13px; color: var(--text-3); line-height: 1.35; }
+
+  /* ---------- Buscar ---------- */
+  .grupo-res { margin-top: 26px; }
+  .grupo-res h3 { font-size: 13px; color: var(--text-3); font-weight: 600; margin: 0 0 8px 4px; letter-spacing: .02em; }
+  .lista { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); overflow: hidden; }
+  .linha {
+    display: flex; align-items: center; gap: 14px; padding: 12px 16px; min-height: 64px; width: 100%; text-align: left;
+    transition: background .2s;
+  }
+  .linha + .linha { box-shadow: inset 0 1px 0 var(--surface-2); }
+  .linha:hover { background: var(--surface-2); }
+  .linha .mini { width: 44px; height: 44px; border-radius: 12px; flex: none; position: relative;
+    background: radial-gradient(100% 100% at 50% 90%, color-mix(in oklab, var(--c, var(--m-500)) 38%, var(--surface-2)) 0%, var(--surface-2) 80%); }
+  .linha .mini img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: contain; }
+  .linha .l-t { font-weight: 620; }
+  .linha .l-s { font-size: 13px; color: var(--text-3); }
+  .linha .dir { white-space: nowrap; margin-left: auto; color: var(--text-3); display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .recentes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .recentes .chip { height: 34px; padding: 0 14px; font-size: 14px; background: var(--surface); box-shadow: var(--shadow-1); color: var(--text); }
+  .vazio { padding: 40px 16px; text-align: center; color: var(--text-3); }
+
+  /* ---------- Meus Pokémon ---------- */
+  .segmento { display: inline-grid; grid-auto-flow: column; gap: 4px; padding: 4px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-1); }
+  .segmento button { height: 40px; padding: 0 18px; border-radius: 999px; font-weight: 620; font-size: 14.5px; color: var(--text-2); transition: background .3s var(--ease), color .2s; }
+  .segmento button[aria-selected="true"] { background: var(--accent-strong); color: #fff; box-shadow: 0 2px 6px rgba(10,10,30,.2), 0 6px 16px rgba(10,10,30,.2); }
+  .grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 14px; margin-top: 22px; }
+  .grade .poke-tile { width: auto; }
+  .grade .poke-tile .quadro { height: auto; aspect-ratio: 1; }
+  .invest { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .invest .chip { height: 22px; font-size: 11.5px; padding: 0 8px; }
+  .resumo-col { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; color: var(--text-2); font-size: 14px; }
+  .resumo-col b { color: var(--text); }
+
+  .time { margin-top: 22px; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-2); padding: 20px; }
+  .time-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .time-cab h3 { margin: 0; font-size: 22px; }
+  .time-cab p { margin: 4px 0 0; color: var(--text-3); font-size: 14px; }
+  .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 18px; }
+  @media (max-width: 560px) { .slots { grid-template-columns: repeat(3, 1fr); } }
+  .slot { aspect-ratio: 1; border-radius: 18px; position: relative;
+    background: radial-gradient(110% 90% at 50% 95%, color-mix(in oklab, var(--c, var(--n-500)) 40%, var(--surface-2)) 0%, var(--surface-2) 75%); }
+  .slot .arte { position: absolute; inset: 8%; }
+  .slot.falta { background: var(--bg-2); box-shadow: inset 0 2px 8px rgba(0,0,0,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--text-3); font-size: 12px; font-weight: 600; text-align: center; padding: 6px; }
+  .analise { margin-top: 18px; display: grid; gap: 10px; }
+  .analise .a { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
+  .analise .a .icone { color: var(--data); margin-top: 1px; }
+  .analise .a.alerta .icone { color: var(--warn); }
+  .analise .a b { font-weight: 640; }
+
+  .acao { display: flex; gap: 14px; align-items: center; padding: 14px 16px; min-height: 72px; }
+  .acao + .acao { box-shadow: inset 0 1px 0 var(--surface-2); }
+  .estado { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--text-3); }
+  .estado.feito { background: color-mix(in oklab, var(--ok) 22%, var(--surface)); color: var(--ok); }
+  .estado.andando { background: color-mix(in oklab, var(--accent) 22%, var(--surface)); color: var(--accent); }
+  .acao .l-s { font-size: 13px; color: var(--text-3); }
+  .acao .dir { margin-left: auto; text-align: right; font-size: 13px; color: var(--text-2); white-space: nowrap; }
+
+  /* ---------- Eu ---------- */
+  .cartao-eu { border-radius: var(--r-xl); padding: 22px; background: var(--surface); box-shadow: var(--shadow-2); display: flex; gap: 18px; align-items: center; }
+  .cartao-eu .av { width: 76px; height: 76px; border-radius: 24px; flex: none; background: radial-gradient(100% 100% at 50% 90%, color-mix(in oklab, var(--el-electric) 45%, var(--surface-2)), var(--surface-2) 75%); position: relative; }
+  .cartao-eu .av .arte { position: absolute; inset: 6px; }
+  .cartao-eu h2 { margin: 0; font-size: 26px; }
+  .cartao-eu p { margin: 4px 0 0; color: var(--text-3); }
+  .bloco { margin-top: 22px; }
+  .bloco h3 { font-size: 13px; color: var(--text-3); font-weight: 600; margin: 0 0 8px 4px; letter-spacing: .02em; }
+  .aviso { font-size: 13px; color: var(--text-3); margin: 10px 4px 0; line-height: 1.45; }
+
+  /* ---------- Ficha: camada sobreposta ---------- */
+  .camada {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(14, 8, 20, .38); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    opacity: 0; transition: opacity .45s var(--ease);
+  }
+  [data-tema="claro"] .camada { background: rgba(36, 30, 41, .22); }
+  .camada.aberta { opacity: 1; }
+  .folha {
+    width: 100%; max-width: 620px; max-height: 94dvh; overflow-y: auto; overscroll-behavior: contain;
+    border-radius: var(--r-xl) var(--r-xl) 0 0; background: var(--bg); box-shadow: var(--shadow-3);
+    transform: translateY(100%); transition: transform .6s var(--ease);
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  .camada.aberta .folha { transform: none; }
+  @media (min-width: 900px) {
+    .camada { align-items: stretch; justify-content: flex-end; padding: 18px; }
+    .folha { max-height: none; height: 100%; border-radius: var(--r-xl); transform: translateX(110%); max-width: 560px; }
+  }
+  .folha-palco { position: relative; overflow: hidden; isolation: isolate; height: 340px; }
+  .folha-palco .fundo { position: absolute; inset: -20%; z-index: -2; background-size: 70%; background-repeat: no-repeat; background-position: center 60%; filter: blur(50px) saturate(1.7); opacity: .95; }
+  .folha-palco::before { content: ""; position: absolute; inset: 0; z-index: -3; background: color-mix(in oklab, var(--c) 38%, #2a1b3d); }
+  [data-tema="claro"] .folha-palco::before { background: color-mix(in oklab, var(--c) 30%, #ede7f3); }
+  .folha-palco::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, transparent 55%, var(--bg)); }
+  .folha-palco .arte { position: absolute; left: 50%; top: 34px; width: 280px; height: 280px; transform: translateX(-50%); }
+  .puxador { position: absolute; top: 8px; left: 50%; width: 42px; height: 5px; border-radius: 5px; transform: translateX(-50%); background: rgba(255,255,255,.55); }
+  .folha-topo { position: absolute; top: 18px; left: 16px; right: 16px; display: flex; justify-content: space-between; z-index: 2; }
+  .redondo { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(24,18,31,.35); color: #fff; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .redondo:hover { background: rgba(24,18,31,.55); }
+  .etiqueta { padding: 0 22px; margin-top: -6px; }
+  .etiqueta .num { font-size: 14px; color: var(--text-3); font-weight: 600; }
+  .etiqueta h2 { font-size: clamp(36px, 9vw, 48px); margin: 2px 0 12px; }
+  .etiqueta .chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .alterna { display: inline-grid; grid-auto-flow: column; padding: 3px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-1); margin-top: 16px; }
+  .alterna button { height: 34px; padding: 0 14px; border-radius: 999px; font-size: 13.5px; font-weight: 620; color: var(--text-2); }
+  .alterna button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); }
+  .leitura-l .icone { color: var(--data); }
+  .leituras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 0 22px; margin-top: 20px; }
+  .leitura { border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 12px; min-height: 112px; display: flex; flex-direction: column; gap: 6px; }
+  .leitura .icone { color: var(--data); }
+  .leitura .v { font-weight: 660; font-size: 15px; line-height: 1.25; }
+  .leitura .k { font-size: 12px; color: var(--text-3); line-height: 1.3; }
+  .sec { padding: 0 22px; margin-top: 26px; }
+  .sec h3 { font-size: 18px; margin: 0 0 10px; }
+  .fato { border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow-1); padding: 14px 16px; }
+  .fato + .fato { margin-top: 10px; }
+  .fato p { margin: 0; }
+  .fato .pe { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px; }
+  .reportar { font-size: 12.5px; color: var(--text-3); display: inline-flex; gap: 5px; align-items: center; min-height: 32px; }
+  .reportar:hover { color: var(--text); }
+  .drops { display: flex; gap: 8px; flex-wrap: wrap; }
+  .drops .chip { height: 34px; padding: 0 14px; font-size: 14px; background: var(--surface); box-shadow: var(--shadow-1); color: var(--text); }
+  .barra-acao {
+    position: fixed; z-index: 60; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translate(-50%, 140%);
+    width: min(calc(100% - 28px), 592px); display: flex; gap: 10px; padding: 10px; border-radius: 28px;
+    background: var(--glass); backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+    box-shadow: var(--shadow-3), inset 0 0 0 1px var(--glass-edge); transition: transform .6s var(--ease) .08s;
+  }
+  .camada.aberta .barra-acao { transform: translate(-50%, 0); }
+  @media (min-width: 900px) { .barra-acao { left: auto; right: 34px; transform: translateX(120%); width: 528px; } .camada.aberta .barra-acao { transform: none; } }
+  .barra-acao .btn { flex: 1; white-space: nowrap; }
+  .barra-acao .btn-suave { flex: 0 0 auto; padding: 0 20px; }
+  .toast {
+    position: fixed; z-index: 80; left: 50%; top: 18px; transform: translate(-50%, -140%);
+    padding: 12px 18px; border-radius: 999px; background: var(--surface); box-shadow: var(--shadow-3); font-weight: 600; font-size: 14.5px;
+    display: flex; gap: 8px; align-items: center; transition: transform .5s var(--ease);
+  }
+  .toast { visibility: hidden; width: max-content; max-width: calc(100vw - 32px); }
+  .toast.on { transform: translate(-50%, 0); visibility: visible; }
+  .toast .icone { color: var(--ok); }
+  .tag-proto { position: fixed; z-index: 90; bottom: 16px; right: 18px; font-size: 11px; font-weight: 650; color: var(--text-3); background: var(--surface); padding: 4px 10px; border-radius: 999px; box-shadow: var(--shadow-1); }
+  @media (max-width: 899px) { .tag-proto { display: none; } }
+  .camada:not([hidden]) ~ .tag-proto { display: none; }
+
+  /* ---------- Cadastro rápido ---------- */
+  .cad-cab { padding: 22px 22px 6px; display: flex; gap: 14px; align-items: flex-start; }
+  .cad-cab h2 { margin: 0; font-size: clamp(28px, 7vw, 36px); }
+  .cad-cab p { margin: 6px 0 0; color: var(--text-3); font-size: 14.5px; max-width: 40ch; }
+  .cad-cab .redondo { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); flex: none; }
+  .cad-busca { padding: 14px 22px 0; position: sticky; top: 0; z-index: 3; background: var(--bg); padding-bottom: 12px; }
+  .escolha .marca-sel { width: 28px; height: 28px; border-radius: 50%; flex: none; margin-left: auto; display: grid; place-items: center; background: var(--surface-2); color: transparent; transition: background .25s var(--ease), color .2s, transform .35s var(--ease); }
+  .escolha[aria-pressed="true"] { background: color-mix(in oklab, var(--accent-strong) 12%, var(--surface)); }
+  .escolha[aria-pressed="true"] .marca-sel { background: var(--accent-strong); color: #fff; transform: scale(1.06); }
+  .escolha .tem { font-size: 12px; color: var(--text-3); margin-right: 10px; white-space: nowrap; }
+  .fila { display: flex; align-items: center; gap: 10px; }
+  .fila .pontos { display: flex; gap: 5px; }
+  .fila .pontos i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.35); display: block; }
+  .fila .pontos i.on { background: #fff; width: 18px; border-radius: 7px; }
+  .fila .quantos { color: #fff; font-size: 13px; font-weight: 620; background: rgba(24,18,31,.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); height: 44px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 10px; }
+  .campo-grupo { margin: 18px 22px 0; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); padding: 16px; }
+  .campo-grupo + .campo-grupo { margin-top: 12px; }
+  .campo-grupo > .rot-c { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .campo-grupo > .rot-c b { font-weight: 640; }
+  .campo-grupo > .rot-c span { font-size: 13px; color: var(--text-3); }
+  .nota { font-size: 13px; color: var(--text-3); margin-top: 10px; display: flex; gap: 8px; align-items: flex-start; }
+  .nota .icone { width: 16px; height: 16px; color: var(--warn); margin-top: 2px; }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
+  .seg button { height: 40px; border-radius: 11px; font-weight: 620; font-size: 14px; color: var(--text-2); transition: background .25s var(--ease), color .2s; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+  .seg.forte button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .seg button:disabled { opacity: .4; cursor: not-allowed; }
+  .boost { display: flex; align-items: center; gap: 12px; }
+  .boost .valor { font-stretch: 118%; font-weight: 720; font-size: 40px; letter-spacing: -0.02em; min-width: 3ch; text-align: center; }
+  .boost .passo { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 22px; font-weight: 500; flex: none; }
+  .boost .passo:active { transform: scale(.94); }
+  .boost input[type=range] { flex: 1; min-width: 0; }
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 28px; background: none; }
+  input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: linear-gradient(90deg, var(--accent-strong) var(--p, 0%), var(--surface-3) var(--p, 0%)); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; margin-top: -9px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+  input[type=range]::-moz-range-track { height: 6px; border-radius: 6px; background: var(--surface-3); }
+  input[type=range]::-moz-range-progress { height: 6px; border-radius: 6px; background: var(--accent-strong); }
+  input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border: 0; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.35); }
+  .estrelas { display: flex; gap: 8px; }
+  .estrelas button { width: 48px; height: 48px; border-radius: 14px; background: var(--surface-2); display: grid; place-items: center; color: var(--text-3); transition: background .25s var(--ease), color .2s, transform .35s var(--ease); }
+  .estrelas button .icone { width: 24px; height: 24px; }
+  .estrelas button[aria-pressed="true"] { background: color-mix(in oklab, #f2c230 20%, var(--surface)); color: #f2c230; }
+  .estrelas button[aria-pressed="true"] .icone { fill: currentColor; }
+  .estrelas button:disabled { opacity: .35; cursor: not-allowed; }
+  .opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opcoes button { height: 38px; padding: 0 14px; border-radius: 999px; background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--text-2); transition: background .25s var(--ease), color .2s; }
+  .opcoes button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .interruptor { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; text-align: left; min-height: 44px; }
+  .interruptor .trilho-i { width: 52px; height: 32px; border-radius: 999px; background: var(--surface-3); position: relative; flex: none; transition: background .3s var(--ease); }
+  .interruptor .trilho-i::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.3); transition: transform .35s var(--ease); }
+  .interruptor[aria-checked="true"] .trilho-i { background: var(--accent-strong); }
+  .interruptor[aria-checked="true"] .trilho-i::after { transform: translateX(20px); }
+  .interruptor:disabled { opacity: .45; cursor: not-allowed; }
+  .interruptor .sub { display: block; font-size: 13px; color: var(--text-3); }
+  .campo-texto { width: 100%; height: 48px; border: 0; border-radius: 12px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 16px; padding: 0 14px; outline: 0; }
+  .campo-texto:focus { box-shadow: var(--focus-glow); }
+  details.mais-campos summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; min-height: 32px; font-weight: 640; }
+  details.mais-campos summary::-webkit-details-marker { display: none; }
+  details.mais-campos summary .icone { transition: transform .35s var(--ease); color: var(--text-3); }
+  details.mais-campos[open] summary .icone { transform: rotate(90deg); }
+  .treino { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-top: 14px; }
+  .treino label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-2); font-weight: 560; }
+  .treino .campo-texto { height: 44px; }
+  .sep { height: 1px; background: var(--surface-2); margin: 14px 0; }
+
+  /* ---------- Plano de um Pokémon ---------- */
+  .plano-palco { height: 290px; }
+  .plano-palco .arte.de { left: 6%; top: 96px; width: 150px; height: 150px; transform: none; opacity: .92; }
+  .plano-palco .arte.para { left: auto; right: 4%; top: 40px; width: 230px; height: 230px; transform: none; }
+  .plano-palco .arte.so { left: 50%; top: 30px; width: 250px; height: 250px; transform: translateX(-50%); }
+  .plano-palco .rumo { position: absolute; left: 40%; top: 150px; z-index: 2; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; background: rgba(24,18,31,.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .plano-meta { margin: 0; color: var(--text-2); font-size: 15px; max-width: 42ch; }
+  .progresso-pl { padding: 0 22px; margin-top: 18px; }
+  .progresso-pl .txt { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-2); }
+  .progresso-pl .txt b { color: var(--text); font-weight: 640; }
+  .progresso-pl .barra { margin-top: 8px; }
+  .passo-pl { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); transition: background .3s var(--ease), box-shadow .3s var(--ease); }
+  .passo-pl + .passo-pl { margin-top: 10px; }
+  .passo-pl.proximo { background: color-mix(in oklab, var(--accent-strong) 13%, var(--surface)); box-shadow: var(--shadow-2); }
+  .passo-pl .cab { display: flex; gap: 14px; align-items: center; width: 100%; text-align: left; padding: 14px 16px; min-height: 72px; }
+  .passo-pl .cab .l-t { display: block; font-weight: 640; }
+  .passo-pl .cab .l-s { display: block; font-size: 13px; color: var(--text-3); }
+  .passo-pl .cab .dir { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); white-space: nowrap; }
+  .passo-pl .cab .dir .icone { color: var(--text-3); transition: transform .35s var(--ease); }
+  .passo-pl .cab[aria-expanded="true"] .dir .icone { transform: rotate(90deg); }
+  .passo-pl.feito .cab .l-t { color: var(--text-2); }
+  .passo-pl.bloqueado .cab { opacity: .6; }
+  .passo-pl .rotulo-prox { font-size: 11.5px; font-weight: 680; letter-spacing: .02em; color: var(--accent); }
+  .passo-pl .corpo { padding: 0 16px 16px; }
+  .passo-pl .corpo .nota { margin: 0 0 12px; }
+  .mats { border-radius: 14px; background: var(--surface-2); overflow: hidden; }
+  [data-tema="claro"] .mats { background: var(--bg); }
+  .mat { display: flex; align-items: center; gap: 12px; padding: 10px 12px; min-height: 58px; }
+  .mat + .mat { box-shadow: inset 0 1px 0 var(--surface); }
+  .mat .t { font-weight: 600; font-size: 14.5px; display: block; }
+  .mat .o { font-size: 12.5px; color: var(--text-3); display: block; }
+  .tenho { margin-left: auto; flex: none; height: 32px; padding: 0 12px; border-radius: 999px; font-size: 13px; font-weight: 620;
+    display: inline-flex; align-items: center; gap: 5px; background: var(--surface-3); color: var(--text-2); transition: background .25s var(--ease), color .2s; }
+  .tenho[aria-pressed="true"] { background: color-mix(in oklab, var(--ok) 20%, var(--surface)); color: var(--ok); }
+  .tenho .icone { width: 15px; height: 15px; }
+  .prog-pl { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .prog-pl .valor { font-stretch: 118%; font-weight: 720; font-size: 28px; letter-spacing: -0.02em; min-width: 4ch; }
+  .prog-pl .valor span { font-size: 15px; color: var(--text-3); font-weight: 600; letter-spacing: 0; }
+  .prog-pl .passo { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 20px; flex: none; }
+  .prog-pl .barra { flex: 1; margin: 0; }
+  .pe-pl { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .pe-pl .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+  .custo .dir b { color: var(--text); font-weight: 640; }
+  .custo .falta { color: var(--warn); }
+  .add-passo button { display: inline-flex; align-items: center; gap: 6px; padding: 0 16px 0 12px; }
+  .add-passo .icone { width: 16px; height: 16px; }
+
+  /* ---------- Primeira entrada ---------- */
+  .entrada { position: fixed; inset: 0; z-index: 70; background: var(--bg); overflow-y: auto; overscroll-behavior: contain; opacity: 0; transition: opacity .5s var(--ease); }
+  .entrada.on { opacity: 1; }
+  .ent-boas { min-height: 100dvh; display: flex; flex-direction: column; }
+  .ent-palco { position: relative; flex: 1; min-height: 50dvh; overflow: hidden; isolation: isolate; }
+  .ent-palco::before { content: ""; position: absolute; inset: 0; z-index: -3; background: color-mix(in oklab, var(--el-psychic) 22%, #2a1b3d); }
+  .ent-palco .fundo { position: absolute; inset: -15%; z-index: -2; background-size: 60%; background-repeat: no-repeat; background-position: center 45%; filter: blur(60px) saturate(1.6); opacity: .9; }
+  .ent-palco::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(24,14,34,.25) 0%, transparent 30%, transparent 62%, var(--bg) 100%); }
+  .ent-palco .marca { position: absolute; top: calc(20px + env(safe-area-inset-top)); left: 22px; }
+  .ent-palco .heroi { position: absolute; left: 50%; top: 9%; width: min(80vw, 430px); aspect-ratio: 1; transform: translateX(-50%); }
+  .ent-palco .heroi img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 24px 40px rgba(0,0,0,.45)); animation: flutua 9s var(--ease) infinite alternate; }
+  .ent-palco .lado { position: absolute; width: min(30vw, 150px); aspect-ratio: 1; }
+  .ent-palco .lado.e { left: 2%; bottom: 10%; }
+  .ent-palco .lado.d { right: 2%; bottom: 16%; }
+  .ent-palco .lado .arte { width: 100%; height: 100%; }
+  .ent-texto { padding: 0 22px calc(26px + env(safe-area-inset-bottom)); width: 100%; max-width: 560px; margin: 0 auto; }
+  .ent-texto h1 { font-size: clamp(32px, 8.4vw, 50px); margin: 0 0 12px; }
+  .ent-texto > p { margin: 0 0 22px; color: var(--text-2); font-size: 16.5px; max-width: 38ch; }
+  .ent-acoes { display: grid; gap: 10px; }
+  .ent-discord { margin-top: 16px; font-size: 14.5px; color: var(--text-3); text-align: center; }
+  .ent-discord button { color: var(--accent); font-weight: 640; min-height: 44px; padding: 0 4px; }
+  .ent-texto .aviso { text-align: center; margin: 6px auto 0; max-width: 40ch; }
+  @media (min-width: 900px) {
+    .ent-boas { flex-direction: row; }
+    .ent-palco { min-height: 100dvh; flex: 1.15; }
+    .ent-palco::after { background: linear-gradient(90deg, transparent 70%, var(--bg) 100%); }
+    .ent-palco .heroi { top: 50%; transform: translate(-50%, -50%); width: min(44vw, 520px); }
+    .ent-texto { flex: 1; align-self: center; padding: 48px; }
+  }
+  .ent-passo { width: 100%; max-width: 580px; margin: 0 auto; padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+  .ent-barra { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(14px + env(safe-area-inset-top)) 16px 10px; background: var(--bg); }
+  .ent-barra .redondo { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+  .ent-barra .pontos { display: flex; gap: 6px; }
+  .ent-barra .pontos i { width: 8px; height: 8px; border-radius: 8px; background: var(--surface-3); display: block; transition: width .4s var(--ease), background .3s; }
+  .ent-barra .pontos i.on { width: 22px; background: var(--accent); }
+  .ent-barra .pular { min-height: 44px; padding: 0 10px; font-weight: 620; color: var(--text-2); }
+  .ent-cab { padding: 10px 22px 4px; }
+  .ent-cab h2 { margin: 0; font-size: clamp(30px, 7.5vw, 40px); }
+  .ent-cab p { margin: 8px 0 0; color: var(--text-3); font-size: 15px; max-width: 40ch; }
+  .campo-texto.grande { height: 64px; font-size: 30px; font-stretch: 118%; font-weight: 700; letter-spacing: -0.02em; }
+  .libera .linha { min-height: 56px; }
+  .libera .estado { width: 24px; height: 24px; }
+  .libera .l-t { font-weight: 600; }
+  .entrada .barra-acao, .entrada .barra-acao:not(#x) { left: 50%; right: auto; transform: translateX(-50%); width: min(calc(100% - 28px), 552px); }
+  .ent-pronto { min-height: 100dvh; display: flex; flex-direction: column; justify-content: flex-end; }
+  .ent-pronto .ent-palco { flex: 1; min-height: 46dvh; }
+  .ent-pronto .ent-palco::before { background: color-mix(in oklab, var(--el-electric) 26%, #2a1b3d); }
+  .pilula-char.convite { gap: 6px; padding-right: 14px; }
+  .pilula-char.convite .icone { width: 18px; height: 18px; color: var(--v-300); }
+
+  /* ---------- Ficha de item ---------- */
+  .item-palco { height: 270px; }
+  .item-palco::before { background: radial-gradient(70% 80% at 50% 55%, color-mix(in oklab, var(--c) 55%, #2a1b3d) 0%, color-mix(in oklab, var(--c) 18%, #1d1426) 75%) !important; }
+  [data-tema="claro"] .item-palco::before { background: radial-gradient(70% 80% at 50% 55%, color-mix(in oklab, var(--c) 45%, #ede7f3) 0%, color-mix(in oklab, var(--c) 14%, #ede7f3) 75%) !important; }
+  .glifo { position: absolute; left: 50%; top: 46px; width: 170px; height: 170px; transform: translateX(-50%); filter: drop-shadow(0 20px 30px rgba(0,0,0,.4)); }
+  .glifo svg { width: 100%; height: 100%; animation: flutua 9s var(--ease) infinite alternate; }
+  .seu-plano { display: flex; gap: 14px; align-items: center; padding: 14px 16px; border-radius: var(--r-lg); background: color-mix(in oklab, var(--accent-strong) 14%, var(--surface)); box-shadow: var(--shadow-2); }
+  .seu-plano + .seu-plano { margin-top: 10px; }
+  .seu-plano .mini { width: 48px; height: 48px; border-radius: 14px; flex: none; position: relative; background: radial-gradient(100% 100% at 50% 90%, color-mix(in oklab, var(--c) 38%, var(--surface-2)) 0%, var(--surface-2) 80%); }
+  .seu-plano .mini img { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: contain; }
+  .seu-plano .l-t { display: block; font-weight: 640; }
+  .seu-plano .l-s { display: block; font-size: 13px; color: var(--text-2); }
+  .seu-plano .icone { margin-left: auto; color: var(--accent); }
+  .uso .icone { color: var(--data); }
+  .uso .linha { align-items: flex-start; }
+  .uso .linha > .icone { margin-top: 2px; }
+  .sec .trilho { margin: 0 -22px; padding-left: 22px; padding-right: 22px; scroll-padding-left: 22px; }
+  .mais-nomes { margin: 12px 4px 0; font-size: 14px; color: var(--text-2); }
+  .mais-nomes b { color: var(--text); font-weight: 620; }
+  .mat a.t { text-decoration: underline; text-decoration-color: color-mix(in oklab, var(--text) 30%, transparent); text-underline-offset: 3px; }
+
+  /* ---------- Página de sistema ---------- */
+  .sis-palco { height: 290px; }
+  .sis-palco::before { background: radial-gradient(90% 90% at 70% 20%, #6a319c 0%, #2e2140 55%, #1d1426 100%) !important; }
+  [data-tema="claro"] .sis-palco::before { background: radial-gradient(90% 90% at 70% 20%, #c6aade 0%, #e6dcef 60%, #f1ecf6 100%) !important; }
+  .sis-palco .teto { position: absolute; left: 22px; right: 22px; bottom: 34px; }
+  .sis-palco .teto .n { font-stretch: 125%; font-weight: 800; font-size: 104px; line-height: .9; letter-spacing: -0.04em; color: #fff; }
+  [data-tema="claro"] .sis-palco .teto .n { color: #3a224e; }
+  .sis-palco .teto .k { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.75); margin-top: 6px; }
+  [data-tema="claro"] .sis-palco .teto .k { color: #4f2b6e; }
+  .escala { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin-top: 14px; }
+  .escala i { height: 8px; border-radius: 3px; background: color-mix(in oklab, #fff calc(18% + var(--k) * 8%), transparent); }
+  [data-tema="claro"] .escala i { background: color-mix(in oklab, #6a319c calc(14% + var(--k) * 8%), transparent); }
+  .resumo3 { display: grid; gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+  .resumo3 li { display: flex; gap: 12px; align-items: flex-start; font-size: 15.5px; }
+  .resumo3 .icone { color: var(--data); margin-top: 1px; }
+  .calc { border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-2); overflow: hidden; }
+  .calc-topo { padding: 16px; display: grid; gap: 14px; }
+  .calc-pokes { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 4px; }
+  .calc-pokes::-webkit-scrollbar { display: none; }
+  .calc-pokes button { flex: none; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px 0 4px; border-radius: 999px; background: var(--surface-2); font-size: 14px; font-weight: 600; color: var(--text-2); }
+  .calc-pokes button img { width: 36px; height: 36px; object-fit: contain; }
+  .calc-pokes button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .calc-faixa { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .calc-faixa .caixa { border-radius: 14px; background: var(--surface-2); padding: 10px 12px; }
+  .calc-faixa .caixa span { font-size: 12.5px; color: var(--text-3); font-weight: 600; display: block; }
+  .calc-faixa .linha-v { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
+  .calc-faixa b { font-stretch: 118%; font-weight: 720; font-size: 26px; letter-spacing: -0.02em; }
+  .calc-faixa .passo { width: 36px; height: 36px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-size: 18px; box-shadow: var(--shadow-1); }
+  .calc-total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 16px; background: color-mix(in oklab, var(--accent-strong) 13%, var(--surface)); }
+  .calc-total .n { font-stretch: 118%; font-weight: 740; font-size: 30px; letter-spacing: -0.02em; }
+  .calc-total .n small { font-size: 14px; font-weight: 600; color: var(--text-2); letter-spacing: 0; margin-left: 4px; }
+  .calc-total .pior { font-size: 13px; color: var(--text-2); text-align: right; }
+  .faixas { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .faixas th { text-align: left; font-size: 12px; font-weight: 600; color: var(--text-3); padding: 10px 16px 6px; }
+  .faixas td { padding: 9px 16px; box-shadow: inset 0 1px 0 var(--surface-2); }
+  .faixas td.num, .faixas th.num { text-align: right; }
+  .faixas tr.fora td { color: var(--text-3); }
+  .faixas tr.dentro td { background: color-mix(in oklab, var(--accent-strong) 9%, transparent); }
+  .faixas td:first-child { white-space: nowrap; }
+  .faixas tr.dentro td { font-weight: 600; }
+  .passos-num { counter-reset: p; display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .passos-num li { counter-increment: p; display: flex; gap: 12px; align-items: flex-start; }
+  .passos-num li::before { content: counter(p); flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); font-size: 13px; font-weight: 700; color: var(--text-2); }
+  .faq details { padding: 4px 16px; }
+  .faq details + details { box-shadow: inset 0 1px 0 var(--surface-2); }
+  .faq summary { list-style: none; cursor: pointer; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-weight: 620; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .icone { color: var(--text-3); transition: transform .35s var(--ease); }
+  .faq details[open] summary .icone { transform: rotate(90deg); }
+  .faq details p { margin: 0 0 14px; color: var(--text-2); }
+  .link-sis { display: inline-flex; align-items: center; gap: 4px; font-size: 13.5px; font-weight: 620; color: var(--accent); margin-bottom: 12px; min-height: 32px; }
+  .link-sis .icone { width: 16px; height: 16px; }
+
+  .sis-palco .teto .estrelas-h { display: flex; gap: 6px; margin-top: 12px; color: #f2c230; }
+  .sis-palco .teto .estrelas-h .icone { width: 30px; height: 30px; fill: currentColor; stroke-width: 1.2; }
+  .sis-palco .teto .estrelas-h .icone:nth-child(n+4) { opacity: .45; }
+  .calc .estrelas { margin: 0; }
+  .calc .rot { font-size: 12.5px; color: var(--text-3); font-weight: 600; display: block; margin-bottom: 8px; }
+  .pagar { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .pagar td { padding: 11px 16px; box-shadow: inset 0 1px 0 var(--surface-2); }
+  .pagar td.num { text-align: right; white-space: nowrap; }
+  .pagar td .sub { display: block; font-size: 12px; color: var(--text-3); }
+  .pagar .falta { color: var(--warn); font-size: 12.5px; display: block; }
+  .pagar .cabe { color: var(--ok); font-size: 12.5px; display: block; }
+  .tier-seg { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); }
+  .tier-seg button { height: 40px; border-radius: 11px; font-weight: 640; font-size: 14px; color: var(--text-2); }
+  .tier-seg button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+  .mini-tabela { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .mini-tabela th { font-size: 12px; color: var(--text-3); font-weight: 600; text-align: left; padding: 10px 16px 6px; }
+  .mini-tabela td { padding: 9px 16px; box-shadow: inset 0 1px 0 var(--surface-2); }
+  .mini-tabela .num { text-align: right; }
+  .mini-tabela tr.sel td { background: color-mix(in oklab, var(--accent-strong) 9%, transparent); font-weight: 640; }
+</style>
+</head>
+<body>
+<div class="app">
+  <main id="tela" class="tela" tabindex="-1"></main>
+
+  <nav class="dock" aria-label="Navegação principal">
+    <a class="porta" href="#/inicio" data-porta="inicio"><svg class="icone" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1v-9"/></svg>Início</a>
+    <a class="porta" href="#/wiki" data-porta="wiki"><svg class="icone" viewBox="0 0 24 24"><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6v13M12 6v13M21 6v13"/></svg>Wiki</a>
+    <a class="porta" href="#/buscar" data-porta="buscar"><svg class="icone" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>Buscar</a>
+    <a class="porta" href="#/meus" data-porta="meus"><svg class="icone" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="13" rx="3"/><path d="M8 4h9a4 4 0 0 1 4 4v9"/></svg><span aria-hidden="true">Meus</span><span class="sr">Meus Pokémon</span></a>
+    <a class="porta" href="#/eu" data-porta="eu"><svg class="icone" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M5 20.5c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5"/></svg>Eu</a>
+  </nav>
+</div>
+
+<div id="camada" class="camada" hidden></div>
+<div id="entrada" class="entrada" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div class="tag-proto">Protótipo · dados de exemplo</div>
+
+<script>
+/* ============ ícones ============ */
+const I = {
+  voltar: '<svg class="icone" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>',
+  fechar: '<svg class="icone" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  mais: '<svg class="icone" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  seta: '<svg class="icone p" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+  busca: '<svg class="icone" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8"/></svg>',
+  local: '<svg class="icone" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  alvo: '<svg class="icone" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/></svg>',
+  caixa: '<svg class="icone" viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>',
+  check: '<svg class="icone p" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  ponto: '<svg class="icone p" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg>',
+  relogio: '<svg class="icone p" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>',
+  bandeira: '<svg class="icone p" viewBox="0 0 24 24"><path d="M5 21V4.5c3-2 6 1.5 9 0s4-1 5 0V14c-1-1-2-1.5-5 0s-6-2-9 0"/></svg>',
+  raio: '<svg class="icone" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></svg>',
+  alerta: '<svg class="icone" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4z"/><path d="M12 10v4M12 17v.01"/></svg>',
+  estrela: '<svg class="icone p" viewBox="0 0 24 24"><path d="m12 4 2.4 5 5.4.7-4 3.8 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.8 5.4-.7z"/></svg>',
+  asa: '<svg class="icone" viewBox="0 0 24 24"><path d="M3 14c4 0 7-1.5 9-5 1.2 3.5 4 5 9 5-3 3-6.5 4.5-9 4.5S6 17 3 14z"/></svg>',
+  sol: '<svg class="icone p" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>',
+  lua: '<svg class="icone p" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
+};
+
+/* ============ dados de exemplo (da base do Julio) ============ */
+const ART = (n, s) => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${s ? 'shiny/' : ''}${n}.png`;
+const EL = { electric:'Electric', fire:'Fire', water:'Water', grass:'Grass', ice:'Ice', psychic:'Psychic', flying:'Flying', fighting:'Fighting', steel:'Steel', normal:'Normal', ghost:'Ghost', ground:'Ground', dragon:'Dragon', dark:'Dark' };
+const DEX = {
+  25:  { nome:'Pikachu',    el:['electric'], t:'T5', ts:'T4' },
+  26:  { nome:'Raichu',     el:['electric'], t:'T3', ts:'T1' },
+  53:  { nome:'Persian',    el:['normal'], t:'T4', ts:'T2' },
+  59:  { nome:'Arcanine',   el:['fire'], t:'T2', ts:'Super Rare' },
+  82:  { nome:'Magneton',   el:['electric','steel'], t:'T3', ts:'T2' },
+  125: { nome:'Electabuzz', el:['electric'], t:'T2', ts:'Legendary' },
+  130: { nome:'Gyarados',   el:['water','flying'], t:'T2', ts:'Legendary' },
+  132: { nome:'Ditto',      el:['normal'], t:'T7', ts:'T7' },
+  134: { nome:'Vaporeon',   el:['water'], t:'T3', ts:'T1' },
+  135: { nome:'Jolteon',    el:['electric'], t:'T3', ts:'T1' },
+  178: { nome:'Xatu',       el:['psychic','flying'], t:'T3', ts:'T2' },
+  181: { nome:'Ampharos',   el:['electric'], t:'T3', ts:'T1' },
+  243: { nome:'Raikou',     el:['electric'], t:'ULTIMATE', ts:'ULTIMATE' },
+  405: { nome:'Luxray',     el:['electric'], t:'T1', ts:'Super Rare' },
+  417: { nome:'Pachirisu',  el:['electric'], t:'T2', ts:'Super Rare' },
+  448: { nome:'Lucario',    el:['fighting','steel'], t:'T2', ts:'Legendary' },
+  465: { nome:'Tangrowth',  el:['grass'], t:'T1', ts:'Super Rare' },
+  471: { nome:'Glaceon',    el:['ice'], t:'T2', ts:'Legendary' },
+};
+const MEGA = new Set([130, 181, 448]);
+const STAR_OK = ['T3','T2','T1','Super Rare','Ultra Rare','Legendary'];
+const HELDS = ['X-Attack','X-Boost','X-Defense','Y-Regen','X-Lucky','Wing','Teleport'];
+const TREINO = ['Attack','Defense','HP','Precision','Evasion','Crit. Damage','Crit. Chance','Crit. Resist.'];
+const nomeDe = (n, s) => (s ? 'Shiny ' : '') + DEX[n].nome;
+const tierDe = (n, s) => s ? DEX[n].ts : DEX[n].t;
+const cor = n => `var(--el-${DEX[n].el[0]})`;
+
+const PERSONAGEM = { nome:'Denzar', level:262, mundo:'Sun' };
+const SESSAO = { temPersonagem: true };
+const COLECAO = [
+  { n:181, s:true,  boost:12, stars:0 },
+  { n:25,  s:true,  boost:5,  stars:0 },
+  { n:125, s:false, boost:8,  stars:0 },
+  { n:417, s:false, boost:0,  stars:0 },
+  { n:178, s:true,  boost:0,  stars:0 },
+  { n:132, s:true,  boost:0,  stars:0 },
+  { n:448, s:false, boost:10, stars:1 },
+  { n:59,  s:false, boost:4,  stars:0 },
+  { n:130, s:false, boost:0,  stars:0 },
+  { n:465, s:false, boost:6,  stars:0 },
+  { n:134, s:false, boost:0,  stars:0 },
+  { n:471, s:false, boost:2,  stars:0 },
+  { n:82,  s:false, boost:0,  stars:0 },
+];
+const temNaColecao = (n, s) => COLECAO.filter(p => p.n === n && p.s === s).length;
+
+/* ficha do Raichu — conteúdo real da base (fonte e data em cada fato) */
+const FICHA = {
+  26: {
+    normal: {
+      leituras: [
+        [I.local, 'Wildscape', 'Kanto e Johto · a partir do level 150'],
+        [I.alvo, 'Sem teto', 'Pokémon normal não tem limite de tentativas'],
+        [I.caixa, '3 itens', 'Screw, Electric Ear e Thunder Stone'],
+      ],
+      fatos: [
+        { h:'Para que serve', p:'O Electric Ear dele entra na receita da Boost Stone de Electric.', selo:['parcial','Comunidade · 19/09'] },
+        { h:'Estrelar', p:'Cada estrela soma 2% de dano (T3). Levar de 0 a 5 estrelas custa 60 Diamonds e 15 kk.', selo:['ok','Wiki oficial · 19/09'] },
+        { h:'Medalha', p:'A medalha do Raichu aumenta o dano crítico.', selo:['parcial','Comunidade · 19/09'] },
+      ],
+    },
+    shiny: {
+      leituras: [
+        [I.local, 'Wildscape', 'Mais shiny que no mapa aberto · level 150+'],
+        [I.alvo, '331 bolas', 'Metade das capturas de T1 sai com menos que isso'],
+        [I.asa, 'Fly 800', 'Entre as montarias mais rápidas'],
+      ],
+      fatos: [
+        { h:'Evolução', p:'Vem do Shiny Pikachu: Thunder Stone mais o item que só o Shiny Raichu dropa.', selo:['parcial','Comunidade · 19/09'] },
+        { h:'Ginásio de Vermilion', p:'O Alfred pede 10 Shiny Raichu para liberar a dungeon do ginásio. Paga 1.000.000 de XP.', selo:['ok','Wiki oficial · 19/09'] },
+        { h:'Estrelar', p:'Cada estrela soma 6% de dano (T1). Levar de 0 a 5 estrelas custa 180 Diamonds e 45 kk.', selo:['ok','Wiki oficial · 19/09'] },
+      ],
+    },
+  },
+};
+function fichaGenerica(n, s) {
+  return {
+    leituras: [
+      [I.local, s ? 'Wildscape' : 'Mapa aberto', 'Ver o mapa da caçada'],
+      [I.alvo, s ? 'Com teto' : 'Sem teto', s ? 'Média da comunidade na ficha' : 'Normal não tem limite'],
+      [I.caixa, 'Drops', 'Ver itens'],
+    ],
+    fatos: [
+      { h:'Tier', p:`${nomeDe(n, s)} é ${tierDe(n, s)} no PokeAlliance.`, selo:['ok','Wiki oficial · 19/09'] },
+    ],
+  };
+}
+
+/* ============ Boost: regra oficial (wiki oficial · 19/09) ============ */
+const BOOST = [
+  [0,'Novice',.50],[5,'Elemental',.40],[10,'Common',.30],[15,'Enhanced',.20],[20,'Potent',.18],
+  [25,'Advanced',.15],[30,'Fortified',.12],[35,'Supreme',.10],[40,'Celestial',.08],[45,'Mystic',.05],
+].map(([de, pedra, p]) => ({ de, ate: de + 5, pedra, p }));
+function mediaTentativas(p) { let e = 0, chega = 1, q = p; while (chega > 1e-6) { e += chega; chega *= 1 - Math.min(1, q); q += .1; } return e; }
+const piorTentativas = p => Math.ceil((1 - p) * 10 - 1e-9) + 1;
+function pedrasBoost(de, ate) {
+  return BOOST.map(f => { const pts = Math.max(0, Math.min(ate, f.ate) - Math.max(de, f.de)); return { ...f, pts, media: pts * mediaTentativas(f.p), pior: pts * piorTentativas(f.p) }; }).filter(f => f.pts);
+}
+
+/* ============ Star: regra oficial (wiki oficial · 19/09) ============ */
+// custo da 1ª etapa na opção Diamond (D, kk); a etapa n custa n vezes isso
+const STAR_ETAPA = { 'T3':[4,1], 'T2':[6,1.5], 'T1':[12,3], 'Super Rare':[16,4], 'Ultra Rare':[24,6], 'Legendary':[48,12] };
+const STAR_DANO = { 'Legendary':15, 'Ultra Rare':10, 'Super Rare':8, 'T1':6, 'T2':4, 'T3':2 };
+function custoStar(tier, de, ate) {
+  const [d1, g1] = STAR_ETAPA[tier];
+  const cheio = k => { let d = 0, g = 0; for (let n = 1; n <= k; n++) { const m = cheio(n - 1); d += n * d1 + m.d; g += n * g1 + m.g; } return { d, g }; };
+  let d = 0, g = 0, copias = 0;
+  for (let n = de + 1; n <= ate; n++) { const m = cheio(n - 1); d += n * d1 + m.d; g += n * g1 + m.g; copias += 2 ** (n - 1); }
+  return { copias, dano: (ate - de) * STAR_DANO[tier], diamond: { d, g }, gold: { d: d / 2, g: g * 2 }, mista: { d: d * .75, g: g * 1.5 } };
+}
+/* ============ Held: fusão (wiki oficial · 19/09) ============ */
+function fusaoHeld() {
+  // 3 helds do mesmo tier: 25% de subir; na falha volta 1 held e 1 Relic Point; 10 pontos garantem
+  let media = 0;
+  for (let f = 0; f < 10; f++) media += .25 * .75 ** f * (2 * f + 3);
+  media += .75 ** 10 * 20;
+  return { media, pior: 20 };
+}
+const kk = v => (Math.round(v * 10) / 10).toLocaleString('pt-BR') + ' kk';
+
+/* ============ utilidades ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const arte = (n, s, extra = '') => `<div class="arte ${s ? 'shiny' : ''} ${extra}"><img src="${ART(n, s)}" alt="${esc(nomeDe(n, s))}" loading="lazy" decoding="async"></div>`;
+const chipsEl = n => DEX[n].el.map(e => `<span class="chip chip-el" style="--c:var(--el-${e})">${EL[e]}</span>`).join('');
+const selo = ([nivel, txt]) => `<span class="selo ${nivel === 'ok' ? '' : nivel}"><i></i>${txt}</span>`;
+function toast(msg, ic = I.check) {
+  const t = $('#toast'); t.innerHTML = ic + esc(msg); t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2200);
+}
+function pokeTile(n, s, meta, href) {
+  return `<a class="poke-tile" href="${href || `#/p/${n}${s ? 's' : ''}`}" style="--c:${cor(n)}">
+    <div class="quadro">${arte(n, s)}</div>
+    <div class="nome">${esc(nomeDe(n, s))}</div>
+    <div class="meta">${meta ?? `${tierDe(n, s)} · ${DEX[n].el.map(e => EL[e]).join(' / ')}`}</div>
+  </a>`;
+}
+function pilula() {
+  if (!SESSAO.temPersonagem) return `<a class="pilula-char convite" href="#/entrada/personagem">${I.mais}Personagem</a>`;
+  return `<a class="pilula-char" href="#/eu"><span class="av">${`<img src="${ART(181, true)}" alt="">`}</span>${PERSONAGEM.nome} <span>· ${PERSONAGEM.level} · ${PERSONAGEM.mundo}</span></a>`;
+}
+
+
+function inicioVisitante() {
+  return `
+    <section class="palco" style="--palco-cor:#3a1d5c">
+      <div class="fundo" style="background-image:url('${ART(26, true)}')"></div>
+      ${arte(26, true)}
+      <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
+      <div class="conteudo"><div class="texto">
+        <h2 class="display">Cadastre seu personagem em 1 minuto</h2>
+        <p>Com ele, o app mostra o próximo passo de cada Pokémon e avisa o que já está liberado para o seu level.</p>
+        <div class="acoes">
+          <a class="btn btn-primario" href="#/entrada/personagem">Cadastrar personagem</a>
+          <a class="btn btn-vidro" href="#/wiki">Explorar a wiki</a>
+        </div>
+      </div></div>
+    </section>
+
+    <div class="conteudo">
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">Guias por level</h3><a href="#/wiki">Todos</a></div>
+        <div class="trilho">
+          <a class="cartao largo" href="#/wiki"><span class="data">Level 1 a 150</span><div class="c-titulo">Kanto</div><div class="c-sub">Primeiro time, insígnias e as quests do começo.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">Level 150+</span><div class="c-titulo">Johto e Wildscape</div><div class="c-sub">Mais shiny, drop maior e as primeiras Stars.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">Level 250+</span><div class="c-titulo">Hoenn</div><div class="c-sub">Acesso no 250, rotação de caçadas no 350.</div></a>
+        </div>
+      </div>
+
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
+        <div class="trilho">
+          <a class="cartao largo" href="#/wiki"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ============ telas ============ */
+const TELAS = {
+  inicio() {
+    if (!SESSAO.temPersonagem) return inicioVisitante();
+    return `
+    <section class="palco" style="--palco-cor:#3a1d5c">
+      <div class="fundo" style="background-image:url('${ART(26, true)}')"></div>
+      ${arte(26, true)}
+      <div class="topo-palco"><div class="conteudo"><span class="marca">PKA <b>Companion</b></span>${pilula()}</div></div>
+      <div class="conteudo"><div class="texto">
+        <h2 class="display">Evolua o Shiny Pikachu</h2>
+        <p>Seu próximo passo: ele vira Shiny Raichu, sobe de T4 para T1 e fecha mais um lugar do seu time Electric.</p>
+        <div class="acoes">
+          <a class="btn btn-primario" href="#/plano/25s">Ver o plano</a>
+          <a class="btn btn-vidro" href="#/meus/planos">Outros passos</a>
+        </div>
+      </div></div>
+    </section>
+
+    <div class="conteudo">
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">Continuar</h3><a href="#/meus/planos">Ver tudo</a></div>
+        <div class="trilho">
+          <a class="cartao tinto saltado" href="#/meus/times" style="--c:var(--el-electric)">
+            <div class="c-arte">${arte(181, true)}</div>
+            <div class="c-titulo">Time Electric</div>
+            <div class="c-sub">4 de 6 · faltam Luxray e Shiny Jolteon</div>
+            <div class="barra"><i style="--v:66%"></i></div>
+          </a>
+          <a class="cartao tinto saltado" href="#/wiki" style="--c:var(--el-dark)">
+            <div class="c-arte">${arte(53, true)}</div>
+            <div class="c-titulo">Rockets da semana</div>
+            <div class="c-sub">0 de 13 · renova segunda</div>
+            <div class="barra"><i style="--v:2%"></i></div>
+          </a>
+          <a class="cartao tinto saltado" href="#/p/405" style="--c:var(--el-electric)">
+            <div class="c-arte">${arte(405, false)}</div>
+            <div class="c-titulo">Capturar Luxray</div>
+            <div class="c-sub">Wildscape · level 150+</div>
+          </a>
+        </div>
+      </div>
+
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
+        <div class="trilho">
+          <a class="cartao largo" href="#/wiki"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
+          <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  wiki() {
+    const secoes = [
+      ['Sistemas', [['Boost','De +0 a +50, uma pedra por vez'],['Star','Até 5 estrelas, sem chance de falha'],['Helds','T1 a T7, fusão 3 por 1'],['Talentos','Bônus permanentes por elemento'],['Shiny','Onde cada tier pode nascer']]],
+      ['Combate', [['Ginásios','8 em Kanto, insígnia vira CDR'],['Rockets','13 por semana, 130 até o Giovanni'],['Dungeons','Chave: Arcane Shard'],['Hazard','Mais XP, menos dano']]],
+      ['Quests e Tasks', [['Linked Tasks','150 desafios em sequência'],['Tasks do Mundo','167 NPCs'],['Quests principais','Willy, Flint, Vektor, Hoenn']]],
+      ['Mundo', [['Kanto','Level 1 a 150'],['Johto','A partir do 150'],['Hoenn','Acesso no 250, rotação no 350'],['Wildscape','Mais shiny, drop maior']]],
+    ];
+    return `<div class="conteudo">
+      <div class="topo"><h1 class="display">Wiki</h1>${pilula()}</div>
+      <a class="campo-busca" href="#/buscar">${I.busca}<span>Pokémon, item, sistema, NPC…</span></a>
+
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">Pokédex</h3><a href="#/buscar">526 Pokémon</a></div>
+        <div class="trilho">
+          ${[[26,true],[181,true],[405,false],[125,false],[135,true],[59,false],[448,false],[471,false]].map(([n,s]) => pokeTile(n,s)).join('')}
+        </div>
+      </div>
+
+      <div class="fileira">
+        <div class="fileira-cab"><h3 class="titulo">Itens</h3><a href="#/buscar">871 itens</a></div>
+        <div class="trilho">
+          <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Thunder Stone</span><span class="d">Stone de Electric · evolução e Boost</span></a>
+          <a class="secao-tile" href="#/i/electric-ear"><span class="t">Electric Ear</span><span class="d">Drop de Raichu · receita de Boost</span></a>
+          <a class="secao-tile" href="#/wiki"><span class="t">Stones</span><span class="d">Uma por elemento, 18 no total</span></a>
+          <a class="secao-tile" href="#/s/helds"><span class="t">Helds</span><span class="d">T1 a T7, fusão 3 por 1</span></a>
+        </div>
+      </div>
+
+      ${secoes.map(([t, itens]) => `
+        <div class="fileira">
+          <div class="fileira-cab"><h3 class="titulo">${t}</h3><a href="#/wiki">Ver tudo</a></div>
+          <div class="trilho">${itens.map(([a,b]) => `<a class="secao-tile" href="${({ Boost:'#/s/boost', Star:'#/s/star', Helds:'#/s/helds' })[a] || '#/wiki'}"><span class="t">${a}</span><span class="d">${b}</span></a>`).join('')}</div>
+        </div>`).join('')}
+    </div>`;
+  },
+
+  buscar() {
+    return `<div class="conteudo">
+      <div class="topo"><h1 class="display">Buscar</h1></div>
+      <label class="campo-busca">${I.busca}<span class="sr">Buscar</span><input id="q" type="search" placeholder="Pokémon, item, sistema, NPC…" autocomplete="off" value="rai"></label>
+      <div class="recentes" aria-label="Buscas recentes">
+        ${['Luxray','Boost Stone','Shiny Jolteon','Alfred'].map(t => `<button class="chip" data-q="${t}">${t}</button>`).join('')}
+      </div>
+      <div id="resultados"></div>
+    </div>`;
+  },
+
+  meus(aba = 'colecao') {
+    const shinies = COLECAO.filter(p => p.s).length;
+    const abas = { colecao:'Coleção', times:'Times', planos:'Planos' };
+    let corpo = '';
+    if (aba === 'colecao') {
+      corpo = `<div class="resumo-col"><span><b>${COLECAO.length}</b> Pokémon</span><span>·</span><span><b>${shinies}</b> shiny</span><span>·</span><span><b>1</b> time</span></div>
+      <div class="grade">
+        ${COLECAO.map(p => `<a class="poke-tile" href="#/p/${p.n}${p.s ? 's' : ''}" style="--c:${cor(p.n)}">
+          <div class="quadro">${arte(p.n, p.s)}</div>
+          <div class="nome">${esc(nomeDe(p.n, p.s))}</div>
+          <div class="invest">
+            <span class="chip chip-tier">${tierDe(p.n, p.s)}</span>
+            ${p.boost ? `<span class="chip">+${p.boost}</span>` : ''}
+            ${p.stars ? `<span class="chip">${p.stars}★</span>` : ''}
+            ${p.held ? `<span class="chip">${p.held} T${p.heldTier}</span>` : ''}
+          </div>
+        </a>`).join('')}
+        <a class="poke-tile" href="#/novo"><div class="quadro" style="display:grid;place-items:center;color:var(--text-3);box-shadow:inset 0 2px 10px rgba(0,0,0,.15);background:var(--bg-2)">${I.mais}</div><div class="nome">Adicionar</div><div class="meta">Um ou vários de uma vez</div></a>
+      </div>`;
+    } else if (aba === 'times') {
+      const slots = [[181,true],[125,false],[417,false],[25,true]];
+      corpo = `<section class="time">
+        <div class="time-cab"><div><h3 class="titulo">Time Electric</h3><p>Para as caçadas de rotação em Hoenn · principal</p></div><a class="btn btn-suave" href="#/meus/times">Editar</a></div>
+        <div class="slots">
+          ${slots.map(([n,s]) => `<a class="slot" href="#/p/${n}${s ? 's' : ''}" style="--c:${cor(n)}" aria-label="${esc(nomeDe(n,s))}">${arte(n,s)}</a>`).join('')}
+          <a class="slot falta" href="#/p/405">${I.mais}Luxray</a>
+          <a class="slot falta" href="#/p/135s">${I.mais}Shiny Jolteon</a>
+        </div>
+        <div class="analise">
+          <div class="a">${I.raio}<span>Bate forte em <b>Water</b> e <b>Flying</b> — a maioria dos alvos de Hoenn é Water.</span></div>
+          <div class="a alerta">${I.alerta}<span>Ninguém resolve <b>Ground</b>: evite a caçada de Marshtomp com este time.</span></div>
+          <div class="a">${I.alvo}<span>Do time sugerido pela comunidade, você tem <b>4 de 6</b>.</span></div>
+        </div>
+      </section>`;
+    } else {
+      const lista = [['25s'], ['125'], ['417'], ['181s']].map(([k]) => {
+        const pl = planoDe(k), prox = proximoDe(pl), f = pl.passos.filter(x => x.estado === 'feito').length;
+        return `<a class="linha" href="#/plano/${k}" style="--c:${cor(pl.n)}">
+          <span class="mini"><img src="${ART(pl.n, pl.s)}" alt="" loading="lazy"></span>
+          <span><span class="l-t" style="display:block">${esc(nomeDe(pl.n, pl.s))}</span><span class="l-s">${prox ? `Próximo: ${esc(prox.t)}` : 'Plano completo'}</span></span>
+          <span class="dir">${f} de ${pl.passos.length}${I.seta}</span></a>`;
+      }).join('');
+      corpo = `<div class="bloco"><h3>Time Electric</h3><div class="lista">${lista}
+          <a class="linha" href="#/p/405"><span class="mini" style="--c:${cor(405)}"><img src="${ART(405)}" alt="" loading="lazy"></span>
+            <span><span class="l-t" style="display:block">Luxray</span><span class="l-s">Falta na coleção · Wildscape, level 150+</span></span><span class="dir">capturar${I.seta}</span></a>
+        </div></div>`;
+    }
+    return `<div class="conteudo">
+      <div class="topo"><h1 class="display">Meus Pokémon</h1></div>
+      <div class="segmento" role="tablist">${Object.entries(abas).map(([k,v]) => `<button role="tab" aria-selected="${k === aba}" data-aba="${k}">${v}</button>`).join('')}</div>
+      ${corpo}
+    </div>`;
+  },
+
+  eu() {
+    const tema = window.__temaSalvo() || 'sistema';
+    return `<div class="conteudo">
+      <div class="topo"><h1 class="display">Eu</h1></div>
+      <section class="cartao-eu"><div class="av">${arte(181, true)}</div><div><h2 class="titulo">${PERSONAGEM.nome}</h2><p>Level ${PERSONAGEM.level} · mundo ${PERSONAGEM.mundo} · VIP</p></div></section>
+
+      <div class="bloco"><h3>Aparência</h3>
+        <div class="segmento" role="radiogroup" aria-label="Tema">
+          ${[['sistema','Automático'],['claro','Claro'],['escuro','Escuro']].map(([k,v]) => `<button role="radio" aria-selected="${tema === k}" aria-checked="${tema === k}" data-escolher-tema="${k}">${v}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="bloco"><h3>Personagens</h3>
+        <div class="lista">
+          <a class="linha" href="#/eu"><span class="l-t">Denzar</span><span class="l-s">· Sun · 262</span><span class="dir">em uso</span></a>
+          <button class="linha" type="button" id="add-char"><span class="l-t">Adicionar personagem</span><span class="dir">${I.seta}</span></button>
+        </div>
+      </div>
+
+      <div class="bloco"><h3>Seus dados</h3>
+        <div class="lista">
+          <button class="linha" type="button" disabled><span class="l-t">Sincronizar com o Discord</span><span class="dir">na fase 2</span></button>
+          <button class="linha" type="button" id="exportar"><span class="l-t">Exportar meus dados</span><span class="dir">${I.seta}</span></button>
+          <button class="linha" type="button" id="apagar"><span class="l-t" style="color:var(--bad)">Apagar tudo deste aparelho</span></button>
+        </div>
+        <p class="aviso">Tudo fica salvo só neste aparelho. Projeto de fãs, sem vínculo com o PokeAlliance, a Nintendo ou a The Pokémon Company.</p>
+      </div>
+    </div>`;
+  },
+};
+
+/* ============ busca ============ */
+const INDICE = [
+  ...Object.keys(DEX).flatMap(n => [[+n,false],[+n,true]]).map(([n,s]) => ({ tipo:'Pokédex', t:nomeDe(n,s), s:`${tierDe(n,s)} · ${DEX[n].el.map(e => EL[e]).join(' / ')}`, n, sh:s, h:`#/p/${n}${s?'s':''}` })),
+  { tipo:'Itens', t:'Thunder Stone', s:'Stone de Electric · evolução e Boost', h:'#/i/thunder-stone' },
+  { tipo:'Itens', t:'Electric Ear', s:'Drop de Raichu · receita de Boost', h:'#/i/electric-ear' },
+  { tipo:'Itens', t:'Boost Stone', s:'Sobe o Boost de +0 a +50', h:'#/s/boost' },
+  { tipo:'Sistemas', t:'Boost', s:'Como funciona e quantas pedras você precisa', h:'#/s/boost' },
+  { tipo:'Sistemas', t:'Star', s:'Cópias e custo para estrelar', h:'#/s/star' },
+  { tipo:'Sistemas', t:'Helds', s:'Tipos, fusão e como tirar', h:'#/s/helds' },
+  { tipo:'NPCs', t:'Alfred', s:'Entrada de cada ginásio de Kanto', h:'#/wiki' },
+];
+function buscar(q) {
+  const alvo = $('#resultados'); if (!alvo) return;
+  q = q.trim().toLowerCase();
+  if (!q) { alvo.innerHTML = ''; return; }
+  const achados = INDICE.filter(r => r.t.toLowerCase().includes(q));
+  const meus = COLECAO.filter(p => nomeDe(p.n,p.s).toLowerCase().includes(q));
+  if (!achados.length && !meus.length) { alvo.innerHTML = `<p class="vazio">Nada com “${esc(q)}”. Tente o nome em inglês, como aparece no jogo.</p>`; return; }
+  const grupos = {};
+  if (meus.length) grupos['Meus Pokémon'] = meus.map(p => ({ t:nomeDe(p.n,p.s), s:`${tierDe(p.n,p.s)}${p.boost ? ` · +${p.boost}` : ''}`, n:p.n, sh:p.s, h:`#/p/${p.n}${p.s?'s':''}`, meu:true }));
+  achados.forEach(r => (grupos[r.tipo] ||= []).push(r));
+  alvo.innerHTML = Object.entries(grupos).map(([g, rs]) => `<div class="grupo-res"><h3>${g}</h3><div class="lista">
+    ${rs.slice(0,6).map(r => `<a class="linha" href="${r.h}">
+      ${r.n ? `<span class="mini" style="--c:${cor(r.n)}"><img src="${ART(r.n, r.sh)}" alt="" loading="lazy"></span>` : `<span class="mini"></span>`}
+      <span><span class="l-t" style="display:block">${esc(r.t)}</span><span class="l-s">${esc(r.s)}</span></span>
+      <span class="dir">${r.meu ? 'na coleção' : r.n && temNaColecao(r.n, r.sh) ? 'você tem' : ''}${I.seta}</span></a>`).join('')}
+  </div></div>`).join('');
+}
+
+/* ============ ficha: camada sobreposta ============ */
+let fichaAtual = null;
+function abrirFicha(n, s) {
+  if (!DEX[n]) return;
+  fichaAtual = { n, s }; planoAtual = null;
+  const dados = (FICHA[n] && FICHA[n][s ? 'shiny' : 'normal']) || fichaGenerica(n, s);
+  const tenho = temNaColecao(n, s);
+  const camada = $('#camada');
+  camada.innerHTML = `
+    <article class="folha" role="dialog" aria-modal="true" aria-label="${esc(nomeDe(n,s))}" style="--c:${cor(n)}">
+      <div class="folha-palco">
+        <div class="fundo" style="background-image:url('${ART(n,s)}')"></div>
+        <span class="puxador"></span>
+        <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+        ${arte(n, s)}
+      </div>
+      <div class="etiqueta">
+        <h2 class="display">${esc(nomeDe(n,s))}</h2>
+        <div class="chips">
+          <span class="chip">#${String(n).padStart(3,'0')}</span><span class="chip chip-tier">${tierDe(n,s)}</span>${chipsEl(n)}${s ? '<span class="chip chip-shiny">Shiny</span>' : ''}
+        </div>
+        <div class="alterna" role="group" aria-label="Forma">
+          <button aria-pressed="${!s}" data-forma="normal">Normal</button><button aria-pressed="${s}" data-forma="shiny">Shiny</button>
+        </div>
+      </div>
+      <div class="sec" style="margin-top:20px"><div class="lista">${dados.leituras.map(([ic,v,k]) => `<div class="linha leitura-l">${ic}<span><span class="l-t" style="display:block">${v}</span><span class="l-s">${k}</span></span></div>`).join('')}</div></div>
+      <div class="sec">
+        ${dados.fatos.map(f => `<div class="fato"><h3 class="titulo" style="font-size:16px;margin:0 0 4px">${f.h}</h3><p>${f.p}</p>
+          <div class="pe">${selo(f.selo)}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>`).join('')}
+      </div>
+      ${n === 26 ? `<div class="sec"><h3 class="titulo">O que dropa</h3><div class="drops"><a class="chip" href="#/i/electric-ear">Electric Ear</a><a class="chip" href="#/i/thunder-stone">Thunder Stone</a><span class="chip">Screw</span></div></div>` : ''}
+      <div class="barra-acao">
+        ${tenho
+          ? `<a class="btn btn-suave" href="#/meus">Você tem ${tenho}</a><button class="btn btn-primario" data-planejar>Planejar</button>`
+          : `<button class="btn btn-primario" data-adicionar>${I.mais}Adicionar à coleção</button>`}
+      </div>
+    </article>`;
+  camada.hidden = false;
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  camada.querySelector('[data-fechar]').focus({ preventScroll: true });
+}
+function fecharFicha(voltarHash = true) {
+  const camada = $('#camada');
+  if (camada.hidden) return;
+  camada.classList.remove('aberta');
+  document.body.style.overflow = '';
+  setTimeout(() => { camada.hidden = true; camada.innerHTML = ''; }, 450);
+  fichaAtual = null; cad = null; planoAtual = null; itemAtual = null;
+  if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
+}
+
+
+/* ============ cadastro rápido ============ */
+let cad = null;
+const novoPoke = (n, s = false) => ({ n, s, apelido:'', boost:0, stars:0, held:null, heldTier:1, mega:false, onde:'bag', addon:false, treino:{} });
+function abrirCadastro(pre) {
+  fichaAtual = null;
+  cad = { etapa:'busca', q:'', sel:[], fila:[], i:0 };
+  if (pre) { cad.fila = [novoPoke(pre.n, pre.s)]; cad.etapa = 'form'; }
+  pintarCadastro(true);
+}
+function pintarCadastro(primeira) {
+  const camada = $('#camada');
+  camada.innerHTML = cad.etapa === 'busca' ? htmlBusca() : htmlForm();
+  camada.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  else camada.classList.add('aberta');
+  if (cad.etapa === 'busca') { const q = $('#cad-q'); q.value = cad.q; if (primeira) setTimeout(() => q.focus({ preventScroll:true }), 350); filtrarCad(); }
+}
+function htmlBusca() {
+  const n = cad.sel.length;
+  const rotulo = n === 0 ? 'Escolha um Pokémon' : n === 1 ? `Cadastrar ${DEX[cad.sel[0]].nome}` : `Cadastrar ${n} Pokémon`;
+  return `<article class="folha" role="dialog" aria-modal="true" aria-label="Adicionar Pokémon">
+    <div class="cad-cab"><div style="flex:1"><h2 class="display">Adicionar</h2><p>Toque em um para cadastrar. Marque vários para cadastrar em sequência.</p></div><button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div>
+    <div class="cad-busca"><label class="campo-busca">${I.busca}<span class="sr">Buscar espécie</span><input id="cad-q" type="search" placeholder="Nome do Pokémon" autocomplete="off"></label></div>
+    <div style="padding:0 22px"><div class="lista" id="cad-lista"></div></div>
+    <div class="barra-acao"><button class="btn btn-primario" data-cad-seguir ${n ? '' : 'disabled'}>${rotulo}</button></div>
+  </article>`;
+}
+function filtrarCad() {
+  const q = cad.q.trim().toLowerCase();
+  const ids = Object.keys(DEX).map(Number).filter(n => DEX[n].t !== 'ULTIMATE' && DEX[n].nome.toLowerCase().includes(q));
+  $('#cad-lista').innerHTML = ids.length ? ids.map(n => {
+    const on = cad.sel.includes(n);
+    const tem = COLECAO.filter(p => p.n === n).length;
+    return `<button class="linha escolha" aria-pressed="${on}" data-cad-sel="${n}">
+      <span class="mini" style="--c:${cor(n)}"><img src="${ART(n)}" alt="" loading="lazy"></span>
+      <span><span class="l-t" style="display:block">${DEX[n].nome}</span><span class="l-s">${DEX[n].t} · ${DEX[n].el.map(e => EL[e]).join(' / ')}</span></span>
+      ${tem ? `<span class="tem" style="margin-left:auto">você tem ${tem}</span>` : ''}
+      <span class="marca-sel" ${tem ? 'style="margin-left:0"' : ''}>${I.check}</span></button>`;
+  }).join('') : `<p class="vazio">Nenhum Pokémon com “${esc(q)}”.</p>`;
+}
+function htmlForm() {
+  const p = cad.fila[cad.i], n = p.n, total = cad.fila.length, ultimo = cad.i === total - 1;
+  const tier = tierDe(n, p.s), starOk = STAR_OK.includes(tier), temMega = MEGA.has(n);
+  const pontos = total > 1 ? `<span class="quantos"><span class="pontos">${cad.fila.map((_, k) => `<i class="${k === cad.i ? 'on' : ''}"></i>`).join('')}</span>${cad.i + 1} de ${total}</span>` : '';
+  return `<article class="folha" role="dialog" aria-modal="true" aria-label="Cadastrar ${esc(DEX[n].nome)}" style="--c:${cor(n)}">
+    <div class="folha-palco" style="height:300px">
+      <div class="fundo" style="background-image:url('${ART(n, p.s)}')"></div>
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" ${cad.i > 0 ? 'data-cad-ant aria-label="Anterior"' : 'data-cad-lista aria-label="Voltar à lista"'}>${I.voltar}</button><div class="fila">${pontos}<button class="redondo" data-fechar aria-label="Fechar">${I.fechar}</button></div></div>
+      <div class="arte ${p.s ? 'shiny' : ''}" style="position:absolute;left:50%;top:40px;width:240px;height:240px;transform:translateX(-50%)"><img src="${ART(n, p.s)}" alt="${esc(nomeDe(n, p.s))}"></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">${esc(nomeDe(n, p.s))}</h2>
+      <div class="chips"><span class="chip chip-tier">${tier}</span>${chipsEl(n)}</div>
+    </div>
+
+    <div class="campo-grupo">
+      <div class="seg forte" role="group" aria-label="Forma"><button aria-pressed="${!p.s}" data-cad-forma="0">Normal</button><button aria-pressed="${p.s}" data-cad-forma="1">Shiny</button></div>
+    </div>
+
+    <div class="campo-grupo">
+      <div class="rot-c"><b>Boost</b><span>0 a +50</span></div>
+      <div class="boost">
+        <button class="passo" data-cad-boost="-1" aria-label="Menos um">−</button>
+        <span class="valor" id="cad-boost-v">+${p.boost}</span>
+        <button class="passo" data-cad-boost="1" aria-label="Mais um">+</button>
+      </div>
+      <input type="range" min="0" max="50" value="${p.boost}" id="cad-boost" aria-label="Boost" style="width:100%;margin-top:8px;--p:${p.boost * 2}%">
+    </div>
+
+    <div class="campo-grupo">
+      <div class="rot-c"><b>Stars</b><span>${starOk ? (p.mega ? 'indisponível com Mega' : `${p.stars} de 5`) : 'só T3 ou melhor'}</span></div>
+      <div class="estrelas" role="group" aria-label="Stars">${[1,2,3,4,5].map(k => `<button aria-pressed="${k <= p.stars}" data-cad-star="${k}" ${starOk && !p.mega ? '' : 'disabled'} aria-label="${k} estrela${k > 1 ? 's' : ''}">${I.estrela}</button>`).join('')}</div>
+      ${!starOk ? `<p class="nota">${I.alerta}${tier} não recebe Star. A máquina aceita de T3 para cima.</p>` : ''}
+    </div>
+
+    <div class="campo-grupo">
+      <div class="rot-c"><b>Held</b><span>${p.held ? `${p.held} T${p.heldTier}` : 'nenhum'}</span></div>
+      <div class="opcoes" role="group" aria-label="Tipo de held">
+        <button aria-pressed="${!p.held}" data-cad-held="">Nenhum</button>
+        ${HELDS.map(h => `<button aria-pressed="${p.held === h}" data-cad-held="${h}">${h}</button>`).join('')}
+      </div>
+      ${p.held ? `<div class="sep"></div><div class="seg" role="group" aria-label="Tier do held">${[1,2,3,4,5,6,7].map(k => `<button aria-pressed="${p.heldTier === k}" data-cad-htier="${k}">T${k}</button>`).join('')}</div>` : ''}
+    </div>
+
+    ${temMega ? `<div class="campo-grupo">
+      <button class="interruptor" role="switch" aria-checked="${p.mega}" data-cad-mega ${p.stars > 0 ? 'disabled' : ''}>
+        <span><b>Tem Mega Stone</b><span class="sub">${p.stars > 0 ? 'Com Stars a ball não aceita Mega' : 'Bloqueia Stars nesta ball'}</span></span><span class="trilho-i"></span></button>
+    </div>` : ''}
+
+    <div class="campo-grupo">
+      <div class="rot-c"><b>Onde está</b></div>
+      <div class="seg" role="group" aria-label="Onde está">${[['bag','Bag'],['depot','Depot'],['exp','Expedição']].map(([k,v]) => `<button aria-pressed="${p.onde === k}" data-cad-onde="${k}">${v}</button>`).join('')}</div>
+    </div>
+
+    <div class="campo-grupo">
+      <details class="mais-campos">
+        <summary>Apelido, treino e addon <span style="display:flex;align-items:center;gap:6px;font-weight:520;font-size:13px;color:var(--text-3)">opcional ${I.seta}</span></summary>
+        <label style="display:block;margin-top:14px;font-size:13px;color:var(--text-2);font-weight:560">Apelido
+          <input class="campo-texto" id="cad-apelido" value="${esc(p.apelido)}" placeholder="${esc(nomeDe(n, p.s))}" style="margin-top:6px"></label>
+        <div class="treino">${TREINO.map(a => `<label>${a}<input class="campo-texto" type="number" inputmode="numeric" min="0" max="999" placeholder="0" value="${p.treino[a] ?? ''}" data-cad-treino="${a}"></label>`).join('')}</div>
+        <div class="sep"></div>
+        <button class="interruptor" role="switch" aria-checked="${p.addon}" data-cad-addon><span><b>Tem addon</b><span class="sub">Visual exclusivo aplicado na ball</span></span><span class="trilho-i"></span></button>
+      </details>
+    </div>
+
+    <div class="barra-acao">
+      ${total > 1 && !ultimo ? `<button class="btn btn-suave" data-cad-pular>Pular</button>` : ''}
+      <button class="btn btn-primario" data-cad-salvar>${ultimo ? (total > 1 ? `Salvar os ${total}` : 'Salvar na coleção') : 'Próximo'}</button>
+    </div>
+  </article>`;
+}
+function atualCad() { return cad.fila[cad.i]; }
+function repintarForm() { const sc = $('#camada .folha').scrollTop; pintarCadastro(false); $('#camada .folha').scrollTop = sc; }
+function salvarCad(pular) {
+  if (!pular) { const p = atualCad(); COLECAO.push({ n:p.n, s:p.s, boost:p.boost, stars:p.stars, held:p.held, heldTier:p.heldTier }); cad.salvos = (cad.salvos || 0) + 1; }
+  if (cad.i < cad.fila.length - 1) { cad.i++; pintarCadastro(false); $('#camada .folha').scrollTop = 0; return; }
+  const k = cad.salvos || 0;
+  const nome = k === 1 ? nomeDe(cad.fila.find(Boolean).n, cad.fila[cad.i].s) : '';
+  fecharFicha(false);
+  cad = null;
+  location.hash = '#/meus/colecao';
+  toast(k === 1 ? `${nome} entrou na coleção` : `${k} Pokémon entraram na coleção`);
+}
+document.addEventListener('input', e => {
+  if (!cad) return;
+  if (e.target.id === 'cad-q') { cad.q = e.target.value; filtrarCad(); }
+  if (e.target.id === 'cad-boost') { const v = +e.target.value; atualCad().boost = v; $('#cad-boost-v').textContent = '+' + v; e.target.style.setProperty('--p', v * 2 + '%'); }
+  if (e.target.id === 'cad-apelido') atualCad().apelido = e.target.value;
+  if (e.target.dataset.cadTreino) atualCad().treino[e.target.dataset.cadTreino] = e.target.value;
+});
+document.addEventListener('click', e => {
+  if (!cad) return;
+  const t = e.target.closest('button'); if (!t) return;
+  const p = cad.etapa === 'form' ? atualCad() : null;
+  if (t.dataset.cadSel) { const n = +t.dataset.cadSel; cad.sel = cad.sel.includes(n) ? cad.sel.filter(x => x !== n) : [...cad.sel, n]; const sc = $('#camada .folha').scrollTop; const foco = document.activeElement === $('#cad-q'); pintarCadastro(false); $('#camada .folha').scrollTop = sc; if (foco) $('#cad-q').focus({ preventScroll:true }); }
+  else if (t.matches('[data-cad-seguir]')) { cad.fila = cad.sel.map(n => novoPoke(n)); cad.i = 0; cad.etapa = 'form'; pintarCadastro(false); }
+  else if (t.matches('[data-cad-lista]')) { cad.etapa = 'busca'; pintarCadastro(false); }
+  else if (t.matches('[data-cad-ant]')) { cad.i--; pintarCadastro(false); }
+  else if (t.dataset.cadForma !== undefined) { p.s = t.dataset.cadForma === '1'; if (!STAR_OK.includes(tierDe(p.n, p.s))) p.stars = 0; repintarForm(); }
+  else if (t.dataset.cadBoost) { p.boost = Math.max(0, Math.min(50, p.boost + +t.dataset.cadBoost)); const r = $('#cad-boost'); r.value = p.boost; r.style.setProperty('--p', p.boost * 2 + '%'); $('#cad-boost-v').textContent = '+' + p.boost; }
+  else if (t.dataset.cadStar) { const k = +t.dataset.cadStar; p.stars = p.stars === k ? k - 1 : k; repintarForm(); }
+  else if (t.dataset.cadHeld !== undefined) { p.held = t.dataset.cadHeld || null; repintarForm(); }
+  else if (t.dataset.cadHtier) { p.heldTier = +t.dataset.cadHtier; repintarForm(); }
+  else if (t.matches('[data-cad-mega]')) { p.mega = !p.mega; if (p.mega) p.stars = 0; repintarForm(); }
+  else if (t.matches('[data-cad-addon]')) { p.addon = !p.addon; t.setAttribute('aria-checked', p.addon); }
+  else if (t.dataset.cadOnde) { p.onde = t.dataset.cadOnde; repintarForm(); }
+  else if (t.matches('[data-cad-salvar]')) salvarCad(false);
+  else if (t.matches('[data-cad-pular]')) salvarCad(true);
+});
+
+
+/* ============ plano de um Pokémon ============ */
+const CONTA = { diamonds: 40, goldKK: 25 };
+const PLANOS = {
+  '25s': {
+    n: 25, s: true, meta: 'Virar Shiny Raichu T1, com Boost +20 e 2★. É o que mais aumenta o dano do seu time Electric.',
+    passos: [
+      { id:'evo', curto:'Evoluir', t:'Evoluir para Shiny Raichu', s:'T4 → T1 · o maior ganho pelo menor custo', estado:'andando', vira:26,
+        mats:[{ t:'Thunder Stone', o:'Dropa de Pokémon Electric', tem:true, i:'thunder-stone' }, { t:'Item do Shiny Raichu', o:'Só o Shiny Raichu dropa · Wildscape', tem:false }],
+        selo:['parcial','Comunidade · 19/09'] },
+      { id:'boost', curto:'Boost', t:'Boost até +20', estado:'andando', prog:{ v:5, max:20 },
+        mats:[...pedrasBoost(5, 20).map(f => ({ t:`${Math.round(f.media)} pedras ${f.pedra}`, o:`+${f.de} a +${f.ate} · média, com a regra oficial`, tem:false })), { t:'Electric Ear', o:'Um dos itens da receita das pedras', tem:false, i:'electric-ear' }],
+        aviso:'A pedra tem que ser do elemento do Pokémon: Electric.', selo:['ok','Wiki oficial · 19/09'] },
+      { id:'star', curto:'Estrelar', t:'Estrelar até 2★', s:'+12% de dano', estado:'afazer', depende:'evo',
+        bloq:'Libera depois de evoluir. Pikachu é T4 e não recebe Star.',
+        mats:[{ t:`${custoStar('T1', 0, 2).copias} cópias de Shiny Raichu`, o:'A cópia da 2ª estrela também precisa ter 1★', tem:false }, { t:`${custoStar('T1', 0, 2).diamond.d} Diamonds`, o:`Você tem ${CONTA.diamonds} · opção Diamond`, tem:false }, { t:kk(custoStar('T1', 0, 2).diamond.g) + ' de gold', o:`Você tem ${CONTA.goldKK} kk`, tem:true }],
+        selo:['ok','Wiki oficial · 19/09'] },
+      { id:'held', curto:'Held', t:'X-Attack de T1 até T3', s:'O held de dano para a rotação de Hoenn', estado:'afazer',
+        mats:[{ t:'X-Attack T2', o:'Máquina de tokens, Clones ou Rockets', tem:false }, { t:'X-Attack T3', o:'Sobe em ordem: T1, depois T2, depois T3', tem:false }],
+        aviso:'Trocar o tipo de held perde os tiers já feitos.', selo:['parcial','Comunidade · 19/09'] },
+    ],
+  },
+};
+const EXTRAS = [
+  ['treino', 'Treinar atributo', () => ({ t:'Treinar Attack', s:'Prioridade para quem causa dano', mats:[] })],
+  ['copia', 'Capturar outra cópia', (pl) => ({ t:`Capturar 1 ${nomeDe(pl.n, pl.s)}`, s:'Serve para estrelar', mats:[{ t:'Onde nasce', o:'Ver na ficha', tem:false }] })],
+  ['mega', 'Mega', () => ({ t:'Mega Evoluir', s:'Level 350 e Hazard mínimo', mats:[{ t:'Mega Stone', o:'Ver na wiki', tem:false }], aviso:'Mega bloqueia Stars para sempre nesta ball.' })],
+];
+function planoGenerico(n, s) {
+  const p = COLECAO.find(c => c.n === n && c.s === s) || {};
+  const el = EL[DEX[n].el[0]], nome = nomeDe(n, s);
+  const passos = [{ id:'boost', curto:'Boost', t:'Boost até +20', estado: p.boost ? 'andando' : 'afazer', prog:{ v:p.boost || 0, max:20 },
+    mats: pedrasBoost(p.boost || 0, 20).map(f => ({ t:`${Math.round(f.media)} pedras ${f.pedra}`, o:`+${f.de} a +${f.ate} · elemento ${el}`, tem:false })), aviso:`A pedra tem que ser do elemento do Pokémon: ${el}.`, selo:['ok','Wiki oficial · 19/09'] }];
+  if (STAR_OK.includes(tierDe(n, s)) && !(p.stars >= 2)) {
+    passos.push({ id:'cap', curto:'Capturar', t:`Capturar 3 ${nome}`, s:'As cópias viram estrelas', estado:'afazer', mats:[{ t:'Onde nasce', o:'Ver na ficha', tem:false }], selo:['ok','Wiki oficial · 19/09'] });
+    passos.push({ id:'star', curto:'Estrelar', t:'Estrelar até 2★', s:'Mais dano por estrela', estado:'afazer', depende:'cap', bloq:'Libera depois de capturar as cópias.', mats:[], selo:['ok','Wiki oficial · 19/09'] });
+  }
+  return { n, s, meta:`Deixar ${nome} mais forte, na ordem que a wiki recomenda.`, passos };
+}
+let planoAtual = null;
+const planoDe = k => PLANOS[k] || (PLANOS[k] = planoGenerico(+k.replace('s',''), k.endsWith('s')));
+const feitoId = (pl, id) => (pl.passos.find(x => x.id === id) || {}).estado === 'feito';
+const bloqueado = (pl, x) => x.depende && !feitoId(pl, x.depende) && x.estado !== 'feito';
+const proximoDe = pl => pl.passos.find(x => x.estado !== 'feito' && !bloqueado(pl, x));
+
+function abrirPlano(k) {
+  cad = null; fichaAtual = null;
+  const primeira = $('#camada').hidden;
+  planoAtual = k;
+  const pl = planoDe(k);
+  if (pl.aberto === undefined) pl.aberto = (proximoDe(pl) || {}).id;
+  pintarPlano(primeira);
+}
+function pintarPlano(primeira) {
+  const pl = planoDe(planoAtual), camada = $('#camada');
+  const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
+  camada.innerHTML = htmlPlano(pl);
+  camada.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+}
+function htmlPlano(pl) {
+  const evo = pl.passos.find(x => x.vira);
+  const alvo = evo && evo.estado !== 'feito' ? evo.vira : null;
+  const feitos = pl.passos.filter(x => x.estado === 'feito').length, total = pl.passos.length;
+  const prox = proximoDe(pl);
+  const palco = alvo
+    ? `${arte(pl.n, pl.s, 'de')}<span class="rumo" aria-hidden="true">${I.seta}</span>${arte(alvo, pl.s, 'para')}`
+    : arte(pl.n, pl.s, 'so');
+  const cs = custoStar('T1', 0, 2), faltaD = Math.max(0, cs.diamond.d - CONTA.diamonds);
+  const extras = EXTRAS.filter(([id]) => !pl.passos.some(x => x.id === id) && (id !== 'mega' || MEGA.has(alvo || pl.n)));
+  return `<article class="folha" role="dialog" aria-modal="true" aria-label="Plano de ${esc(nomeDe(pl.n, pl.s))}" style="--c:${cor(alvo || pl.n)}">
+    <div class="folha-palco plano-palco">
+      <div class="fundo" style="background-image:url('${ART(alvo || pl.n, pl.s)}')"></div>
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      ${palco}
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">${esc(nomeDe(pl.n, pl.s))}</h2>
+      <p class="plano-meta">${pl.meta}</p>
+    </div>
+    <div class="progresso-pl">
+      <div class="txt"><span><b>${feitos} de ${total}</b> passos feitos</span><span>${prox ? `próximo: ${prox.curto.toLowerCase()}` : 'plano completo'}</span></div>
+      <div class="barra"><i style="--v:${Math.max(2, feitos / total * 100)}%"></i></div>
+    </div>
+
+    <div class="sec">
+      ${pl.passos.map(x => htmlPasso(pl, x, x === prox)).join('')}
+    </div>
+
+    ${pl.n === 25 || pl.n === 26 ? `<div class="sec"><h3 class="titulo">Para fechar o plano</h3>
+      <div class="lista custo">
+        <div class="linha"><span><span class="l-t" style="display:block">Diamonds</span><span class="l-s">Você tem ${CONTA.diamonds}</span></span><span class="dir"><b>${cs.diamond.d}</b>${faltaD ? `<span class="falta">faltam ${faltaD}</span>` : ''}</span></div>
+        <div class="linha"><span><span class="l-t" style="display:block">Gold</span><span class="l-s">Você tem ${CONTA.goldKK} kk</span></span><span class="dir"><b>${kk(cs.diamond.g)}</b></span></div>
+        <div class="linha"><span><span class="l-t" style="display:block">Capturas</span><span class="l-s">Wildscape · level 150+</span></span><span class="dir"><b>${cs.copias} Shiny Raichu</b></span></div>
+      </div>
+      <p class="aviso">Valores da opção Diamond. Na opção Gold você paga metade dos Diamonds e o dobro de gold. <a class="link-sis" style="margin:0" href="#/s/star">Ver as três opções</a></p>
+    </div>` : ''}
+
+    ${extras.length ? `<div class="sec"><h3 class="titulo">Adicionar passo</h3>
+      <div class="opcoes add-passo">${extras.map(([id, nome]) => `<button data-pl-extra="${id}">${I.mais}${nome}</button>`).join('')}</div>
+    </div>` : ''}
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/p/${pl.n}${pl.s ? 's' : ''}">Ficha</a>
+      ${prox ? `<button class="btn btn-primario" data-pl-feito="${prox.id}">${I.check}Concluir: ${prox.curto}</button>`
+             : `<button class="btn btn-primario" disabled>Plano completo</button>`}
+    </div>
+  </article>`;
+}
+function htmlPasso(pl, x, ehProx) {
+  const bloq = bloqueado(pl, x), aberto = pl.aberto === x.id;
+  const cls = x.estado === 'feito' ? 'feito' : bloq ? 'bloqueado' : ehProx ? 'proximo' : '';
+  const est = x.estado === 'feito' ? 'feito' : x.estado === 'andando' ? 'andando' : '';
+  const dir = x.estado === 'feito' ? 'feito' : bloq ? 'bloqueado'
+    : x.prog ? `${x.prog.v} de ${x.prog.max}`
+    : x.mats.length ? `${x.mats.filter(m => m.tem).length} de ${x.mats.length}` : '';
+  return `<section class="passo-pl ${cls}">
+    <button class="cab" aria-expanded="${aberto}" data-pl-abrir="${x.id}">
+      <span class="estado ${est}">${est === 'feito' ? I.check : est === 'andando' ? I.relogio : I.ponto}</span>
+      <span>${ehProx ? '<span class="rotulo-prox">PRÓXIMO</span>' : ''}<span class="l-t">${esc(x.t)}</span>${x.s ? `<span class="l-s">${esc(x.s)}</span>` : ''}</span>
+      <span class="dir">${dir}${I.seta}</span>
+    </button>
+    ${aberto ? `<div class="corpo">
+      ${bloq ? `<p class="nota">${I.alerta}${esc(x.bloq)}</p>` : ''}
+      ${x.aviso ? `<p class="nota">${I.alerta}${esc(x.aviso)}</p>` : ''}
+      ${x.id === 'boost' ? `<a class="link-sis" href="#/s/boost">Como o Boost funciona ${I.seta}</a>` : x.id === 'star' ? `<a class="link-sis" href="#/s/star">Como a Star funciona ${I.seta}</a>` : x.id === 'held' ? `<a class="link-sis" href="#/s/helds">Como os Helds funcionam ${I.seta}</a>` : ''}
+      ${x.prog ? `<div class="prog-pl">
+        <button class="passo" data-pl-prog="-1" aria-label="Menos um">−</button>
+        <span class="valor">+${x.prog.v}<span> de +${x.prog.max}</span></span>
+        <button class="passo" data-pl-prog="1" aria-label="Mais um">+</button>
+        <div class="barra"><i style="--v:${Math.max(2, x.prog.v / x.prog.max * 100)}%"></i></div>
+      </div>` : ''}
+      ${x.mats.length ? `<div class="mats">${x.mats.map((m, k) => `<div class="mat">
+        <span>${m.i ? `<a class="t" href="#/i/${m.i}">${esc(m.t)}</a>` : `<span class="t">${esc(m.t)}</span>`}<span class="o">${esc(m.o)}</span></span>
+        <button class="tenho" aria-pressed="${m.tem}" data-pl-mat="${k}">${m.tem ? I.check + 'Tenho' : 'Falta'}</button>
+      </div>`).join('')}</div>` : ''}
+      <div class="pe-pl">
+        ${x.selo ? selo(x.selo) : '<span></span>'}
+        ${x.estado === 'feito'
+          ? `<button class="btn btn-suave" data-pl-desfazer="${x.id}">Desmarcar</button>`
+          : bloq ? '' : `<button class="btn btn-suave" data-pl-feito="${x.id}">${I.check}Marcar feito</button>`}
+      </div>
+    </div>` : ''}
+  </section>`;
+}
+function concluirPasso(pl, id) {
+  const x = pl.passos.find(y => y.id === id);
+  x.estado = 'feito';
+  if (x.prog) x.prog.v = x.prog.max;
+  x.mats.forEach(m => m.tem = true);
+  let msg = `${x.curto} feito`;
+  if (x.vira) {
+    const antes = nomeDe(pl.n, pl.s);
+    const c = COLECAO.find(p => p.n === pl.n && p.s === pl.s); if (c) c.n = x.vira;
+    pl.n = x.vira;
+    msg = `${antes} virou ${nomeDe(pl.n, pl.s)} na coleção`;
+  } else if (x.prog) {
+    const c = COLECAO.find(p => p.n === pl.n && p.s === pl.s); if (c) c.boost = x.prog.v;
+    msg = `Boost +${x.prog.v} salvo na coleção`;
+  } else if (id === 'star') {
+    const c = COLECAO.find(p => p.n === pl.n && p.s === pl.s); if (c) c.stars = 2;
+    msg = `${nomeDe(pl.n, pl.s)} agora tem 2★`;
+  }
+  pl.aberto = (proximoDe(pl) || {}).id;
+  pintarPlano(false);
+  toast(msg);
+}
+document.addEventListener('click', e => {
+  if (!planoAtual) return;
+  const t = e.target.closest('button'); if (!t) return;
+  const pl = planoDe(planoAtual);
+  const x = pl.passos.find(y => y.id === pl.aberto);
+  if (t.dataset.plAbrir) { pl.aberto = pl.aberto === t.dataset.plAbrir ? null : t.dataset.plAbrir; pintarPlano(false); }
+  else if (t.dataset.plFeito) concluirPasso(pl, t.dataset.plFeito);
+  else if (t.dataset.plDesfazer) { const y = pl.passos.find(z => z.id === t.dataset.plDesfazer); y.estado = 'andando'; pintarPlano(false); }
+  else if (t.dataset.plMat !== undefined && x) { const m = x.mats[+t.dataset.plMat]; m.tem = !m.tem; if (x.estado === 'afazer' && m.tem) x.estado = 'andando'; pintarPlano(false); }
+  else if (t.dataset.plProg && x) { x.prog.v = Math.max(0, Math.min(x.prog.max, x.prog.v + +t.dataset.plProg)); if (x.prog.v > 0 && x.estado === 'afazer') x.estado = 'andando'; pintarPlano(false); }
+  else if (t.dataset.plExtra) {
+    const [id, , fazer] = EXTRAS.find(([k]) => k === t.dataset.plExtra);
+    pl.passos.push({ id, curto: t.textContent.trim(), estado:'afazer', ...fazer(pl) });
+    pl.aberto = id; pintarPlano(false); toast('Passo adicionado ao plano');
+  }
+});
+
+
+/* ============ primeira entrada ============ */
+let ent = null;
+const MUNDOS = ['Sun', 'Moon', 'Titan'];
+function liberacoes(level) {
+  return [
+    [150, 'Johto e Wildscape', 'a partir do level 150'],
+    [250, 'Hoenn', 'acesso a partir do level 250'],
+    [350, 'Mega e rotação de Hoenn', 'a partir do level 350'],
+  ].map(([min, t, s]) => ({ ok: level >= min, t, s: level >= min ? 'liberado para você' : s }));
+}
+function abrirEntrada(etapa) {
+  const el = $('#entrada'), primeira = el.hidden;
+  if (!ent || etapa === 'boas') ent = { nome:'', mundo:'Sun', level:'', vip:false };
+  ent.etapa = etapa;
+  el.innerHTML = etapa === 'personagem' ? htmlEntPersonagem() : etapa === 'pronto' ? htmlEntPronto() : htmlEntBoas();
+  el.hidden = false; el.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
+}
+function fecharEntrada() {
+  const el = $('#entrada'); if (el.hidden) return;
+  el.classList.remove('on'); document.body.style.overflow = '';
+  setTimeout(() => { el.hidden = true; el.innerHTML = ''; }, 500);
+}
+function htmlEntBoas() {
+  return `<section class="ent-boas" aria-label="Boas-vindas">
+    <div class="ent-palco">
+      <div class="fundo" style="background-image:url('${ART(150)}')"></div>
+      <span class="marca">PKA <b>Companion</b></span>
+      <div class="heroi"><img src="${ART(150)}" alt="Mewtwo"></div>
+      <div class="lado e">${arte(26, true)}</div>
+      <div class="lado d">${arte(181, true)}</div>
+    </div>
+    <div class="ent-texto">
+      <h1 class="display">A wiki do PokeAlliance e o seu jogo, num lugar só</h1>
+      <p>Consulte qualquer Pokémon, item ou sistema. Cadastre os seus e veja o próximo passo de cada um.</p>
+      <div class="ent-acoes">
+        <a class="btn btn-primario" href="#/entrada/personagem">Começar</a>
+        <button class="btn btn-suave" data-ent-visitar>Só consultar a wiki</button>
+      </div>
+      <p class="ent-discord">Já usa em outro aparelho? <button data-ent-discord>Entrar com Discord</button></p>
+      <p class="aviso">Sem e-mail nem senha: tudo fica salvo neste aparelho. Projeto de fãs, sem vínculo com o PokeAlliance, a Nintendo ou a The Pokémon Company.</p>
+    </div>
+  </section>`;
+}
+function htmlEntLibera() {
+  const lv = +ent.level;
+  if (!lv) return `<p class="aviso" style="margin:10px 4px 0">Informe o level para ver o que já está liberado.</p>`;
+  return `<div class="lista libera">${liberacoes(lv).map(x => `<div class="linha">
+    <span class="estado ${x.ok ? 'feito' : ''}">${x.ok ? I.check : I.ponto}</span>
+    <span><span class="l-t" style="display:block">${x.t}</span><span class="l-s">${x.s}</span></span></div>`).join('')}</div>
+    ${lv < 350 ? `<p class="aviso" style="margin:10px 4px 0">O level nunca bloqueia nada no app. Ele só avisa.</p>` : ''}`;
+}
+function htmlEntPersonagem() {
+  return `<section class="ent-passo" aria-label="Seu personagem">
+    <div class="ent-barra">
+      <a class="redondo" href="${SESSAO.temPersonagem ? '#/eu' : '#/entrada'}" aria-label="Voltar">${I.voltar}</a>
+      <span class="pontos" aria-label="Passo 1 de 2"><i class="on"></i><i></i></span>
+      <button class="pular" data-ent-pular>Pular</button>
+    </div>
+    <div class="ent-cab">
+      <h2 class="display">Seu personagem</h2>
+      <p>Tudo opcional. Serve para o app avisar o que já está liberado para você.</p>
+    </div>
+    <div class="campo-grupo">
+      <label for="ent-nome" class="rot-c" style="display:flex"><b>Nome</b><span>como aparece no jogo</span></label>
+      <input class="campo-texto" id="ent-nome" autocomplete="off" autocapitalize="words" placeholder="Ex.: Denzar" value="${esc(ent.nome)}">
+    </div>
+    <div class="campo-grupo">
+      <div class="rot-c"><b>Mundo</b></div>
+      <div class="seg" role="group" aria-label="Mundo">${MUNDOS.map(m => `<button aria-pressed="${ent.mundo === m}" data-ent-mundo="${m}">${m}</button>`).join('')}</div>
+    </div>
+    <div class="campo-grupo">
+      <label for="ent-level" class="rot-c" style="display:flex"><b>Level</b><span>o do personagem, não do Pokémon</span></label>
+      <input class="campo-texto grande" id="ent-level" type="number" inputmode="numeric" min="1" max="999" placeholder="0" value="${ent.level}">
+      <div id="ent-libera" style="margin-top:12px">${htmlEntLibera()}</div>
+    </div>
+    <div class="campo-grupo">
+      <button class="interruptor" role="switch" aria-checked="${ent.vip}" data-ent-vip><span><b>Sou VIP</b><span class="sub">O app passa a contar os bônus de VIP</span></span><span class="trilho-i"></span></button>
+    </div>
+    <div class="barra-acao"><button class="btn btn-primario" data-ent-salvar>Continuar</button></div>
+  </section>`;
+}
+function htmlEntPronto() {
+  const nome = PERSONAGEM.nome;
+  return `<section class="ent-pronto" aria-label="Pronto">
+    <div class="ent-palco">
+      <div class="fundo" style="background-image:url('${ART(25, true)}')"></div>
+      <div class="heroi" style="width:min(70vw,360px)">${arte(25, true)}</div>
+    </div>
+    <div class="ent-texto">
+      <h1 class="display">Pronto, ${esc(nome)}</h1>
+      <p>Agora cadastre seus Pokémon. Cada um leva menos de 30 segundos, e dá para marcar vários de uma vez.</p>
+      <div class="ent-acoes">
+        <a class="btn btn-primario" href="#/novo">${I.mais}Cadastrar meus Pokémon</a>
+        <a class="btn btn-suave" href="#/inicio">Depois</a>
+      </div>
+    </div>
+  </section>`;
+}
+document.addEventListener('input', e => {
+  if (!ent) return;
+  if (e.target.id === 'ent-nome') ent.nome = e.target.value;
+  if (e.target.id === 'ent-level') { ent.level = e.target.value.replace(/\D/g, '').slice(0, 3); $('#ent-libera').innerHTML = htmlEntLibera(); }
+});
+document.addEventListener('click', e => {
+  if (!ent) return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.entMundo) { ent.mundo = t.dataset.entMundo; document.querySelectorAll('[data-ent-mundo]').forEach(b => b.setAttribute('aria-pressed', b === t)); }
+  else if (t.matches('[data-ent-vip]')) { ent.vip = !ent.vip; t.setAttribute('aria-checked', ent.vip); }
+  else if (t.matches('[data-ent-discord]')) toast('Login com Discord chega na fase 2');
+  else if (t.matches('[data-ent-visitar]')) { SESSAO.temPersonagem = false; ent = null; location.hash = '#/inicio'; }
+  else if (t.matches('[data-ent-pular]')) { ent = null; location.hash = '#/inicio'; }
+  else if (t.matches('[data-ent-salvar]')) {
+    PERSONAGEM.nome = ent.nome.trim() || 'Treinador';
+    PERSONAGEM.mundo = ent.mundo;
+    if (+ent.level) PERSONAGEM.level = +ent.level;
+    SESSAO.temPersonagem = true;
+    location.hash = '#/entrada/pronto';
+  }
+});
+
+
+/* ============ ficha de item ============ */
+const GLIFO = {
+  stone: `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="var(--c)"/></linearGradient><linearGradient id="gB" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c)"/><stop offset="1" stop-color="#241e29"/></linearGradient></defs>
+    <path d="M50 6 84 30 74 80 50 94 26 80 16 30Z" fill="url(#gB)"/><path d="M50 6 84 30 50 44 16 30Z" fill="url(#gA)"/><path d="M16 30 50 44 26 80Z" fill="var(--c)" opacity=".85"/><path d="M84 30 74 80 50 44Z" fill="#241e29" opacity=".35"/><path d="M50 44 74 80 50 94 26 80Z" fill="var(--c)" opacity=".65"/><path d="M40 20 52 14" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".9"/></svg>`,
+  parte: `<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="gC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".45" stop-color="var(--c)"/><stop offset="1" stop-color="#3a2a12"/></linearGradient></defs>
+    <path d="M30 88C22 60 26 30 46 10c6 18 20 30 26 48 5 16-2 30-16 32-10 1-20 0-26-2Z" fill="url(#gC)"/><path d="M40 78c-3-18 0-36 9-52 4 12 11 22 14 34 3 10-2 18-10 19-5 0-9 0-13-1Z" fill="#241e29" opacity=".75"/><path d="M52 18c3 6 7 11 10 16" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></svg>`,
+};
+const ITENS = {
+  'thunder-stone': {
+    nome:'Thunder Stone', glifo:'stone', el:'electric', cat:'Stone', status:['parcial','Comunidade · 19/09'],
+    resumo:'A stone de Electric. Dropa de Pokémon Electric e serve para evoluir, fazer Boost Stone e completar talentos.',
+    usos:[
+      [I.raio, 'Evolução', 'Evolui Pokémon Electric. No Shiny Raichu, entra junto com o item que só ele dropa.', '#/plano/25s'],
+      [I.caixa, 'Boost Stone de Electric', 'A máquina pede itens de Pokémon Electric, electric fragment e 1 Thunder Stone.', null],
+      [I.estrela, 'Talentos', 'Alguns talentos pedem stones em quantidade.', null],
+      [I.local, 'Venda', 'O NPC Kecleon compra, na entrada do Trade Center.', null],
+    ],
+    dropam:[181, 125, 135, 82, 25, 26], dropamMais:['Electrike','Electrode','Flaaffy','Lanturn','Manectric','Minun','Plusle'], totalN:13, totalS:19,
+    fatos:[
+      { h:'Shiny dropa mais', p:'Todo shiny dropa a stone da forma normal com 4× a chance. No Wildscape, um shiny tem 50% de chance de stone básica.', selo:['ok','Changelog oficial · 06/09'] },
+      { h:'Onde a chance muda', p:'No Primal a chance sobe. Na base e no Wildscape ela desce. A dungeon de Electric sempre dá a stone e o fragmento.', selo:['ok','Changelog oficial · 06/09'] },
+      { h:'Preço no Market', p:'Ainda sem fonte. Nenhuma wiki publica preço de Market, e ele muda de um mundo para outro.', selo:['palpite','Sem dado · 19/09'] },
+    ],
+    planos:[{ k:'25s', n:25, s:true, t:'Plano do Shiny Pikachu', sub:'Evoluir · você já tem a sua' }],
+  },
+  'electric-ear': {
+    nome:'Electric Ear', glifo:'parte', el:'electric', cat:'Drop de Pokémon', status:['parcial','Comunidade · 19/09'],
+    resumo:'Orelha do Raichu. O uso principal é a receita da Boost Stone de Electric.',
+    usos:[
+      [I.caixa, 'Boost Stone de Electric', 'Um dos itens de Pokémon Electric que a máquina aceita, junto com electric fragment e Thunder Stone.', null],
+      [I.local, 'Venda', 'Vende para NPC. Preço de Market ainda sem fonte.', null],
+    ],
+    dropam:[26], dropamMais:[], totalN:1, totalS:1,
+    trocas:[[135,'Electric Collar'],[125,'Electric Tail'],[181,'Electric Sheep Tail'],[405,'Luxray Ear']],
+    fatos:[
+      { h:'O que mais o Raichu dropa', p:'Screw, Electric Ear e Thunder Stone.', selo:['parcial','PKA Helper · 19/09'] },
+    ],
+    planos:[{ k:'25s', n:25, s:true, t:'Plano do Shiny Pikachu', sub:'Boost até +20 · entra na receita' }],
+  },
+};
+let itemAtual = null;
+function abrirItem(slug) {
+  const it = ITENS[slug]; if (!it) return;
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = slug;
+  const camada = $('#camada'), primeira = camada.hidden;
+  const c = `var(--el-${it.el})`;
+  camada.innerHTML = `<article class="folha" role="dialog" aria-modal="true" aria-label="${esc(it.nome)}" style="--c:${c}">
+    <div class="folha-palco item-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="glifo">${GLIFO[it.glifo]}</div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">${esc(it.nome)}</h2>
+      <div class="chips"><span class="chip">${it.cat}</span><span class="chip chip-el" style="--c:${c}">${EL[it.el]}</span></div>
+      <p class="plano-meta" style="margin-top:14px">${it.resumo}</p>
+    </div>
+
+    ${it.planos.length ? `<div class="sec">${it.planos.map(p => `<a class="seu-plano" href="#/plano/${p.k}" style="--c:${cor(p.n)}">
+      <span class="mini"><img src="${ART(p.n, p.s)}" alt=""></span>
+      <span><span class="l-t">Você precisa: ${esc(p.t.replace('Plano do ', ''))}</span><span class="l-s">${esc(p.sub)}</span></span>${I.seta}</a>`).join('')}</div>` : ''}
+
+    <div class="sec"><h3 class="titulo">Para que serve</h3>
+      <div class="lista uso">${it.usos.map(([ic, t, d, h]) => `<${h ? `a href="${h}"` : 'div'} class="linha">${ic}<span><span class="l-t" style="display:block">${t}</span><span class="l-s">${d}</span></span>${h ? `<span class="dir">${I.seta}</span>` : ''}</${h ? 'a' : 'div'}>`).join('')}</div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Quem dropa</h3>
+      <div class="trilho" style="padding-top:2px">${it.dropam.map(n => pokeTile(n, false, temNaColecao(n, false) || temNaColecao(n, true) ? 'você tem' : `${DEX[n].t} · ${EL[DEX[n].el[0]]}`)).join('')}</div>
+      ${it.dropamMais.length ? `<p class="mais-nomes">E também <b>${it.dropamMais.join(', ')}</b>.</p>` : ''}
+      <p class="aviso">${it.totalN} ${it.totalN > 1 ? 'formas normais' : 'forma normal'} e ${it.totalS} ${it.totalS > 1 ? 'shiny dropam' : 'shiny dropa'}. Taxa de drop ainda sem fonte.</p>
+    </div>
+
+    ${it.trocas ? `<div class="sec"><h3 class="titulo">Na receita, pode trocar por</h3>
+      <div class="lista">${it.trocas.map(([n, t]) => `<a class="linha" href="#/p/${n}" style="--c:${cor(n)}"><span class="mini"><img src="${ART(n)}" alt="" loading="lazy"></span><span><span class="l-t" style="display:block">${t}</span><span class="l-s">Drop de ${DEX[n].nome}</span></span><span class="dir">${I.seta}</span></a>`).join('')}</div>
+    </div>` : ''}
+
+    <div class="sec">
+      ${it.fatos.map(f => `<div class="fato"><h3 class="titulo" style="font-size:16px;margin:0 0 4px">${f.h}</h3><p>${f.p}</p>
+        <div class="pe">${selo(f.selo)}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>`).join('')}
+    </div>
+
+    <div class="barra-acao">
+      <a class="btn btn-suave" href="#/buscar">Buscar</a>
+      <a class="btn btn-primario" href="#/plano/${it.planos[0].k}">Ver no meu plano</a>
+    </div>
+  </article>`;
+  camada.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = 0; }
+}
+
+
+/* ============ página de sistema: Boost ============ */
+let sis = null;
+function abrirSistema() {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null;
+  const primeira = $('#camada').hidden;
+  if (!sis) { const p = COLECAO.find(c => c.n === 25 && c.s) || COLECAO[0]; sis = { k: COLECAO.indexOf(p), de: p.boost, ate: 20 }; }
+  pintarSistema(primeira);
+}
+function pintarSistema(primeira) {
+  const camada = $('#camada');
+  const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
+  const faixas = pedrasBoost(sis.de, sis.ate);
+  const media = faixas.reduce((a, f) => a + f.media, 0), pior = faixas.reduce((a, f) => a + f.pior, 0);
+  const poke = COLECAO[sis.k];
+  const meus = COLECAO.map((c, i) => ({ c, i })).filter(({ c }) => c.boost < 50).sort((a, b) => (b.i === sis.k) - (a.i === sis.k) || b.c.boost - a.c.boost).slice(0, 6);
+  camada.innerHTML = `<article class="folha" role="dialog" aria-modal="true" aria-label="Boost">
+    <div class="folha-palco sis-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">+50</div><div class="k">o teto do Boost, igual para todo Pokémon</div>
+        <div class="escala" aria-hidden="true">${BOOST.map((_, k) => `<i style="--k:${k}"></i>`).join('')}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Boost</h2>
+      <div class="chips"><span class="chip">Sistema</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.caixa}<span>Sobe só com Boost Stone. Cada sucesso vale +1, até +50.</span></li>
+        <li>${I.raio}<span>Cada ponto conta como 3 níveis a mais no dano dos golpes. Um +50 bate como se tivesse 150 níveis a mais.</span></li>
+        <li>${I.alerta}<span>Se falhar, a pedra some, mas o Boost fica. A próxima chance na mesma faixa sobe 10%.</span></li>
+      </ul>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Quantas pedras você precisa</h3>
+      <div class="calc">
+        <div class="calc-topo">
+          <div class="calc-pokes" role="group" aria-label="Seus Pokémon">${meus.map(({ c, i }) => `<button aria-pressed="${i === sis.k}" data-sis-poke="${i}"><img src="${ART(c.n, c.s)}" alt="">${esc(nomeDe(c.n, c.s))}</button>`).join('')}</div>
+          <div class="calc-faixa">
+            <div class="caixa"><span>De</span><div class="linha-v"><button class="passo" data-sis-de="-1" aria-label="Menos um">−</button><b>+${sis.de}</b><button class="passo" data-sis-de="1" aria-label="Mais um">+</button></div></div>
+            <div class="caixa"><span>Até</span><div class="linha-v"><button class="passo" data-sis-ate="-5" aria-label="Menos cinco">−</button><b>+${sis.ate}</b><button class="passo" data-sis-ate="5" aria-label="Mais cinco">+</button></div></div>
+          </div>
+        </div>
+        <div class="calc-total" aria-live="polite">
+          <span class="n">${faixas.length ? Math.round(media) : 0}<small>pedras em média</small></span>
+          <span class="pior">${faixas.length ? `no pior caso, ${pior}<br>de ${faixas.length} tipo${faixas.length > 1 ? 's' : ''} de pedra` : 'escolha uma faixa'}</span>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="faixas">
+          <thead><tr><th>Boost</th><th>Pedra</th><th class="num">Chance</th><th class="num">Média</th></tr></thead>
+          <tbody>${BOOST.map(f => { const d = faixas.find(x => x.de === f.de); return `<tr class="${d ? 'dentro' : 'fora'}"><td>+${f.de} → ${f.ate}</td><td>${f.pedra}</td><td class="num">${Math.round(f.p * 100)}%</td><td class="num">${d ? `~${Math.round(d.media)}` : '—'}</td></tr>`; }).join('')}</tbody>
+        </table></div>
+      </div>
+      <p class="aviso">Média calculada com a regra oficial: a chance sobe 10% a cada falha e volta ao início no sucesso. Não é medição do jogo. A pedra precisa ser do elemento do Pokémon: ${EL[DEX[poke.n].el[0]]}, no caso do ${esc(nomeDe(poke.n, poke.s))}.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Como aplicar</h3>
+      <ol class="passos-num">
+        <li><span>Consiga uma Boost Stone da faixa certa. A descrição da pedra mostra qual faixa ela aceita.</span></li>
+        <li><span>Confira se o elemento da pedra bate com um dos elementos do Pokémon.</span></li>
+        <li><span>Use a pedra na pokébola.</span></li>
+        <li><span>Deu certo: +1 de Boost. O valor fica gravado na bola.</span></li>
+      </ol>
+    </div>
+
+    <div class="sec"><h3 class="titulo">De onde vêm as pedras</h3>
+      <div class="lista uso">
+        <div class="linha">${I.caixa}<span><span class="l-t" style="display:block">Máquina de craft</span><span class="l-s">Pede itens de Pokémon do elemento, fragmentos do elemento e a stone do elemento. A receita muda: confira na máquina antes de juntar material.</span></span></div>
+        <a class="linha" href="#/i/thunder-stone">${I.raio}<span><span class="l-t" style="display:block">Para Electric</span><span class="l-s">Thunder Stone, electric fragment e itens como Electric Ear</span></span><span class="dir">${I.seta}</span></a>
+        <div class="linha">${I.local}<span><span class="l-t" style="display:block">Fragmentos</span><span class="l-s">Vêm das dungeons do mesmo elemento.</span></span></div>
+      </div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Em quem investir primeiro</h3>
+      <div class="fato"><p>Time novo: distribua os primeiros pontos entre quem joga de verdade. Time estável: concentre as pedras raras em quem mais causa dano. Antes de gastar pedra cara, confira se esse Pokémon vai continuar no time.</p>
+        <div class="pe">${selo(['ok','Wiki oficial · 19/09'])}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Fontes que discordam</h3>
+      <div class="fato"><h3 class="titulo" style="font-size:16px;margin:0 0 4px">Held não dá Boost</h3><p>Circula uma tabela dizendo que cada tier de held soma Boost (T1 +5 até T7 +23). Nenhuma fonte sustenta isso. A wiki oficial diz que Boost vem só de Boost Stone. Vale a oficial.</p>
+        <div class="pe">${selo(['ok','Wiki oficial · 19/09'])}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Perguntas comuns</h3>
+      <div class="lista faq">
+        <details><summary>Perco Boost se a pedra falhar?${I.seta}</summary><p>Não. Só a pedra é gasta, e a próxima chance na mesma faixa sobe 10%.</p></details>
+        <details><summary>Existe Boost acima de +50?${I.seta}</summary><p>Não na configuração atual. O sistema antigo, que ia até +70, foi desligado.</p></details>
+        <details><summary>O teto muda com o tier?${I.seta}</summary><p>Não. O teto é +50 para todo Pokémon.</p></details>
+        <details><summary>Qual o pior caso numa pedra Mystic?${I.seta}</summary><p>A chance começa em 5% e chega a 100% na 11ª tentativa. São no máximo 11 pedras por ponto.</p></details>
+      </div>
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-reportar aria-label="Reportar erro">${I.bandeira}Erro?</button>
+      <a class="btn btn-primario" href="#/plano/${poke.n}${poke.s ? 's' : ''}">Levar ao plano</a>
+    </div>
+  </article>`;
+  camada.hidden = false;
+  document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+}
+document.addEventListener('click', e => {
+  if (!sis || $('#camada').hidden || !$('#camada .sis-palco')) return;
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.sisPoke) { sis.k = +t.dataset.sisPoke; sis.de = COLECAO[sis.k].boost; if (sis.ate <= sis.de) sis.ate = Math.min(50, Math.ceil((sis.de + 1) / 5) * 5); pintarSistema(false); }
+  else if (t.dataset.sisDe) { sis.de = Math.max(0, Math.min(sis.ate - 1, sis.de + +t.dataset.sisDe)); pintarSistema(false); }
+  else if (t.dataset.sisAte) { sis.ate = Math.max(sis.de + 1, Math.min(50, sis.ate + +t.dataset.sisAte)); pintarSistema(false); }
+});
+
+
+/* ============ páginas de sistema: Star e Helds ============ */
+function mostrarSistema(html, primeira) {
+  const camada = $('#camada');
+  const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
+  camada.innerHTML = html; camada.hidden = false; document.body.style.overflow = 'hidden';
+  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+}
+const fatoSis = (h, p, sl) => `<div class="fato">${h ? `<h3 class="titulo" style="font-size:16px;margin:0 0 4px">${h}</h3>` : ''}<p>${p}</p><div class="pe">${selo(sl)}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>`;
+
+let sisS = null;
+function abrirStar(primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  const aptos = COLECAO.map((c, i) => ({ c, i, tier: tierDe(c.n, c.s) })).filter(x => STAR_DANO[x.tier] && x.c.stars < 5);
+  if (!sisS) { const a = aptos.find(x => x.c.n === 125) || aptos[0]; sisS = { k: a.i, ate: Math.min(5, a.c.stars + 2) }; }
+  const c = COLECAO[sisS.k], tier = tierDe(c.n, c.s), r = custoStar(tier, c.stars, sisS.ate);
+  const lista = [...aptos].sort((a, b) => (b.i === sisS.k) - (a.i === sisS.k));
+  const opc = [['Diamond', r.diamond, 'mais Diamonds, menos gold'], ['Gold', r.gold, 'metade dos Diamonds, o dobro de gold'], ['Mista', r.mista, 'o meio-termo']];
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Star">
+    <div class="folha-palco sis-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">5★</div><div class="k">o máximo de Stars de um Pokémon</div>
+        <div class="estrelas-h" aria-hidden="true">${I.estrela.repeat(5)}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Star</h2>
+      <div class="chips"><span class="chip">Sistema</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.caixa}<span>Consome outro Pokémon igual: mesma espécie, mesmo tier e o mesmo número de Stars. Nunca falha.</span></li>
+        <li>${I.raio}<span>Cada Star só aumenta o dano. Quanto melhor o tier, maior o ganho: de 2% no T3 até 15% no Legendary.</span></li>
+        <li>${I.alerta}<span>Star e Mega não combinam. Decida o destino da bola antes de investir.</span></li>
+      </ul>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Quanto custa estrelar</h3>
+      <div class="calc">
+        <div class="calc-topo">
+          <div class="calc-pokes" role="group" aria-label="Seus Pokémon">${lista.map(({ c: p, i }) => `<button aria-pressed="${i === sisS.k}" data-star-poke="${i}"><img src="${ART(p.n, p.s)}" alt="">${esc(nomeDe(p.n, p.s))}</button>`).join('')}</div>
+          <div><span class="rot">Levar de ${c.stars}★ até</span>
+            <div class="estrelas" role="group" aria-label="Meta de Stars">${[1,2,3,4,5].map(k => `<button aria-pressed="${k <= sisS.ate}" data-star-ate="${k}" ${k <= c.stars ? 'disabled' : ''} aria-label="${k} estrela${k > 1 ? 's' : ''}">${I.estrela}</button>`).join('')}</div></div>
+        </div>
+        <div class="calc-total" aria-live="polite">
+          <span class="n">${r.copias}<small>cópia${r.copias > 1 ? 's' : ''} de ${esc(nomeDe(c.n, c.s))}</small></span>
+          <span class="pior">+${r.dano}% de dano<br>${tier}, ${STAR_DANO[tier]}% por Star</span>
+        </div>
+        <table class="pagar"><tbody>${opc.map(([nome, v, sub]) => { const falta = Math.max(0, Math.ceil(v.d - CONTA.diamonds)); return `<tr><td><b>${nome}</b><span class="sub">${sub}</span></td><td class="num"><b>${Math.round(v.d)} D</b> + ${kk(v.g)}${falta ? `<span class="falta">faltam ${falta} D</span>` : `<span class="cabe">cabe no seu saldo</span>`}</td></tr>`; }).join('')}</tbody></table>
+      </div>
+      <p class="aviso">Por que tantas cópias: a cópia usada em cada Star precisa ter o mesmo número de Stars do principal, então também precisa ser estrelada. O custo já inclui estrelar essas cópias. Você tem ${CONTA.diamonds} D e ${CONTA.goldKK} kk.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Dano por tier</h3>
+      <div class="lista"><table class="mini-tabela"><thead><tr><th>Tier</th><th class="num">Por Star</th><th class="num">Com 5★</th></tr></thead>
+        <tbody>${Object.entries(STAR_DANO).map(([t, v]) => `<tr class="${t === tier ? 'sel' : ''}"><td>${t}</td><td class="num">+${v}%</td><td class="num">+${v * 5}%</td></tr>`).join('')}</tbody></table></div>
+      <p class="aviso">T4 para baixo e Mythic não recebem Star.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Como estrelar</h3>
+      <ol class="passos-num">
+        <li><span>Separe a bola principal.</span></li>
+        <li><span>Guarde a cópia no Depot. Só assim ela aparece como opção na máquina.</span></li>
+        <li><span>Abra a máquina de Star e coloque as duas bolas.</span></li>
+        <li><span>Escolha a forma de pagamento.</span></li>
+        <li><span>Confira espécie, tier, Stars e custo, e confirme. A cópia é consumida junto com a bola.</span></li>
+      </ol>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Fontes que discordam</h3>
+      ${fatoSis('Custo do Super Rare', 'A wiki oficial diz 260 D + 70 kk de 0 a 5 Stars. A calculadora da comunidade soma 240 D + 60 kk. Vale a oficial. Aqui a conta por etapa usa o valor da comunidade até alguém conferir no painel.', ['parcial','Wiki oficial × comunidade · 19/09'])}
+    </div>
+
+    <div class="sec"><h3 class="titulo">Perguntas comuns</h3>
+      <div class="lista faq">
+        <details><summary>A Star pode falhar?${I.seta}</summary><p>Não. O sistema atual tem 100% de sucesso.</p></details>
+        <details><summary>Star aumenta vida ou defesa?${I.seta}</summary><p>Não. Só o dano.</p></details>
+        <details><summary>Shiny e normal se combinam?${I.seta}</summary><p>Não. A cópia precisa ter o mesmo tier, e shiny e normal têm tiers diferentes.</p></details>
+        <details><summary>Quantas cópias para 5★?${I.seta}</summary><p>31, além do principal. Cada Star dobra o número de Pokémon necessários.</p></details>
+      </div>
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-reportar aria-label="Reportar erro">${I.bandeira}Erro?</button>
+      <a class="btn btn-primario" href="#/plano/${c.n}${c.s ? 's' : ''}">Levar ao plano</a>
+    </div>
+  </article>`, primeira);
+}
+
+let sisH = null;
+const HELD_TIPOS = [
+  ['X-Boost', 'O melhor held de dano até chegar em Hoenn, do level 1 ao 150+.', ['parcial','Comunidade · 19/09']],
+  ['X-Attack', 'Para dano bruto na rotação de Hoenn, level 350+.', ['parcial','Comunidade · 19/09']],
+  ['Y-Regen e X-Defense', 'Para o tank, ou para caçadas em que você apanha muito.', ['parcial','Comunidade · 19/09']],
+  ['X-Lucky', 'O único que vai no Lucky Amulet, onde vale metade e serve para todos os Pokémon.', ['ok','Wiki oficial · 19/09']],
+  ['Wing', 'Mais velocidade, só durante o Fly.', ['ok','Wiki oficial · 19/09']],
+  ['Teleport', 'Diminui a espera do Teleport: de 30 minutos sem held até 1 minuto no T7.', ['parcial','Comunidade · 19/09']],
+];
+function abrirHelds(primeira) {
+  cad = null; fichaAtual = null; planoAtual = null; itemAtual = null;
+  if (primeira === undefined) primeira = $('#camada').hidden;
+  if (!sisH) sisH = { t: 1 };
+  const f = fusaoHeld();
+  mostrarSistema(`<article class="folha" role="dialog" aria-modal="true" aria-label="Helds">
+    <div class="folha-palco sis-palco">
+      <span class="puxador"></span>
+      <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
+      <div class="teto"><div class="n">T7</div><div class="k">o tier máximo de um held</div>
+        <div class="escala" aria-hidden="true" style="grid-template-columns:repeat(7,1fr)">${[0,1,2,3,4,5,6].map(k => `<i style="--k:${k * 1.4}"></i>`).join('')}</div></div>
+    </div>
+    <div class="etiqueta">
+      <h2 class="display">Helds</h2>
+      <div class="chips"><span class="chip">Sistema</span>${selo(['ok','Wiki oficial · 19/09'])}</div>
+      <ul class="resumo3">
+        <li>${I.caixa}<span>Vai na pokébola e dá um efeito ao Pokémon. Não soma Boost.</span></li>
+        <li>${I.raio}<span>Sobe em ordem, do T1 ao T7, sempre do mesmo tipo. Não dá para pular tier.</span></li>
+        <li>${I.alerta}<span>Para trocar de tipo, tire o atual. Ele volta no tier atual e os tiers anteriores se perdem.</span></li>
+      </ul>
+    </div>
+
+    <div class="sec"><a class="seu-plano" href="#/plano/25s" style="--c:${cor(25)}">
+      <span class="mini"><img src="${ART(25, true)}" alt=""></span>
+      <span><span class="l-t">No seu plano: X-Attack T1 → T3</span><span class="l-s">Shiny Pikachu · você precisa do T2 e do T3</span></span>${I.seta}</a></div>
+
+    <div class="sec"><h3 class="titulo">Qual held usar</h3>
+      <div class="lista uso">${HELD_TIPOS.map(([t, d, sl]) => `<div class="linha">${I.ponto}<span><span class="l-t" style="display:block">${t}</span><span class="l-s">${d}</span></span><span class="dir">${selo(sl).replace(/<i><\/i>.*<\/span>/, '<i></i></span>')}</span></div>`).join('')}</div>
+      <p class="aviso">Nenhuma fonte publica o efeito em números dos helds de dano, defesa e regeneração. Ponto verde: wiki oficial. Amarelo: comunidade.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Fusão: juntar 3 para subir</h3>
+      <div class="calc">
+        <div class="calc-topo">
+          <div><span class="rot">Você tem helds sobrando de qual tier?</span>
+            <div class="tier-seg" role="group" aria-label="Tier">${[1,2,3,4,5,6].map(k => `<button aria-pressed="${sisH.t === k}" data-held-t="${k}">T${k}</button>`).join('')}</div></div>
+        </div>
+        <div class="calc-total" aria-live="polite">
+          <span class="n">~${Math.round(f.media)}<small>helds T${sisH.t} por um T${sisH.t + 1}</small></span>
+          <span class="pior">no pior caso, ${f.pior}<br>a 10ª falha garante</span>
+        </div>
+        <div class="lista uso" style="border-radius:0;box-shadow:none">
+          <div class="linha">${I.caixa}<span><span class="l-t" style="display:block">3 helds T${sisH.t} de qualquer tipo</span><span class="l-s">25% de virar 1 Held Ticket T${sisH.t + 1}, que dá um held aleatório desse tier</span></span></div>
+          <div class="linha">${I.alerta}<span><span class="l-t" style="display:block">Se falhar</span><span class="l-s">Volta 1 Held Ticket T${sisH.t} e você ganha 1 Relic Point. Com 10 pontos, troca pela recompensa T${sisH.t + 1}</span></span></div>
+        </div>
+      </div>
+      <p class="aviso">Média calculada com a regra oficial, não medida no jogo. Os helds ficam no Depot Locker 5 para a máquina enxergar. O held que sai é aleatório: pode não ser o tipo que você quer.</p>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Onde conseguir</h3>
+      <div class="lista uso">
+        <div class="linha">${I.local}<span><span class="l-t" style="display:block">Máquina de helds do Trade Center</span><span class="l-s">Troca tokens de guild, Rockets, Officers, Brotherhood e Clones</span></span></div>
+        <div class="linha">${I.alvo}<span><span class="l-t" style="display:block">Clones</span><span class="l-s">20 Mewtwo Tokens dão 1 held aleatório entre T3 e T7</span></span></div>
+        <div class="linha">${I.raio}<span><span class="l-t" style="display:block">Rockets</span><span class="l-s">A primeira vitória contra o Giovanni dá 1 held T7 e 3 T5</span></span></div>
+        <div class="linha">${I.estrela}<span><span class="l-t" style="display:block">Achievements e Brotherhood</span><span class="l-s">De 1 held T1 até helds T6 e T7 nos contratos maiores</span></span></div>
+      </div>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Tirar um held</h3>
+      <ol class="passos-num">
+        <li><span>Deixe ativo o Pokémon com o held.</span></li>
+        <li><span>Fale com a Rosemary, na entrada do Trade Center, e diga <b>remove</b>.</span></li>
+        <li><span>Escolha o held, confira o tier e confirme. Ele volta como item, no tier atual.</span></li>
+      </ol>
+    </div>
+
+    <div class="sec"><h3 class="titulo">Fontes que discordam</h3>
+      ${fatoSis('A fusão pede o mesmo tipo?', 'A comunidade diz que sim. A wiki oficial diz que basta o mesmo tier, com tipos diferentes. Vale a oficial.', ['ok','Wiki oficial · 19/09'])}
+      ${fatoSis('Held não dá Boost', 'A tabela que circula (T1 +5 até T7 +23) não tem fonte. Boost vem só de Boost Stone.', ['ok','Wiki oficial · 19/09'])}
+    </div>
+
+    <div class="barra-acao">
+      <button class="btn btn-suave" data-reportar aria-label="Reportar erro">${I.bandeira}Erro?</button>
+      <a class="btn btn-primario" href="#/plano/25s">Ver no meu plano</a>
+    </div>
+  </article>`, primeira);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t || $('#camada').hidden) return;
+  if (t.dataset.starPoke) { const i = +t.dataset.starPoke; sisS.k = i; sisS.ate = Math.min(5, COLECAO[i].stars + 2); abrirStar(false); }
+  else if (t.dataset.starAte) { sisS.ate = +t.dataset.starAte; abrirStar(false); }
+  else if (t.dataset.heldT) { sisH.t = +t.dataset.heldT; abrirHelds(false); }
+});
+
+/* ============ roteador ============ */
+let baseAtual = null;
+function rotear() {
+  const h = location.hash.replace(/^#/, '') || '/entrada';
+  const en = h.match(/^\/entrada(?:\/(personagem|pronto))?$/);
+  if (en) {
+    fecharFicha(false);
+    if (!baseAtual) desenhar('/inicio');
+    abrirEntrada(en[1] || 'boas');
+    return;
+  }
+  fecharEntrada(); ent = null;
+  const novo = h.match(/^\/novo(?:\/(\d+)(s?))?$/);
+  if (novo) {
+    if (!baseAtual) desenhar('/meus/colecao');
+    abrirCadastro(novo[1] ? { n:+novo[1], s:!!novo[2] } : null);
+    return;
+  }
+  if (h === '/s/star' || h === '/s/helds') {
+    if (!baseAtual) desenhar('/wiki');
+    h === '/s/star' ? abrirStar() : abrirHelds();
+    return;
+  }
+  if (h === '/s/boost') {
+    if (!baseAtual) desenhar('/wiki');
+    abrirSistema();
+    return;
+  }
+  const it = h.match(/^\/i\/([a-z-]+)$/);
+  if (it) {
+    if (!baseAtual) desenhar('/wiki');
+    abrirItem(it[1]);
+    return;
+  }
+  const pl = h.match(/^\/plano\/(\d+s?)$/);
+  if (pl) {
+    if (!baseAtual) desenhar('/meus/planos');
+    abrirPlano(pl[1]);
+    return;
+  }
+  const p = h.match(/^\/p\/(\d+)(s?)$/);
+  if (p) {
+    if (!baseAtual) desenhar('/inicio');
+    abrirFicha(+p[1], !!p[2]);
+    return;
+  }
+  fecharFicha(false);
+  desenhar(h);
+}
+function desenhar(h) {
+  const [, porta = 'inicio', sub] = h.split('/');
+  const fn = TELAS[porta] || TELAS.inicio;
+  baseAtual = h;
+  const tela = $('#tela');
+  tela.innerHTML = fn(sub);
+  document.querySelectorAll('.porta').forEach(a => { if (a.dataset.porta === porta) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  window.scrollTo(0, 0);
+  if (porta === 'buscar') { const q = $('#q'); buscar(q.value); q.addEventListener('input', e => buscar(e.target.value)); }
+}
+
+/* ============ eventos ============ */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, a'); if (!t) return;
+  if (t.matches('a[href="#/wiki"]:not(.porta):not(.btn)')) { e.preventDefault(); toast('Esta página ainda não foi desenhada', I.relogio); return; }
+  if (t.matches('[data-fechar]')) { fecharFicha(); return; }
+  if (t.matches('[data-aba]')) { location.hash = '#/meus/' + t.dataset.aba; return; }
+  if (t.matches('[data-forma]') && fichaAtual) { const s = t.dataset.forma === 'shiny'; history.replaceState(null, '', `#/p/${fichaAtual.n}${s ? 's' : ''}`); abrirFicha(fichaAtual.n, s); document.querySelector('#camada').classList.add('aberta'); return; }
+  if (t.matches('[data-adicionar]')) { location.hash = `#/novo/${fichaAtual.n}${fichaAtual.s ? 's' : ''}`; return; }
+  if (t.matches('[data-planejar]')) { location.hash = `#/plano/${fichaAtual.n}${fichaAtual.s ? 's' : ''}`; return; }
+  if (t.matches('[data-reportar]')) { toast('Obrigado — o erro vai para a revisão da base'); return; }
+  if (t.matches('[data-q]')) { const q = $('#q'); q.value = t.dataset.q; buscar(q.value); q.focus(); return; }
+  if (t.matches('[data-escolher-tema]')) {
+    const v = t.dataset.escolherTema;
+    try { v === 'sistema' ? localStorage.removeItem('pka-tema') : localStorage.setItem('pka-tema', v); } catch (err) {}
+    window.__setTema(v === 'sistema' ? null : v);
+    desenhar(baseAtual); return;
+  }
+  if (t.id === 'exportar') { toast('Arquivo gerado — em produção, baixa o JSON'); return; }
+  if (t.id === 'apagar') { toast('No protótipo nada é apagado'); return; }
+  if (t.id === 'add-char') { location.hash = '#/entrada/personagem'; return; }
+});
+$('#camada').addEventListener('click', e => { if (e.target.id === 'camada') fecharFicha(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharFicha(); });
+window.addEventListener('hashchange', rotear);
+rotear();
+</script>
+</body>
+</html>

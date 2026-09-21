@@ -1,0 +1,176 @@
+/* PKA Companion — protótipo · base visual
+   Mundo: menu de console · paleta Mewtwo. A arte do Pokémon é a luz ambiente; tudo o mais é cartão por cima. */
+
+@import url("https://fonts.googleapis.com/css2?family=Mona+Sans:wdth,wght@75..125,200..900&display=swap");
+
+:root {
+  /* Mewtwo (principal, roxo acinzentado) */
+  --m-50: #f7f6f8; --m-100: #edeaf0; --m-200: #ded5e6; --m-300: #c5b8d1; --m-400: #aa94bd;
+  --m-500: #9376ad; --m-600: #7c5c99; --m-700: #654c7b; --m-800: #4e3c5d; --m-900: #392e43; --m-950: #241e29;
+  /* Neutro (cinza arroxeado) */
+  --n-50: #f7f7f8; --n-100: #ececef; --n-200: #d9d8df; --n-300: #c1bdcb; --n-400: #a39db4;
+  --n-500: #837b9c; --n-600: #72698c; --n-700: #5d5671; --n-800: #484356; --n-900: #35323e; --n-950: #222127;
+  /* Violeta (ação e o que é seu) */
+  --v-50: #f7f5fa; --v-100: #eee7f3; --v-200: #dccde9; --v-300: #c6aade; --v-400: #ab7dd3;
+  --v-500: #9558ca; --v-600: #7f3bba; --v-700: #6a319c; --v-800: #4f2b6e; --v-900: #3a224e; --v-950: #24192f;
+
+  /* 18 elementos — tons próprios, afinados à paleta */
+  --el-normal: #a3a3ae; --el-fire: #d05b52; --el-water: #3ea8e5; --el-grass: #5fbf7a;
+  --el-electric: #f2c230; --el-ice: #7fd4e0; --el-fighting: #ef7a45; --el-poison: #a970d6;
+  --el-ground: #c99a5b; --el-flying: #8fa8f0; --el-psychic: #ee6f9e; --el-bug: #a4c24a;
+  --el-rock: #b8a36c; --el-ghost: #7b6bc2; --el-dragon: #6a5ae8; --el-dark: #6f6674;
+  --el-steel: #8fb1c4; --el-fairy: #eb9ad6;
+
+  --font: "Mona Sans", ui-sans-serif, system-ui, sans-serif;
+  --r-sm: 10px; --r-md: 16px; --r-lg: 22px; --r-xl: 30px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --dock-h: 72px;
+  color-scheme: dark;
+}
+
+/* ---------- temas ---------- */
+:root, [data-tema="escuro"] {
+  --bg: #17131c;
+  --bg-2: #1d1823;
+  --surface: #251f2c;
+  --surface-2: #2e2736;
+  --surface-3: #393042;
+  --text: #f4f1f7;
+  --text-2: #c3bacd;
+  --text-3: #9d93aa;
+  --accent: #ab7dd3;         /* violeta: só o que é seu / próxima ação */
+  --accent-strong: #7f3bba;
+  --accent-ink: #ffffff;
+  --data: #c5b8d1;
+  --glass: rgba(30, 24, 37, .62);
+  --glass-edge: rgba(255, 255, 255, .07);
+  --shadow-1: 0 1px 2px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.25);
+  --shadow-2: 0 2px 6px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.38);
+  --shadow-3: 0 6px 16px rgba(0,0,0,.4), 0 30px 70px rgba(0,0,0,.5);
+  --focus-glow: 0 0 0 2px rgba(171,125,211,.9), 0 14px 36px rgba(0,0,0,.45);
+  --ok: #6fd39a; --warn: #f2c230; --bad: #f07b7b;
+  color-scheme: dark;
+}
+[data-tema="claro"] {
+  --bg: #f5f3f8;
+  --bg-2: #ede9f2;
+  --surface: #ffffff;
+  --surface-2: #f7f5fa;
+  --surface-3: #ede7f3;
+  --text: #1f1a26;
+  --text-2: #4e4658;
+  --text-3: #625a6e;
+  --accent: #6a319c;
+  --accent-strong: #6a319c;
+  --accent-ink: #ffffff;
+  --data: #7c5c99;
+  --glass: rgba(251, 250, 253, .72);
+  --glass-edge: rgba(36, 25, 47, .06);
+  --shadow-1: 0 1px 2px rgba(36,30,41,.06), 0 4px 14px rgba(36,30,41,.07);
+  --shadow-2: 0 2px 6px rgba(36,30,41,.07), 0 16px 36px rgba(58,34,78,.12);
+  --shadow-3: 0 6px 16px rgba(36,30,41,.1), 0 30px 70px rgba(58,34,78,.2);
+  --focus-glow: 0 0 0 2px rgba(106,49,156,.85), 0 14px 32px rgba(36,30,41,.18);
+  --ok: #1f8a55; --warn: #9a6a00; --bad: #c43d3d;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-tema]) {
+    --bg: #f5f3f8; --bg-2: #ede9f2; --surface: #ffffff; --surface-2: #f7f5fa; --surface-3: #ede7f3;
+    --text: #1f1a26; --text-2: #4e4658; --text-3: #625a6e;
+    --accent: #6a319c; --accent-strong: #6a319c; --data: #7c5c99;
+    --glass: rgba(251,250,253,.72); --glass-edge: rgba(36,25,47,.06);
+    --shadow-1: 0 1px 2px rgba(36,30,41,.06), 0 4px 14px rgba(36,30,41,.07);
+    --shadow-2: 0 2px 6px rgba(36,30,41,.07), 0 16px 36px rgba(58,34,78,.12);
+    --shadow-3: 0 6px 16px rgba(36,30,41,.1), 0 30px 70px rgba(58,34,78,.2);
+    --focus-glow: 0 0 0 2px rgba(106,49,156,.85), 0 14px 32px rgba(36,30,41,.18);
+    --ok: #1f8a55; --warn: #9a6a00; --bad: #c43d3d;
+    color-scheme: light;
+  }
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent); color: var(--accent-ink); }
+:focus-visible { outline: none; box-shadow: var(--focus-glow); border-radius: var(--r-sm); }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img { display: block; max-width: 100%; }
+* { scrollbar-width: thin; scrollbar-color: var(--surface-3) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 8px; }
+
+.display { font-stretch: 118%; font-weight: 720; letter-spacing: -0.025em; line-height: 1.02; text-wrap: balance; }
+.titulo { font-stretch: 108%; font-weight: 650; letter-spacing: -0.015em; line-height: 1.15; text-wrap: balance; }
+.rotulo { font-size: 13px; font-weight: 560; color: var(--text-3); letter-spacing: .01em; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.icone { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.icone.p { width: 18px; height: 18px; }
+
+/* ---------- botões ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 22px; border-radius: 999px;
+  font-weight: 620; font-size: 15px; letter-spacing: .005em;
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), background .2s;
+}
+.btn:active { transform: scale(.97); }
+.btn-primario { background: var(--accent-strong); color: #fff; box-shadow: 0 2px 6px rgba(10,10,30,.25), 0 10px 24px rgba(10,10,30,.28); }
+.btn-primario:hover { box-shadow: 0 3px 8px rgba(10,10,30,.3), 0 14px 32px rgba(10,10,30,.34); }
+.btn-vidro { background: rgba(255,255,255,.14); color: #fff; backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4); }
+.btn-vidro:hover { background: rgba(255,255,255,.22); }
+.btn-suave { background: var(--surface-2); color: var(--text); box-shadow: var(--shadow-1); }
+.btn-suave:hover { background: var(--surface-3); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* ---------- chips ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 10px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 600; letter-spacing: .01em;
+  background: var(--surface-2); color: var(--text-2);
+}
+.chip-el { color: var(--text); background: color-mix(in oklab, var(--c) 24%, var(--surface-2)); }
+.chip-el::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.chip-tier { background: var(--surface-3); color: var(--text); }
+.chip-shiny { color: #241e29; background: linear-gradient(100deg, #ffe7a3, #f7b7e0 40%, #a9d8ff 75%, #ffe7a3); background-size: 220% 100%; animation: brilho 6s linear infinite; }
+
+/* selo de confiança do dado */
+.selo { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-3); font-weight: 520; }
+.selo i { width: 8px; height: 8px; border-radius: 50%; display: block; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ok) 22%, transparent); }
+.selo.parcial i { background: var(--warn); box-shadow: 0 0 0 3px color-mix(in oklab, var(--warn) 22%, transparent); }
+.selo.palpite i { background: var(--bad); box-shadow: 0 0 0 3px color-mix(in oklab, var(--bad) 22%, transparent); }
+
+/* ---------- arte com brilho shiny ---------- */
+.arte { position: relative; }
+.arte img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
+.arte.shiny::before {
+  content: ""; position: absolute; inset: 12%; border-radius: 50%; z-index: -1; pointer-events: none;
+  background: conic-gradient(from 200deg, #ffd66b, #ff8fd0, #8fc7ff, #7dffc4, #ffd66b);
+  filter: blur(18px) saturate(1.3); opacity: .7;
+}
+.arte.shiny { isolation: isolate; }
+.slot .arte.shiny::before, .c-arte .arte.shiny::before, .quadro .arte.shiny::before, .av .arte.shiny::before { inset: 16%; filter: blur(9px) saturate(1.3); opacity: .8; }
+.arte.shiny::after {
+  content: ""; position: absolute; inset: 6%; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from var(--ang, 0deg), transparent 0 20%, rgba(255,231,163,.0) 20%, rgba(255,231,163,.28) 30%, rgba(247,183,224,.28) 40%, rgba(169,216,255,.28) 50%, transparent 60%);
+  mix-blend-mode: screen; filter: blur(18px); animation: gira 7s linear infinite;
+}
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@keyframes gira { to { --ang: 360deg; } }
+@keyframes brilho { to { background-position: -220% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+}
