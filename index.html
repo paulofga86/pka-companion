@@ -716,6 +716,14 @@
   .task .acoes-t { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
   .task .acoes-t .btn { min-height: 38px; padding: 0 14px; font-size: 13.5px; }
   .task.feita { opacity: .72; }
+
+  .mapa-telas { margin-top: 10px; }
+  .mapa-telas summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; min-height: 52px; padding: 0 16px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); font-weight: 620; }
+  .mapa-telas summary::-webkit-details-marker { display: none; }
+  .mapa-telas summary .icone { color: var(--text-3); transition: transform .35s var(--ease); }
+  .mapa-telas[open] summary .icone { transform: rotate(90deg); }
+  .mapa-telas .lista { margin-top: 8px; }
+  .mapa-telas .linha { min-height: 50px; }
 </style>
 </head>
 <body>
@@ -1016,7 +1024,7 @@ function inicioVisitante() {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/wiki"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/i/thunder-stone"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
           <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
           <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
@@ -1059,6 +1067,11 @@ const TELAS = {
             <div class="c-sub">${ROCK.feitos.size} de 13 · ${renovaTxt()}</div>
             <div class="barra"><i style="--v:${Math.max(2, ROCK.feitos.size / 13 * 100)}%"></i></div>
           </a>
+          ${TASKS.filter(t => t.estado === 'aceita').map(t => { const a = ALVOS.find(x => x.id === t.cacada); return `<a class="cartao tinto saltado" href="#/tasks/${t.id}" style="--c:var(--el-${a ? a.el[0] : 'normal'})">
+            ${a ? `<div class="c-arte">${arte(a.n, false)}</div>` : ''}
+            <div class="c-titulo">Task da ${t.npc}</div>
+            <div class="c-sub">${t.obj.join(' · ')}</div>
+          </a>`; }).join('')}
           <a class="cartao tinto saltado" href="#/p/405" style="--c:var(--el-electric)">
             <div class="c-arte">${arte(405, false)}</div>
             <div class="c-titulo">Capturar Luxray</div>
@@ -1070,7 +1083,7 @@ const TELAS = {
       <div class="fileira">
         <div class="fileira-cab"><h3 class="titulo">O que mudou no jogo</h3><a href="#/wiki">Todas</a></div>
         <div class="trilho">
-          <a class="cartao largo" href="#/wiki"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
+          <a class="cartao largo" href="#/i/thunder-stone"><span class="data">19/09</span><div class="c-titulo">Drop de stones padronizado</div><div class="c-sub">Todo shiny dropa as stones da forma normal com 4× a chance.</div></a>
           <a class="cartao largo" href="#/wiki"><span class="data">08/09</span><div class="c-titulo">Titan 3 aberto</div><div class="c-sub">20% a mais de shiny até 30/09.</div></a>
           <a class="cartao largo" href="#/wiki"><span class="data">04/09</span><div class="c-titulo">Treino sem casa</div><div class="c-sub">Training Camp no andar de baixo do Trade Center.</div></a>
         </div>
@@ -1106,7 +1119,7 @@ const TELAS = {
         <div class="trilho">
           <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Thunder Stone</span><span class="d">Stone de Electric · evolução e Boost</span></a>
           <a class="secao-tile" href="#/i/electric-ear"><span class="t">Electric Ear</span><span class="d">Drop de Raichu · receita de Boost</span></a>
-          <a class="secao-tile" href="#/wiki"><span class="t">Stones</span><span class="d">Uma por elemento, 18 no total</span></a>
+          <a class="secao-tile" href="#/i/thunder-stone"><span class="t">Stones</span><span class="d">Uma por elemento, 18 no total</span></a>
           <a class="secao-tile" href="#/s/helds"><span class="t">Helds</span><span class="d">T1 a T7, fusão 3 por 1</span></a>
         </div>
       </div>
@@ -1207,6 +1220,26 @@ const TELAS = {
           <a class="linha" href="#/eu"><span class="l-t">Denzar</span><span class="l-s">· Sun · 262</span><span class="dir">em uso</span></a>
           <button class="linha" type="button" id="add-char"><span class="l-t">Adicionar personagem</span><span class="dir">${I.seta}</span></button>
         </div>
+      </div>
+
+      <div class="bloco"><h3>Este protótipo</h3>
+        <div class="lista">
+          <a class="linha" href="https://paulofga86.github.io/pka-companion/guia.html" target="_blank" rel="noopener"><span><span class="l-t" style="display:block">Guia de implementação</span><span class="l-s">Para o Julio: tela a tela, dados e cálculos</span></span><span class="dir">${I.seta}</span></a>
+          <a class="linha" href="https://paulofga86.github.io/pka-companion/prancha.html" target="_blank" rel="noopener"><span><span class="l-t" style="display:block">Prancha de estilo</span><span class="l-s">Cores, tipografia e componentes</span></span><span class="dir">${I.seta}</span></a>
+          <a class="linha" href="#/entrada"><span><span class="l-t" style="display:block">Ver a primeira entrada</span><span class="l-s">Como o app abre para quem chega</span></span><span class="dir">${I.seta}</span></a>
+        </div>
+        <details class="mapa-telas"><summary>Todas as telas${I.seta}</summary>
+          <div class="lista">${[
+            ['Início', '#/inicio'], ['Wiki', '#/wiki'], ['Buscar', '#/buscar'],
+            ['Ficha de Pokémon · Shiny Raichu', '#/p/26s'], ['Ficha de item · Thunder Stone', '#/i/thunder-stone'], ['Ficha de item · Electric Ear', '#/i/electric-ear'],
+            ['Sistema · Boost', '#/s/boost'], ['Sistema · Star', '#/s/star'], ['Sistema · Helds', '#/s/helds'],
+            ['Caçada de Swellow', '#/c/swellow'], ['Caçada de Magmar', '#/c/magmar'], ['Tasks do Mundo', '#/tasks'], ['Rockets da semana', '#/rockets'],
+            ['Coleção', '#/meus/colecao'], ['Cadastro rápido', '#/novo'], ['Meu Pokémon · Shiny Ampharos', '#/meu/0'],
+            ['Times', '#/meus/times'], ['Montar time', '#/time/electric'], ['Novo time', '#/time/novo'],
+            ['Planos', '#/meus/planos'], ['Plano do Shiny Pikachu', '#/plano/25s'],
+            ['Primeira entrada', '#/entrada'], ['Cadastro do personagem', '#/entrada/personagem'],
+          ].map(([t, h]) => `<a class="linha" href="${h}"><span class="l-t">${t}</span><span class="dir">${I.seta}</span></a>`).join('')}</div>
+        </details>
       </div>
 
       <div class="bloco"><h3>Seus dados</h3>
@@ -1703,6 +1736,7 @@ function htmlEntBoas() {
         <button class="btn btn-suave" data-ent-visitar>Só consultar a wiki</button>
       </div>
       <p class="ent-discord">Já usa em outro aparelho? <button data-ent-discord>Entrar com Discord</button></p>
+      <p class="ent-discord" style="margin-top:4px"><a href="https://paulofga86.github.io/pka-companion/guia.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:640">Guia de implementação</a></p>
       <p class="aviso">Sem e-mail nem senha: tudo fica salvo neste aparelho. Projeto de fãs, sem vínculo com o PokeAlliance, a Nintendo ou a The Pokémon Company.</p>
     </div>
   </section>`;
