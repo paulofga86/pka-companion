@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790014268">
+<link rel="stylesheet" href="estilo.css?v=1790014578">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -977,6 +977,37 @@
   .surge { animation: surge .9s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 65ms); }
   html.suave, html.suave *, html.suave *::before, html.suave *::after {
     transition: background-color .8s ease, color .8s ease, border-color .8s ease, box-shadow .8s ease, fill .8s ease, opacity .8s ease !important; }
+
+  /* ---------- transições entre estados (navegador) ---------- */
+  .time-palco .alvo-arte { view-transition-name: alvo-arte; }
+  .time-palco .fundo { view-transition-name: alvo-fundo; }
+  ::view-transition-old(root) { animation: vt-sai .42s cubic-bezier(.4, 0, .2, 1) both; }
+  ::view-transition-new(root) { animation: vt-entra .7s cubic-bezier(.16, 1, .3, 1) both; }
+  html[data-vt="camada"]::view-transition-old(root) { animation: vt-sai-leve .5s cubic-bezier(.4, 0, .2, 1) both; }
+  html[data-vt="camada"]::view-transition-new(root) { animation: vt-entra-leve .6s cubic-bezier(.16, 1, .3, 1) both; }
+  ::view-transition-group(alvo-arte), ::view-transition-group(alvo-fundo) { animation-duration: .8s; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
+  ::view-transition-old(alvo-arte) { animation: vt-arte-sai .5s cubic-bezier(.4, 0, .2, 1) both; }
+  ::view-transition-new(alvo-arte) { animation: vt-arte-entra .8s cubic-bezier(.16, 1, .3, 1) both; }
+  ::view-transition-old(alvo-fundo), ::view-transition-new(alvo-fundo) { animation-duration: .9s; }
+  @keyframes vt-sai { to { opacity: 0; filter: blur(10px); } }
+  @keyframes vt-entra { from { opacity: 0; filter: blur(6px); } }
+  @keyframes vt-sai-leve { to { opacity: 0; filter: blur(4px); } }
+  @keyframes vt-entra-leve { from { opacity: 0; } }
+  @keyframes vt-arte-sai { to { opacity: 0; transform: translateX(-40px) scale(.9); filter: blur(6px); } }
+  @keyframes vt-arte-entra { from { opacity: 0; transform: translateX(40px) scale(.94); filter: blur(6px); } }
+  /* entrada do conteúdo, mais lenta e delicada */
+  @keyframes surge { from { opacity: 0; transform: translateY(22px); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+  .surge { animation: surge 1.05s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(120ms + var(--i, 0) * 80ms); }
+
+  /* topo das camadas some em degradê, sem corte */
+  .folha-palco::after { display: none; }
+  .folha-palco::before, .folha-palco .fundo { -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); }
+  .sis-palco::before { -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%); mask-image: linear-gradient(180deg, #000 55%, transparent 100%); }
+  /* montador de time: mais espaço e o alvo mais à esquerda, passando para baixo */
+  .time-palco { height: 250px; overflow: visible; }
+  .time-palco .alvo-arte { right: auto; left: 44%; top: 72px; width: 236px; height: 236px; z-index: 0; }
+  .time-palco + .etiqueta { margin-top: 26px; position: relative; z-index: 1; }
+  @media (max-width: 480px) { .time-palco .alvo-arte { left: 36%; width: 200px; height: 200px; top: 84px; } }
 </style>
 </head>
 <body>
@@ -1310,6 +1341,14 @@ function revelar(raiz, sel, maxI = 16) {
 function abrirComSurgir(camada) {
   revelar(camada.querySelector('.folha'), ':scope > *, :scope > .sec > *', 14);
   requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+}
+function trocar(tipo, fn) {
+  if (!document.startViewTransition || document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return fn();
+  document.documentElement.dataset.vt = tipo;
+  let t;
+  try { t = document.startViewTransition(fn); } catch (e) { delete document.documentElement.dataset.vt; return fn(); }
+  t.ready.catch(() => {});
+  t.finished.catch(() => {}).finally(() => { if (document.documentElement.dataset.vt === tipo) delete document.documentElement.dataset.vt; });
 }
 function suavizar() { const r = document.documentElement; r.classList.add('suave'); clearTimeout(suavizar.t); suavizar.t = setTimeout(() => r.classList.remove('suave'), 950); }
 
@@ -1947,11 +1986,8 @@ function pintarPlano(primeira) {
   const pl = planoDe(planoAtual), camada = $('#camada');
   { const ev = pl.passos.find(x => x.vira); tingirPokemon(ev && ev.estado !== 'feito' ? ev.vira : pl.n, pl.s); }
   const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
-  camada.innerHTML = htmlPlano(pl);
-  camada.hidden = false;
-  document.body.style.overflow = 'hidden';
-  if (primeira) abrirComSurgir(camada);
-  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+  const aplicar = () => { camada.innerHTML = htmlPlano(pl); camada.hidden = false; document.body.style.overflow = 'hidden'; if (!primeira) { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; } };
+  if (primeira) { aplicar(); abrirComSurgir(camada); } else trocar('camada', aplicar);
 }
 function htmlPlano(pl) {
   const evo = pl.passos.find(x => x.vira);
@@ -2312,7 +2348,7 @@ function pintarSistema(primeira) {
   const media = faixas.reduce((a, f) => a + f.media, 0), pior = faixas.reduce((a, f) => a + f.pior, 0);
   const poke = COLECAO[sis.k];
   const meus = COLECAO.map((c, i) => ({ c, i })).filter(({ c }) => c.boost < 50).sort((a, b) => (b.i === sis.k) - (a.i === sis.k) || b.c.boost - a.c.boost).slice(0, 6);
-  camada.innerHTML = `<article class="folha" role="dialog" aria-modal="true" aria-label="Boost">
+  const html = `<article class="folha" role="dialog" aria-modal="true" aria-label="Boost">
     <div class="folha-palco sis-palco">
       <span class="puxador"></span>
       <div class="folha-topo"><button class="redondo" data-fechar aria-label="Voltar">${I.voltar}</button></div>
@@ -2392,10 +2428,8 @@ function pintarSistema(primeira) {
       <a class="btn btn-primario" href="#/plano/${poke.n}${poke.s ? 's' : ''}">Levar ao plano</a>
     </div>
   </article>`;
-  camada.hidden = false;
-  document.body.style.overflow = 'hidden';
-  if (primeira) abrirComSurgir(camada);
-  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+  const aplicar = () => { camada.innerHTML = html; camada.hidden = false; document.body.style.overflow = 'hidden'; if (!primeira) { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; } };
+  if (primeira) { aplicar(); abrirComSurgir(camada); } else trocar('camada', aplicar);
 }
 document.addEventListener('click', e => {
   if (!sis || $('#camada').hidden || !$('#camada .sis-palco')) return;
@@ -2410,9 +2444,8 @@ document.addEventListener('click', e => {
 function mostrarSistema(html, primeira) {
   const camada = $('#camada');
   const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
-  camada.innerHTML = html; camada.hidden = false; document.body.style.overflow = 'hidden';
-  if (primeira) abrirComSurgir(camada);
-  else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
+  const aplicar = () => { camada.innerHTML = html; camada.hidden = false; document.body.style.overflow = 'hidden'; if (!primeira) { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; } };
+  if (primeira) { aplicar(); abrirComSurgir(camada); } else trocar('camada', aplicar);
 }
 const fatoSis = (h, p, sl) => `<div class="fato">${h ? `<h3 class="titulo" style="font-size:16px;margin:0 0 4px">${h}</h3>` : ''}<p>${p}</p><div class="pe">${selo(sl)}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>`;
 
@@ -3566,8 +3599,8 @@ function rotear() {
     abrirFicha(+p[1], !!p[2]);
     return;
   }
-  fecharFicha(false);
-  desenhar(h);
+  if (h === baseAtual) { fecharFicha(false); return; }
+  trocar('porta', () => { fecharFicha(false); desenhar(h); });
 }
 function desenhar(h) {
   const [, porta = 'inicio', sub] = h.split('/');
