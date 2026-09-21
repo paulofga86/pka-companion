@@ -13,7 +13,7 @@
     aplica(); mq.addEventListener('change', aplica);
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013972">
+<link rel="stylesheet" href="estilo.css?v=1790014268">
 <style>
   body { padding: 0 16px; }
   .doc { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 40px 96px; }
@@ -158,6 +158,8 @@
         <li><b>Fundo com cor e textura:</b> o fundo das telas não é chapado. Quatro brilhos grandes (violeta no alto à direita, azul à esquerda, rosa embaixo, verde leve no alto) e uma textura de tecido de malha bem discreta por cima (laçadas de 8 px com luz e sombra, mais um grão fino), desenhada em código, sem imagem. Tudo fixo enquanto a página rola, atrás do conteúdo, para os cards se destacarem. Versões próprias para o tema claro.</li>
         <li><b>Shiny em destaque:</b> todo card de Pokémon shiny (Pokédex, coleção, fileiras) tem fundo iridescente, contorno de arco-íris que gira devagar e o nome em degradê. Com "reduzir movimento", o contorno fica parado.</li>
         <li><b>Cards da Wiki com imagem:</b> todo card de seção tem uma imagem e fundo na cor dela: itens com a pedra ou peça desenhada na cor do elemento, sistemas com o número-símbolo (+50, 5★, T7), combate, quests e mundo com a arte de um Pokémon ligado ao tema.</li>
+        <li><b>Movimento:</b> tudo entra aos poucos. Ao trocar de aba, título, fileiras e cards surgem em sequência (subindo 16 px, saindo de um leve desfoque, 0,9 s, 65 ms entre um e outro). Toda camada aberta faz o mesmo com o próprio conteúdo. Trocar tema ou paleta faz uma transição de cor de 0,8 s em tudo. Com "reduzir movimento", nada disso acontece.</li>
+        <li><b>Cor do Pokémon em foco:</b> a interface pode assumir as cores de um Pokémon (duas cores dominantes da arte, lidas na hora). Isso acontece ao passar o mouse num card, ao abrir a ficha, o seu Pokémon, o plano ou a caçada, e no montador de time ao tocar num alvo ou num dos seis. A troca leva 1 s. A luz fica atrás de tudo e também tinge o topo da camada aberta. Ao fechar a camada, volta à paleta normal.</li>
         <li><b>Arte dos Pokémon:</b> arte oficial via PokéAPI (<code>official-artwork/[shiny/]N.png</code>). Itens e sistemas não têm arte oficial: usamos desenho próprio na cor do elemento, ou o número do sistema em destaque ("+50", "5★", "T7").</li>
       </ul>
       <h3 class="titulo">Componentes que se repetem</h3>

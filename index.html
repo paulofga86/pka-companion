@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790013972">
+<link rel="stylesheet" href="estilo.css?v=1790014268">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -957,19 +957,26 @@
   @property --aura1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
   @property --aura2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
   @property --aura3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
-  #aura { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0;
+  html { transition: --aura1 1s var(--ease), --aura2 1s var(--ease), --aura3 1s var(--ease); }
+  #aura { position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
       radial-gradient(1100px 720px at 82% 4%, var(--aura1), transparent 70%),
       radial-gradient(900px 720px at 4% 62%, var(--aura2), transparent 70%),
       radial-gradient(900px 600px at 55% 108%, var(--aura1), transparent 70%),
       linear-gradient(var(--aura3), var(--aura3));
-    transition: opacity .9s var(--ease), --aura1 .9s var(--ease), --aura2 .9s var(--ease), --aura3 .9s var(--ease); }
-  #aura.on { opacity: 1; }
+  }
+  .folha { background: linear-gradient(180deg, var(--aura1) 0%, var(--aura3) 38%, transparent 75%), var(--bg); }
   .cartao .c-arte, .poke-tile .quadro .arte { transition: transform .55s var(--ease); }
   @media (hover: hover) {
     .cartao:hover .c-arte { transform: scale(1.14) translateY(-6px); }
     .poke-tile:hover .quadro .arte { transform: scale(1.08); }
   }
+
+  /* ---------- tudo surge aos poucos ---------- */
+  @keyframes surge { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+  .surge { animation: surge .9s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 65ms); }
+  html.suave, html.suave *, html.suave *::before, html.suave *::after {
+    transition: background-color .8s ease, color .8s ease, border-color .8s ease, box-shadow .8s ease, fill .8s ease, opacity .8s ease !important; }
 </style>
 </head>
 <body>
@@ -1287,6 +1294,24 @@ function matchup(n, alvo) {
 const TIMES = [
   { id:'electric', nome:'Time Electric', alvo:'swellow', principal:true, slots:[[181,true],[125,false],[417,false],[25,true],null,null] },
 ];
+
+
+/* ============ surgir aos poucos e transições suaves ============ */
+function revelar(raiz, sel, maxI = 16) {
+  if (!raiz) return;
+  let i = 0;
+  raiz.querySelectorAll(sel).forEach(el => {
+    if (el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return;
+    el.style.setProperty('--i', Math.min(i++, maxI));
+    el.classList.remove('surge'); void el.offsetWidth; el.classList.add('surge');
+    el.addEventListener('animationend', function fim(ev) { if (ev.animationName === 'surge') { el.classList.remove('surge'); el.removeEventListener('animationend', fim); } });
+  });
+}
+function abrirComSurgir(camada) {
+  revelar(camada.querySelector('.folha'), ':scope > *, :scope > .sec > *', 14);
+  requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+}
+function suavizar() { const r = document.documentElement; r.classList.add('suave'); clearTimeout(suavizar.t); suavizar.t = setTimeout(() => r.classList.remove('suave'), 950); }
 
 /* ============ utilidades ============ */
 const $ = s => document.querySelector(s);
@@ -1648,7 +1673,7 @@ function buscar(q) {
 let fichaAtual = null;
 function abrirFicha(n, s) {
   if (!DEX[n]) return;
-  fichaAtual = { n, s }; planoAtual = null;
+  fichaAtual = { n, s }; planoAtual = null; tingirPokemon(n, s);
   const dados = (FICHA[n] && FICHA[n][s ? 'shiny' : 'normal']) || fichaGenerica(n, s);
   const tenho = temNaColecao(n, s);
   const camada = $('#camada');
@@ -1683,7 +1708,7 @@ function abrirFicha(n, s) {
     </article>`;
   camada.hidden = false;
   document.body.style.overflow = 'hidden';
-  requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  abrirComSurgir(camada);
   camada.querySelector('[data-fechar]').focus({ preventScroll: true });
 }
 function fecharFicha(voltarHash = true) {
@@ -1693,6 +1718,7 @@ function fecharFicha(voltarHash = true) {
   document.body.style.overflow = '';
   setTimeout(() => { camada.hidden = true; camada.innerHTML = ''; }, 450);
   fichaAtual = null; cad = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null; rockAberto = null;
+  auraFixa = null; pintarAura(null);
   for (let i = TIMES.length - 1; i >= 0; i--) if (TIMES[i].novo) TIMES.splice(i, 1);
   if (voltarHash) history.replaceState(null, '', '#' + (baseAtual || '/inicio'));
   if (voltarHash && baseAtual && /^\/(inicio|meus)/.test(baseAtual)) { const y = scrollY; desenhar(baseAtual); scrollTo(0, y); }
@@ -1713,7 +1739,7 @@ function pintarCadastro(primeira) {
   camada.innerHTML = cad.etapa === 'busca' ? htmlBusca() : htmlForm();
   camada.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  if (primeira) abrirComSurgir(camada);
   else camada.classList.add('aberta');
   if (cad.etapa === 'busca') { const q = $('#cad-q'); q.value = cad.q; if (primeira) setTimeout(() => q.focus({ preventScroll:true }), 350); filtrarCad(); }
 }
@@ -1919,11 +1945,12 @@ function abrirPlano(k) {
 }
 function pintarPlano(primeira) {
   const pl = planoDe(planoAtual), camada = $('#camada');
+  { const ev = pl.passos.find(x => x.vira); tingirPokemon(ev && ev.estado !== 'feito' ? ev.vira : pl.n, pl.s); }
   const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
   camada.innerHTML = htmlPlano(pl);
   camada.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  if (primeira) abrirComSurgir(camada);
   else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
 }
 function htmlPlano(pl) {
@@ -2070,6 +2097,7 @@ function abrirEntrada(etapa) {
   el.hidden = false; el.scrollTop = 0;
   document.body.style.overflow = 'hidden';
   if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
+  revelar(el, '.ent-texto > *, .ent-cab > *, .campo-grupo, .ent-palco .heroi, .ent-palco .lado', 10);
 }
 function fecharEntrada() {
   const el = $('#entrada'); if (el.hidden) return;
@@ -2264,7 +2292,7 @@ function abrirItem(slug) {
   </article>`;
   camada.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  if (primeira) abrirComSurgir(camada);
   else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = 0; }
 }
 
@@ -2366,7 +2394,7 @@ function pintarSistema(primeira) {
   </article>`;
   camada.hidden = false;
   document.body.style.overflow = 'hidden';
-  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  if (primeira) abrirComSurgir(camada);
   else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
 }
 document.addEventListener('click', e => {
@@ -2383,7 +2411,7 @@ function mostrarSistema(html, primeira) {
   const camada = $('#camada');
   const sc = primeira ? 0 : ($('#camada .folha') || {}).scrollTop || 0;
   camada.innerHTML = html; camada.hidden = false; document.body.style.overflow = 'hidden';
-  if (primeira) requestAnimationFrame(() => requestAnimationFrame(() => camada.classList.add('aberta')));
+  if (primeira) abrirComSurgir(camada);
   else { camada.classList.add('aberta'); $('#camada .folha').scrollTop = sc; }
 }
 const fatoSis = (h, p, sl) => `<div class="fato">${h ? `<h3 class="titulo" style="font-size:16px;margin:0 0 4px">${h}</h3>` : ''}<p>${p}</p><div class="pe">${selo(sl)}<button class="reportar" data-reportar>${I.bandeira}Reportar erro</button></div></div>`;
@@ -2594,6 +2622,7 @@ function abrirTime(id, alvoIni) {
 }
 function pintarTime(primeira) {
   const tm = timeDe(timeAtual), alvo = ALVOS.find(a => a.id === tm.alvo);
+  if (primeira && alvo) tingirPokemon(alvo.n, false);
   const cheios = tm.slots.filter(Boolean);
   const ranking = alvo ? COLECAO.map(c => ({ c, m: matchup(c.n, alvo) })).sort((a, b) => a.m.ord - b.m.ord || (b.c.s - a.c.s)) : COLECAO.map(c => ({ c, m: null }));
   const noTime = c => tm.slots.some(x => x && x[0] === c.n && x[1] === c.s);
@@ -2643,11 +2672,11 @@ document.addEventListener('click', e => {
   if (!timeAtual || $('#camada').hidden || !$('#camada .time-palco')) return;
   const t = e.target.closest('button'); if (!t) return;
   const tm = timeDe(timeAtual);
-  if (t.dataset.tAlvo) { tm.alvo = t.dataset.tAlvo; pintarTime(false); }
-  else if (t.dataset.tVaga) { const i = +t.dataset.tVaga; vagaSel = vagaSel === i ? null : i; pintarTime(false); }
+  if (t.dataset.tAlvo) { tm.alvo = t.dataset.tAlvo; tingirPokemon(ALVOS.find(a => a.id === tm.alvo).n, false); pintarTime(false); }
+  else if (t.dataset.tVaga) { const i = +t.dataset.tVaga; vagaSel = vagaSel === i ? null : i; if (tm.slots[i]) tingirPokemon(tm.slots[i][0], tm.slots[i][1]); pintarTime(false); }
   else if (t.matches('[data-t-fechar-vaga]')) { vagaSel = null; pintarTime(false); }
   else if (t.matches('[data-t-tirar]')) { tm.slots[vagaSel] = null; vagaSel = null; pintarTime(false); }
-  else if (t.dataset.tPick) { const k = t.dataset.tPick; tm.slots[vagaSel] = [parseInt(k), k.endsWith('s')]; const prox = tm.slots.findIndex(x => !x); vagaSel = prox >= 0 ? prox : null; pintarTime(false); }
+  else if (t.dataset.tPick) { const k = t.dataset.tPick; tm.slots[vagaSel] = [parseInt(k), k.endsWith('s')]; tingirPokemon(parseInt(k), k.endsWith('s')); const prox = tm.slots.findIndex(x => !x); vagaSel = prox >= 0 ? prox : null; pintarTime(false); }
   else if (t.matches('[data-t-sugerir]')) {
     const alvo = ALVOS.find(a => a.id === tm.alvo);
     const vistos = new Set();
@@ -2666,6 +2695,7 @@ let meuAtual = null;
 function abrirMeu(i) {
   const p = COLECAO[i]; if (!p) return;
   cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = i;
+  tingirPokemon(p.n, p.s);
   const n = p.n, s = p.s, tier = tierDe(n, s), starOk = STAR_OK.includes(tier), k = `${n}${s ? 's' : ''}`;
   const pl = Object.values(PLANOS).find(x => x.n === n && x.s === s) || planoDe(k);
   const prox = pl ? proximoDe(pl) : null;
@@ -2763,6 +2793,7 @@ function coresDaArte(url) {
   });
 }
 async function aplicarPaleta() {
+  suavizar();
   const raiz = document.documentElement;
   if (PREF.paleta !== 'pokemon') { delete raiz.dataset.paleta; raiz.style.removeProperty('--tinta'); PALETA_ATUAL = null; return; }
   const p = principal(), url = ART(p.n, p.s);
@@ -2786,6 +2817,7 @@ aplicarPaleta();
 /* ============ caçada ============ */
 function abrirCacada(id) {
   const a = ALVOS.find(x => x.id === id), c = CACADA[id]; if (!a || !c) return;
+  tingirPokemon(a.n, false);
   cad = null; fichaAtual = null; planoAtual = null; itemAtual = null; timeAtual = null; meuAtual = null;
   const fortes = Object.keys(FORTE).filter(e => a.el.reduce((m, d) => m * mult(e, d), 1) > 1);
   const meus = COLECAO.map((p, i) => ({ p, i, m: matchup(p.n, a) })).filter(x => x.m.ord <= 3)
@@ -3390,31 +3422,45 @@ document.addEventListener('click', e => {
 });
 
 
-/* ============ aura do Pokémon sob o mouse ============ */
-if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const aura = document.getElementById('aura');
-  const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`; };
+/* ============ aura: a interface ganha as cores de um Pokémon ============ */
+let auraFixa = null;
+const rgbaDe = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`; };
+function pintarAura(cores) {
+  const r = document.documentElement.style, claro = document.documentElement.dataset.tema === 'claro';
+  if (!cores) { ['--aura1', '--aura2', '--aura3'].forEach(k => r.setProperty(k, 'rgba(0,0,0,0)')); return; }
+  r.setProperty('--aura1', rgbaDe(cores[0], claro ? .34 : .42));
+  r.setProperty('--aura2', rgbaDe(cores[1] || cores[0], claro ? .26 : .30));
+  r.setProperty('--aura3', rgbaDe(cores[0], claro ? .10 : .12));
+}
+function corDoElemento(el) {
+  const c = getComputedStyle(el).getPropertyValue('--c').trim(); if (!c) return null;
+  const t = document.createElement('i'); t.style.color = c; document.body.appendChild(t);
+  const rgb = getComputedStyle(t).color.match(/\d+/g); t.remove(); if (!rgb) return null;
+  const hx = '#' + rgb.slice(0, 3).map(v => (+v).toString(16).padStart(2, '0')).join(''); return [hx, hx];
+}
+async function tingir(src, fixa, el) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cores = (src && await coresDaArte(src)) || (el && corDoElemento(el));
+  if (!cores) return;
+  if (fixa) auraFixa = cores;
+  pintarAura(cores);
+}
+const tingirPokemon = (n, s) => tingir(ART(n, s), true);
+if (matchMedia('(hover: hover)').matches) {
   let atual = null, saida = null;
-  document.addEventListener('mouseover', async e => {
+  document.addEventListener('mouseover', e => {
     const card = e.target.closest('.cartao, .poke-tile, .secao-tile.vis'); if (!card) return;
     clearTimeout(saida);
     const img = card.querySelector('.arte img'); if (!img || card === atual) return;
-    atual = card;
-    let cores = await coresDaArte(img.currentSrc || img.src);
-    if (atual !== card) return;
-    if (!cores) { const c = getComputedStyle(card).getPropertyValue('--c').trim(); const tmp = document.createElement('i'); tmp.style.color = c; document.body.appendChild(tmp); const rgb = getComputedStyle(tmp).color.match(/\d+/g); tmp.remove(); if (!rgb) return; const hx = '#' + rgb.slice(0, 3).map(v => (+v).toString(16).padStart(2, '0')).join(''); cores = [hx, hx]; }
-    const tema = document.documentElement.dataset.tema === 'claro';
-    aura.style.setProperty('--aura1', rgba(cores[0], tema ? .34 : .42));
-    aura.style.setProperty('--aura2', rgba(cores[1] || cores[0], tema ? .26 : .30));
-    aura.style.setProperty('--aura3', rgba(cores[0], tema ? .10 : .12));
-    aura.classList.add('on');
+    atual = card; tingir(img.currentSrc || img.src, false, card);
   });
   document.addEventListener('mouseout', e => {
     const card = e.target.closest('.cartao, .poke-tile, .secao-tile.vis'); if (!card || card.contains(e.relatedTarget)) return;
     clearTimeout(saida);
-    saida = setTimeout(() => { atual = null; aura.classList.remove('on'); }, 180);
+    saida = setTimeout(() => { atual = null; pintarAura(auraFixa); }, 180);
   });
 }
+pintarAura(null);
 
 /* ============ roteador ============ */
 let baseAtual = null;
@@ -3534,6 +3580,7 @@ function desenhar(h) {
   if (porta === 'buscar') { const q = $('#q'); buscar(q.value); q.addEventListener('input', e => buscar(e.target.value)); }
   prepararTrilhos(tela); document.fonts?.ready.then(() => prepararTrilhos(tela));
   iniciarCarrossel();
+  revelar(tela, ':scope > section, :scope > .conteudo > *, .fileira > .fileira-cab, .trilho > *, .grade > *, .lista > *, .bloco > *', 18);
 }
 
 /* ============ eventos ============ */
@@ -3550,7 +3597,7 @@ document.addEventListener('click', e => {
   if (t.matches('[data-escolher-tema]')) {
     const v = t.dataset.escolherTema;
     try { v === 'sistema' ? localStorage.removeItem('pka-tema') : localStorage.setItem('pka-tema', v); } catch (err) {}
-    window.__setTema(v === 'sistema' ? null : v);
+    suavizar(); window.__setTema(v === 'sistema' ? null : v);
     desenhar(baseAtual); return;
   }
   if (t.id === 'exportar') { toast('Arquivo gerado — em produção, baixa o JSON'); return; }
