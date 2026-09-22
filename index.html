@@ -15,7 +15,7 @@
     window.__temaSalvo = () => salvo; window.__setTema = v => { salvo = v; aplica(); };
   })();
 </script>
-<link rel="stylesheet" href="estilo.css?v=1790016377">
+<link rel="stylesheet" href="estilo.css?v=1790098799">
 <style>
   [hidden] { display: none !important; }
   /* ---------- casca do app ---------- */
@@ -566,7 +566,34 @@
   .ent-pronto .pika { position: absolute; left: 50%; bottom: 4%; width: min(40vw, 190px); aspect-ratio: 1; translate: 20% 0; }
   .ent-pronto .prof-fala { position: absolute; left: 50%; top: calc(18px + env(safe-area-inset-top)); translate: 2% 0; max-width: min(46vw, 230px); border-radius: 22px 22px 22px 6px; }
   .ent-pronto .prof-fala::after { right: auto; left: -7px; rotate: 45deg; border-width: 0 0 1px 1px; }
-  @media (min-width: 900px) { .ent-pronto .ent-palco { min-height: 60dvh; } }
+  @media (min-width: 900px) {
+    .entrada .ent-pronto { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(400px, 500px); align-items: center; column-gap: 24px; }
+    .entrada .ent-pronto .ent-palco { grid-column: 1; min-height: 100dvh; height: 100dvh;
+      -webkit-mask-image: linear-gradient(90deg, #000 62%, transparent 96%); mask-image: linear-gradient(90deg, #000 62%, transparent 96%); }
+    .entrada .ent-pronto .sonia-aceno { height: 84%; bottom: 6%; translate: -58% 0; }
+    .entrada .ent-pronto .pika { bottom: 10%; width: 210px; translate: 34% 0; }
+    .entrada .ent-pronto .prof-fala { top: 12%; left: 62%; translate: 0 0; max-width: 280px; }
+    .entrada .ent-pronto .ent-texto { grid-column: 2; padding: 0 48px 0 0; max-width: none; }
+    .entrada .ent-pronto .ent-texto h1 { font-size: 54px; }
+  }
+  /* personagem no computador: Sonia grande à esquerda, formulário à direita */
+  @media (min-width: 900px) {
+    .entrada .ent-passo { max-width: 1200px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 500px); column-gap: 56px; align-content: start; padding: 0 40px 40px; }
+    .entrada .ent-passo > * { grid-column: 2; }
+    .entrada .ent-passo > .ent-barra { grid-column: 1 / -1; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 26px 0 10px; }
+    .entrada .ent-passo > .prof { grid-column: 1; grid-row: 2 / span 12; align-self: start; position: sticky; top: 24px; height: calc(100dvh - 120px); min-height: 560px; margin: 0; padding: 0; display: block; }
+    .entrada .ent-passo .prof-texto { width: min(100%, 420px); padding: 8px 0 0; }
+    .entrada .ent-passo .prof-texto h2 { font-size: 54px; margin: 0 0 22px; text-wrap: balance; }
+    .entrada .ent-passo .prof-fala { font-size: 16.5px; }
+    .entrada .ent-passo .prof-fala .f-t { font-size: 16.5px; }
+    .entrada .ent-passo .prof-corpo { right: 0; bottom: 0; width: 88%; height: 86%; -webkit-mask-image: linear-gradient(180deg, #000 82%, transparent); mask-image: linear-gradient(180deg, #000 82%, transparent); }
+    .entrada .ent-passo .prof-corpo img { width: auto; height: 112%; top: -6%; left: 50%; }
+    .entrada .ent-passo .prof::before { content: ""; position: absolute; right: 8%; bottom: 6%; width: 70%; aspect-ratio: 1; border-radius: 50%; z-index: 0; pointer-events: none;
+      background: radial-gradient(closest-side, color-mix(in oklab, var(--v-300) 34%, transparent), transparent); filter: blur(30px); }
+    .entrada .ent-passo > .campo-grupo { margin: 0 0 12px; }
+    .entrada .ent-passo > .ent-barra + .prof + .campo-grupo { margin-top: 96px; }
+    .entrada .ent-passo .barra-acao:not(#x) { grid-column: 2; position: sticky; bottom: 24px; left: auto; right: auto; transform: none; width: auto; margin-top: 12px; }
+  }
   @media (prefers-reduced-motion: reduce) { .prof-corpo img, .ent-pronto .sonia-aceno { animation: none; } .prof-fala .f-rea.pula { animation: none; } }
   .ent-passo { width: 100%; max-width: 580px; margin: 0 auto; padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
   .ent-barra { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: calc(14px + env(safe-area-inset-top)) 16px 10px; background: color-mix(in oklab, var(--bg) 55%, transparent); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); }
